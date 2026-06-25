@@ -5,15 +5,15 @@
 
 ## Pilotage
 
-- STATE.md — état du jour *(créé par `/new-project` ou `/gsd:new-project`)*
+- STATE.md — état du jour *(créé par `/se-new-project` ou `/gsd:new-project`)*
 - ROADMAP.md — jalons *(créé au cadrage)*
 - PROJECT.md — produit + décisions *(créé au cadrage)*
-- PRD.md — cahier des charges *(créé par `/new-project`)*
+- PRD.md — cahier des charges *(créé par `/se-new-project`)*
 - [CONVENTIONS.md](CONVENTIONS.md) — loi de rangement et de nommage
 
 ## Phases actives
 
-*(aucune — lance `/new-project` pour cadrer le projet)*
+*(aucune — lance `/se-new-project` pour cadrer le projet)*
 
 ## Design
 

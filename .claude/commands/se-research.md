@@ -1,8 +1,8 @@
 ---
-description: Lance une recherche approfondie sur internet via le sous-agent `researcher`. Couvre tech/archi/libs, papers académiques, recherche marketing/concurrents. Demande quick/deep au lancement, produit un fichier .planning/research/<slug>.md persistant + résumé inline tranché. Méthodologie Decompose→Plan→Search→Read→Reflect→Iterate→Synthesize→Verify (inspirée Anthropic multi-agent + hyperresearch), coverage matrix + atomic items, 4 lenses (breadth/depth/adversarial/period-pinned), required_section_headings, integrate-by-scoping vs append-as-caveat, Chain of Verification, lateral reading, structural mirror check. Usage : /research <sujet libre>. Tout l'output en français.
+description: Lance une recherche approfondie sur internet via le sous-agent `researcher`. Couvre tech/archi/libs, papers académiques, recherche marketing/concurrents. Demande quick/deep au lancement, produit un fichier .planning/research/<slug>.md persistant + résumé inline tranché. Méthodologie Decompose→Plan→Search→Read→Reflect→Iterate→Synthesize→Verify (inspirée Anthropic multi-agent + hyperresearch), coverage matrix + atomic items, 4 lenses (breadth/depth/adversarial/period-pinned), required_section_headings, integrate-by-scoping vs append-as-caveat, Chain of Verification, lateral reading, structural mirror check. Usage : /se-research <sujet libre>. Tout l'output en français.
 ---
 
-# /research — Recherche approfondie sur internet
+# /se-research — Recherche approfondie sur internet
 
 Tu lances une recherche structurée via le sous-agent `researcher`. Ta valeur ajoutée par rapport à un simple WebSearch dans le main thread : **isolation de contexte** (le rapport et les fetches restent dans le sous-agent), **méthodologie imposée** (Decompose → Plan → Search → Read → Reflect → Iterate → Synthesize → Verify), **verdict tranché scopé** et **livrable persistant** avec coverage matrix auditable.
 
@@ -17,7 +17,7 @@ Tu lances une recherche structurée via le sous-agent `researcher`. Ta valeur aj
 
 ❌ Mauvais usage :
 - Question simple qu'un WebSearch unique résout (juste fais le WebSearch)
-- Question répondable depuis le codebase (utilise Grep/Read, pas /research)
+- Question répondable depuis le codebase (utilise Grep/Read, pas /se-research)
 - Question sur un sujet qu'on a déjà recherché → vérifier `.planning/research/` AVANT
 
 ## Flux
@@ -66,9 +66,9 @@ Selon le verdict :
 ## Arguments
 
 ```
-/research <sujet libre>
-/research deep <sujet>     # force le mode deep
-/research quick <sujet>    # force le mode quick
+/se-research <sujet libre>
+/se-research deep <sujet>     # force le mode deep
+/se-research quick <sujet>    # force le mode quick
 ```
 
 Si le mode est dans l'argument, passe-le au sous-agent dans le prompt. Sinon, le sous-agent le demandera.
@@ -93,10 +93,10 @@ Pas de récap de la méthode, pas de "voici ce que j'ai fait". Le main thread re
 
 **Recherche urgente / contexte chargé** : si le main thread est déjà bien chargé en contexte, force le mode `deep` pour que le sous-agent absorbe la complexité au lieu de polluer le main thread.
 
-**Pas de fichier persistant souhaité** : si l'utilisateur dit explicitement "pas besoin de fichier, juste un avis rapide" → ne lance PAS /research. Fais un WebSearch dans le main thread, c'est suffisant.
+**Pas de fichier persistant souhaité** : si l'utilisateur dit explicitement "pas besoin de fichier, juste un avis rapide" → ne lance PAS /se-research. Fais un WebSearch dans le main thread, c'est suffisant.
 
-## Intégration avec /pilot
+## Intégration avec /se-pilot
 
-`/pilot` peut détecter qu'une question mérite une recherche profonde (décision archi, choix de lib, audit concurrent) et proposer à l'utilisateur de lancer `/research`. Dans ce cas, `/pilot` formule la question proprement puis suggère : "Je lance `/research deep <question reformulée>` ?" — l'utilisateur valide, `/pilot` invoque la commande.
+`/se-pilot` peut détecter qu'une question mérite une recherche profonde (décision archi, choix de lib, audit concurrent) et proposer à l'utilisateur de lancer `/se-research`. Dans ce cas, `/se-pilot` formule la question proprement puis suggère : "Je lance `/se-research deep <question reformulée>` ?" — l'utilisateur valide, `/se-pilot` invoque la commande.
 
-Réciproquement, après une `/research` qui produit un verdict structurant, l'utilisateur peut enchaîner avec `/pilot` pour transformer le verdict en plan d'action.
+Réciproquement, après une `/se-research` qui produit un verdict structurant, l'utilisateur peut enchaîner avec `/se-pilot` pour transformer le verdict en plan d'action.

@@ -29,7 +29,7 @@ Le principe fondateur : **ce qui DOIT arriver ne dépend pas de la mémoire de C
 │  humanizer · ui · hardcode · hygiène · monolithe (advisory)          │
 │  size-gate · slop-gate (bloquants)                                   │
 └───────────────────────────────┬──────────────────────────────────────┘
-┌─ B · COFONDATEUR (/pilot) ─────┴──────────────────────────────────────┐
+┌─ B · COFONDATEUR (/se-pilot) ─────┴──────────────────────────────────────┐
 │  Sparring, challenge, vision. Routeur mince : la plomberie est lazy.   │
 └───────────────────────────────┬──────────────────────────────────────┘
 ┌─ C · CYCLE DE PHASE (GSD enrichi) ────────────────────────────────────┐
@@ -51,9 +51,9 @@ Le principe fondateur : **ce qui DOIT arriver ne dépend pas de la mémoire de C
 
 | Tu fais… | Le système fait… |
 |---|---|
-| Tu ouvres `/pilot` | Un cofondateur qui te challenge, instantané et léger |
-| Tu démarres un projet `/new-project` | pilot → brainstorm → PRD → recherches → roadmap |
-| Tu écris un email/landing | Le hook **réclame `/humanizer`** ; le commit **refuse** le contenu AI-slop |
+| Tu ouvres `/se-pilot` | Un cofondateur qui te challenge, instantané et léger |
+| Tu démarres un projet `/se-new-project` | pilot → brainstorm → PRD → recherches → roadmap |
+| Tu écris un email/landing | Le hook **réclame `/se-humanizer`** ; le commit **refuse** le contenu AI-slop |
 | Tu touches un composant | Le hook **rappelle le design-system** et souffle les écarts |
 | Tu hardcodes une valeur | Le hook le **signale** (no magic values) |
 | Une phase se termine | **simplify + janitor** passent en gate avant le ship |
@@ -74,10 +74,10 @@ claude
 Puis, dans Claude :
 
 ```
-/new-project "mon idée de produit"
+/se-new-project "mon idée de produit"
 ```
 
-C'est tout. `/new-project` cadre le projet (pilot → brainstorm → PRD → research → roadmap), les hooks et les gates qualité sont déjà actifs.
+C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → research → roadmap), les hooks et les gates qualité sont déjà actifs.
 
 > Les hooks se chargent au démarrage de la session — lance `claude` après le clone.
 
@@ -89,7 +89,7 @@ C'est tout. `/new-project` cadre le projet (pilot → brainstorm → PRD → res
 .
 ├── CLAUDE.md          # comment ce projet est piloté (lu par Claude au démarrage)
 ├── .claude/
-│   ├── commands/      # skills : /pilot /new-project /ui /ux /research /humanizer /gate-* + dev + marketing/
+│   ├── commands/      # skills : /se-pilot /se-new-project /se-ui /se-ux /se-research /se-humanizer /gate-* + dev + marketing/
 │   │   └── pilot/     # sous-skills lazy du pilot (briefing, closure, strategic-discussion)
 │   ├── agents/        # sous-agents (gsd-*, researcher, ui-*)
 │   └── settings.json  # câblage des hooks (niveau projet)
@@ -105,7 +105,7 @@ C'est tout. `/new-project` cadre le projet (pilot → brainstorm → PRD → res
 
 | Hook | Déclencheur | Action | Bloquant |
 |------|-------------|--------|----------|
-| `humanizer-guard` | édition contenu user-facing | rappel `/humanizer` | non |
+| `humanizer-guard` | édition contenu user-facing | rappel `/se-humanizer` | non |
 | `ui-guard` | édition front | rappel design-system | non |
 | `hardcode-guard` | code source | signale valeurs/listes en dur | non |
 | `hygiene-guard` | code source | imports/console.log/code mort | non |
