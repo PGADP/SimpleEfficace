@@ -1,0 +1,31 @@
+{
+  "description": "Config locale SimpleEfficace — câble les garde-fous Strate A (advisory) pour ce projet uniquement. Le settings global n'est pas affecté.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-size-gate.cjs\"",
+            "timeout": 5,
+            "statusMessage": "se-size-gate"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-guard.cjs\"",
+            "timeout": 5,
+            "statusMessage": "se-guard"
+          }
+        ]
+      }
+    ]
+  }
+}

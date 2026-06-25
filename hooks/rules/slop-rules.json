@@ -1,0 +1,80 @@
+{
+  "_comment": "Marqueurs AI-slop FR détectables mécaniquement (sous-ensemble du skill /humanizer). Le hook SOUFFLE quand >=2 clusters sont présents (règle des clusters). Le jugement fin reste au skill /humanizer. Source unique: aussi destiné à être lu par /humanizer et le slop-gate.",
+  "clusterThreshold": 2,
+  "categories": [
+    {
+      "id": "promo",
+      "label": "Langage promotionnel / pub",
+      "patterns": [
+        "\\bvéritable(s)?\\b",
+        "\\bau c(?:œ|oe)ur de\\b",
+        "\\bniché",
+        "à couper le souffle",
+        "\\bincontournable",
+        "savoir-faire d'exception",
+        "\\bexceptionnel(le)?s?\\b",
+        "\\bincomparable"
+      ]
+    },
+    {
+      "id": "ai-vocab",
+      "label": "Vocabulaire IA haute fréquence",
+      "patterns": [
+        "\\bpivotal",
+        "\\bs'inscrit dans une dynamique",
+        "\\bredéfinit le paysage",
+        "\\bouvre une nouvelle ère",
+        "\\bmarque un tournant",
+        "\\bintemporel",
+        "\\bharmonieux"
+      ]
+    },
+    {
+      "id": "copula-avoidance",
+      "label": "Évitement de est/sont",
+      "patterns": [
+        "se présente comme",
+        "fait figure de",
+        "se révèle être",
+        "\\bconstitue\\b"
+      ]
+    },
+    {
+      "id": "weasel",
+      "label": "Attributions vagues",
+      "patterns": [
+        "Selon les experts",
+        "Des observateurs notent",
+        "Il est largement reconnu que",
+        "Les études montrent"
+      ]
+    },
+    {
+      "id": "signpost",
+      "label": "Signposting / annonces",
+      "patterns": [
+        "Plongeons ensemble dans",
+        "Décryptons ensemble",
+        "Sans plus attendre",
+        "Voici ce qu'il faut savoir"
+      ]
+    },
+    {
+      "id": "negative-parallel",
+      "label": "Parallélismes négatifs",
+      "patterns": [
+        "Ce n'est pas (?:juste|seulement) .{1,40}, c'est",
+        "Non seulement .{1,40} mais aussi"
+      ]
+    },
+    {
+      "id": "challenges-section",
+      "label": "Sections challenges/perspectives",
+      "patterns": [
+        "Malgré ces défis",
+        "Les perspectives d'avenir",
+        "Cependant, des défis subsistent"
+      ]
+    }
+  ]
+}

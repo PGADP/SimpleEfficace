@@ -1,0 +1,33 @@
+{
+  "_comment": "Patterns de valeurs/listes hardcodées. Respecte CLAUDE.md 'no hardcoded lists when generic rules exist'. Advisory only. Volontairement conservateur pour éviter le bruit.",
+  "patterns": [
+    {
+      "id": "magic-number",
+      "label": "Nombre magique (hors 0/1/-1) non extrait en const",
+      "regex": "(?<![\\w.])(?:[2-9]|[1-9]\\d+)(?:\\.\\d+)?(?![\\w.])",
+      "note": "Heuristique grossière — beaucoup de bruit possible. On ne le signale que s'il apparaît dans une comparaison ou une affectation directe, pas dans du JSX/markup. Voir guard-lib pour le raffinage."
+    },
+    {
+      "id": "absolute-path",
+      "label": "Chemin absolu en dur",
+      "regex": "[\"'](?:[A-Za-z]:\\\\|/(?:Users|home|var|tmp|opt)/)"
+    },
+    {
+      "id": "hardcoded-string-list",
+      "label": "Liste de strings en dur (catégories/noms)",
+      "regex": "=\\s*\\[\\s*(?:[\"'][^\"']+[\"']\\s*,\\s*){3,}"
+    },
+    {
+      "id": "localhost-url",
+      "label": "URL localhost / port en dur",
+      "regex": "https?://(?:localhost|127\\.0\\.0\\.1)(?::\\d+)?"
+    }
+  ],
+  "excludeFilePatterns": [
+    "\\.test\\.",
+    "\\.spec\\.",
+    "\\.config\\.",
+    "constants?\\.(ts|js)",
+    "\\.d\\.ts$"
+  ]
+}

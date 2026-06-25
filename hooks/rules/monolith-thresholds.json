@@ -1,0 +1,6 @@
+{
+  "_comment": "Seuils anti-monolithe. ADVISORY uniquement (décision Paul) — souffle, ne bloque jamais. Cohérent avec CLAUDE.md 'no over-engineered solutions' et le découplage.",
+  "fileLines": 400,
+  "functionLines": 60,
+  "maxExports": 12
+}

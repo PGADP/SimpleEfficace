@@ -1,0 +1,144 @@
+{
+  "_comment": "Critères UI externalisés (6 piliers GSD + format ui-ux-pro-max). SOURCE UNIQUE lue par gsd-ui-checker, gsd-ui-auditor, gsd-ui-researcher ET le hook ui-guard. Severity → BLOCK (refus) / FLAG (note) / PASS. Règle DOWNGRADE: exception documentée avec raison standard rétrograde BLOCK→FLAG, SAUF copywriting et registry-safety (non négociables).",
+  "downgradeableDimensions": ["typography", "spacing", "color"],
+  "rules": [
+    {
+      "slug": "cta-specific",
+      "pillar": "copywriting",
+      "severity": "BLOCK",
+      "norm": "CTA = verbe + nom spécifique",
+      "do": "« Créer un compte », « Envoyer le message »",
+      "dont": "« Submit », « OK », « Cliquez ici », « Valider », « Enregistrer »",
+      "codeGood": "<Button>Créer un compte</Button>",
+      "codeBad": "<Button>Submit</Button>"
+    },
+    {
+      "slug": "empty-state-copy",
+      "pillar": "copywriting",
+      "severity": "BLOCK",
+      "norm": "État vide = message + chemin de solution",
+      "do": "« Aucun projet pour l'instant. Créez-en un. » + bouton",
+      "dont": "« Aucune donnée », « No results », « Rien ici »"
+    },
+    {
+      "slug": "error-state-path",
+      "pillar": "copywriting",
+      "severity": "BLOCK",
+      "norm": "État d'erreur = cause + solution, pas un message générique",
+      "do": "« Connexion perdue. Réessayez dans quelques secondes. »",
+      "dont": "« Une erreur est survenue », « Something went wrong »"
+    },
+    {
+      "slug": "cta-verb-noun",
+      "pillar": "copywriting",
+      "severity": "FLAG",
+      "norm": "CTA avec nom, pas juste un verbe seul",
+      "do": "« Créer un projet »",
+      "dont": "« Créer »"
+    },
+    {
+      "slug": "focal-point",
+      "pillar": "visuals",
+      "severity": "FLAG",
+      "norm": "Focal point déclaré pour l'écran principal",
+      "do": "Déclarer l'élément qui accroche l'œil en premier",
+      "dont": "Laisser l'executor deviner la priorité visuelle"
+    },
+    {
+      "slug": "icon-label-fallback",
+      "pillar": "visuals",
+      "severity": "FLAG",
+      "norm": "Action icône-seule = label accessible (aria-label/texte)",
+      "do": "<button aria-label=\"Supprimer\"><TrashIcon/></button>",
+      "dont": "<button><TrashIcon/></button>"
+    },
+    {
+      "slug": "accent-reserved",
+      "pillar": "color",
+      "severity": "BLOCK",
+      "norm": "Accent réservé à une liste explicite et courte",
+      "do": "Accent = CTA primaire + onglet actif + focus ring",
+      "dont": "Accent pour « tous les éléments interactifs »",
+      "codeGood": "/* accent: primary CTA, active tab, focus ring */",
+      "codeBad": "/* accent: all interactive elements */"
+    },
+    {
+      "slug": "color-60-30-10",
+      "pillar": "color",
+      "severity": "FLAG",
+      "norm": "Répartition 60/30/10 déclarée",
+      "do": "Dominant 60% / secondaire 30% / accent 10%",
+      "dont": "Pas de répartition explicite"
+    },
+    {
+      "slug": "contrast-wcag-aa",
+      "pillar": "color",
+      "severity": "BLOCK",
+      "norm": "Contraste texte ≥ 4.5:1 (corps), ≥ 3:1 (large ≥18px ou bold ≥14px) — WCAG AA",
+      "do": "Corps proche de l'ink sur fond clair",
+      "dont": "Gris clair « pour l'élégance » sur fond teinté (illisible)"
+    },
+    {
+      "slug": "type-max-4-sizes",
+      "pillar": "typography",
+      "severity": "BLOCK",
+      "norm": "≤ 4 tailles de police",
+      "do": "14 / 16 / 20 / 28px",
+      "dont": "14, 15, 16, 18, 20, 24, 28px"
+    },
+    {
+      "slug": "type-max-2-weights",
+      "pillar": "typography",
+      "severity": "BLOCK",
+      "norm": "≤ 2 poids de police"
+    },
+    {
+      "slug": "type-line-height-body",
+      "pillar": "typography",
+      "severity": "FLAG",
+      "norm": "Line-height déclaré pour le corps (~1.6)"
+    },
+    {
+      "slug": "type-scale-distinct",
+      "pillar": "typography",
+      "severity": "FLAG",
+      "norm": "Tailles dans une échelle hiérarchique nette (pas 14/15/16 trop proches)"
+    },
+    {
+      "slug": "spacing-multiple-of-4",
+      "pillar": "spacing",
+      "severity": "BLOCK",
+      "norm": "Toute valeur d'espacement multiple de 4",
+      "do": "padding: 16px, gap: 8px",
+      "dont": "padding: 10px, gap: 7px",
+      "codeGood": "p-4 gap-2",
+      "codeBad": "p-[10px] gap-[7px]"
+    },
+    {
+      "slug": "spacing-standard-set",
+      "pillar": "spacing",
+      "severity": "BLOCK",
+      "norm": "Valeurs dans l'échelle standard 4/8/16/24/32/48/64"
+    },
+    {
+      "slug": "spacing-touch-target",
+      "pillar": "spacing",
+      "severity": "FLAG",
+      "norm": "Touch target ≥ 44px (exception légitime au multiple de 4 — WCAG 2.5.5 / Apple HIG)"
+    },
+    {
+      "slug": "registry-safety-gate",
+      "pillar": "registry-safety",
+      "severity": "BLOCK",
+      "norm": "Registre tiers = Safety Gate 'view passed' ou 'developer-approved after view'",
+      "do": "shadcn officiel, ou tiers vérifié avec date",
+      "dont": "Registre tiers déclaré sans vetting réel (intent only)"
+    },
+    {
+      "slug": "registry-design-system",
+      "pillar": "registry-safety",
+      "severity": "FLAG",
+      "norm": "shadcn initialisé OU design system manuel déclaré"
+    }
+  ]
+}

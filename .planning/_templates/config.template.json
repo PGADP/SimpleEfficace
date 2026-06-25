@@ -1,0 +1,40 @@
+{
+  "_comment": "TEMPLATE config GSD pour les projets SIMPLE & EFFICACE. À copier en .planning/config.json au démarrage (ou via /init). Active les toggles du système (gates qualité, TDD). Les clés workflow.* non standard GSD (simplify_gate, janitor_gate) sont lues par le step simplify_janitor_gate de execute-phase.md (rapatrié + modifié).",
+  "mode": "interactive",
+  "granularity": "standard",
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "nyquist_validation": true,
+    "code_review": true,
+    "auto_advance": false,
+
+    "tdd_mode": true,
+    "simplify_gate": true,
+    "janitor_gate": true,
+    "visual_checkpoint": true
+  },
+  "parallelization": {
+    "enabled": true,
+    "plan_level": true,
+    "task_level": false,
+    "max_concurrent_agents": 3,
+    "min_plans_for_parallel": 2
+  },
+  "gates": {
+    "confirm_project": true,
+    "confirm_phases": true,
+    "confirm_roadmap": true,
+    "confirm_breakdown": true,
+    "confirm_plan": true,
+    "confirm_transition": true
+  },
+  "safety": {
+    "always_confirm_destructive": true,
+    "always_confirm_external_services": true
+  },
+  "hooks": {
+    "context_warnings": true
+  }
+}

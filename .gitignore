@@ -1,0 +1,26 @@
+# Secrets — ne JAMAIS commiter
+**/config.local.json
+**/settings.local.json
+**/.env
+**/.env.*
+**/mcp.json
+**/credentials*
+
+# Runtime / état local (généré par projet, pas par le système)
+.planning/_playwright-results.json
+.planning/_screenshots/
+.planning/ARCHIVE.log
+**/*.lock
+**/scheduled_tasks.lock
+
+# Atelier de cherry-picking (supprimé après build, ne doit pas revenir)
+_sources/
+
+# OS / éditeur
+.DS_Store
+Thumbs.db
+*.swp
+node_modules/
+
+# Captures de checkpoint (générées par projet)
+**/screenshots/
