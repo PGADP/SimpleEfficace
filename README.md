@@ -61,20 +61,28 @@ Le principe fondateur : **ce qui DOIT arriver ne dépend pas de la mémoire de C
 
 ---
 
-## Démarrage rapide
+## Installation (niveau projet, jamais global)
+
+Le repo **est** déjà la structure d'un projet Claude Code. Tu le clones comme base de ton projet et tout est actif immédiatement — uniquement dans ce projet.
 
 ```bash
-# 1. Cloner
-git clone https://github.com/PGADP/simple-efficace.git
+# 1. Cloner comme base de ton projet
+git clone https://github.com/PGADP/SimpleEfficace.git mon-projet
+cd mon-projet
 
-# 2. Déployer vers ta config Claude Code
-#    (copier commands/ agents/ hooks/ get-shit-done/ vers ~/.claude/)
+# 2. (optionnel) Activer les gates qualité du cycle
+cp .planning/_templates/config.template.json .planning/config.json
 
-# 3. Activer les garde-fous (settings.json) — voir .claude/settings.json pour le câblage
+# 3. Lancer Claude Code → skills, agents et hooks se chargent au démarrage
+claude
 
-# 4. Démarrer un projet
+# 4. Démarrer
 /init "mon idée de produit"
 ```
+
+> Les hooks se chargent **au démarrage de la session** : lance `claude` après le clone. Le système n'affecte **que ce projet** — ta config globale `~/.claude/` n'est jamais touchée.
+
+Pour ajouter le système à un projet **existant** : copie les dossiers `.claude/`, `hooks/`, `get-shit-done/`, `.planning/` dans ton projet.
 
 ---
 
@@ -82,12 +90,14 @@ git clone https://github.com/PGADP/simple-efficace.git
 
 ```
 .
-├── commands/          # skills : /pilot /init /ux /research /humanizer /gate-* + dev + marketing/
-│   └── pilot/         # sous-skills lazy du pilot (briefing, closure, strategic-discussion)
-├── agents/            # sous-agents (gsd-*, researcher, ui-*)
+├── .claude/
+│   ├── commands/      # skills : /pilot /init /ui /ux /research /humanizer /gate-* + dev + marketing/
+│   │   └── pilot/     # sous-skills lazy du pilot (briefing, closure, strategic-discussion)
+│   ├── agents/        # sous-agents (gsd-*, researcher, ui-*)
+│   └── settings.json  # câblage des hooks (niveau projet)
 ├── hooks/             # garde-fous .cjs + rules/ (slop, hardcode, monolithe) — source unique
 ├── get-shit-done/     # moteur GSD (workflows, references, templates) — cycle enrichi
-├── .planning/         # design-system, personas, ui-rules, conventions, INDEX
+├── .planning/         # design-system, personas, ui-rules, conventions, INDEX, templates
 ├── SYSTEME.md         # conception complète (les 5 strates)
 └── PLAN-CONSTRUCTION.md  # plan de cherry-picking + état d'avancement
 ```
