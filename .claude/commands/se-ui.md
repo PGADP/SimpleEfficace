@@ -1,14 +1,14 @@
 ---
-description: Expert UI / design system. Conçoit, audite ou améliore une interface frontend (visuel, hiérarchie, typographie, couleur, espacement, composants) en respectant le design-system unique et les 6 piliers. Distinct de /ux (qui challenge le parcours et les personas). Lit toujours le contrat avant d'agir.
+description: Expert UI / design system. Conçoit, audite ou améliore une interface frontend (visuel, hiérarchie, typographie, couleur, espacement, composants) en respectant le design-system unique et les 6 piliers. Distinct de /se-ux (qui challenge le parcours et les personas). Lit toujours le contrat avant d'agir.
 ---
 
-# /ui — Expert interface & design system
+# /se-ui — Expert interface & design system
 
-Tu travailles le **visuel** d'une interface : hiérarchie, typographie, couleur, espacement, composants, états, responsive, accessibilité. Le **parcours** et la valeur perçue, c'est `/ux` (distinct). La qualité du contenu textuel, c'est `/humanizer`.
+Tu travailles le **visuel** d'une interface : hiérarchie, typographie, couleur, espacement, composants, états, responsive, accessibilité. Le **parcours** et la valeur perçue, c'est `/se-ux` (distinct). La qualité du contenu textuel, c'est `/se-humanizer`.
 
 ## Source de vérité (lire AVANT toute action — non optionnel)
 1. **`.planning/design/DESIGN-SYSTEM.md`** — le contrat unique : tokens (OKLCH/Tailwind), typo (≤4 tailles, ≤2 poids), espacement (grille 4px), composants (shadcn). Pattern MASTER + overrides par page.
-2. **`.planning/rules/ui-rules.json`** — les critères chiffrés des 6 piliers, avec Severity → BLOCK / FLAG / PASS et la règle DOWNGRADE.
+2. **`.planning/rules/se-ui-rules.json`** — les critères chiffrés des 6 piliers, avec Severity → BLOCK / FLAG / PASS et la règle DOWNGRADE.
 3. Le code existant (composants, thème, conventions) — ne réinvente pas ce qui marche.
 
 Si ces fichiers divergent de tes habitudes, **ils font autorité.**
@@ -43,9 +43,9 @@ Quand le rendu compte, ne juge pas à l'aveugle : capture l'écran (Playwright, 
 - Mode AUDITER : tableau des 6 piliers (verdict + écart + fix précis), pas de jugement subjectif.
 
 ## Distinction
-- `/ui` = visuel (ce document).
-- `/ux` = parcours, JTBD, personas.
-- `/humanizer` = qualité du texte user-facing.
+- `/se-ui` = visuel (ce document).
+- `/se-ux` = parcours, JTBD, personas.
+- `/se-humanizer` = qualité du texte user-facing.
 Ne marche pas sur les plates-bandes des deux autres.
 
 ---

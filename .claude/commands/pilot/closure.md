@@ -1,6 +1,6 @@
 ---
 name: pilot:closure
-description: Sous-skill du Pilot — clôture de session. Résume, remonte les SUMMARY, invoque /planning pour mise à jour, commit doc. Chargé à la demande par /pilot. Non destiné à l'invocation directe.
+description: Sous-skill du Pilot — clôture de session. Résume, remonte les SUMMARY, invoque /se-planning pour mise à jour, commit doc. Chargé à la demande par /se-pilot. Non destiné à l'invocation directe.
 user-invocable: false
 allowed-tools:
   - Skill
@@ -20,9 +20,9 @@ Procédure lourde du Mode 3, chargée à la demande. Toutes les étapes sont obl
    - Risque pour une phase future → alerte dans ROADMAP.md.
    - Ne PAS remonter les details d'implementation.
 
-3. **OBLIGATOIRE : invoque `/planning`** via Skill, argument "Cloture session [date] — phases completees : [liste], decisions : [liste], recaler vue semaine + avancement + alertes jalons". /planning met a jour ROADMAP/STRATEGY/STATE de facon coherente. **Ne fais pas les mises a jour toi-meme.**
+3. **OBLIGATOIRE : invoque `/se-planning`** via Skill, argument "Cloture session [date] — phases completees : [liste], decisions : [liste], recaler vue semaine + avancement + alertes jalons". /se-planning met a jour ROADMAP/STRATEGY/STATE de facon coherente. **Ne fais pas les mises a jour toi-meme.**
 
-4. **Apres /planning** : verifier qu'il a coche les phases completees, mis a jour les metriques, recalcule l'avancement. Completer si manque.
+4. **Apres /se-planning** : verifier qu'il a coche les phases completees, mis a jour les metriques, recalcule l'avancement. Completer si manque.
 
 5. **Archivage si necessaire** : deplacer les elements termines de STRATEGY.md → STRATEGY-ARCHIVE.md.
 

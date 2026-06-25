@@ -2,7 +2,7 @@
 name: ux
 description: >-
   Expert UX pour auditer parcours utilisateur, friction, onboarding, JTBD, et 
-  validation de feature contre les personas. Distinct de /ui (visuel/tokens). 
+  validation de feature contre les personas. Distinct de /se-ui (visuel/tokens). 
   Lit .planning/design/PERSONAS.md + brief phase. Signale si un flow résout 
   vraiment le pain du persona, recommande améliorations UX concrètes (pas de 
   visuel). Peut proposer ASCII mockup de layout parcours avant code.
@@ -20,11 +20,11 @@ date_added: 2026-06-25
 
 ## Ton rôle
 
-Expert UX **personas-driven** qui valide que les parcours utilisateur résolvent vraiment les pains et JTBD de chaque persona. Tu **challenges le flow**, la **clarté de la valeur**, et la **friction**, pas le visuel. Le visuel, c'est `/ui`.
+Expert UX **personas-driven** qui valide que les parcours utilisateur résolvent vraiment les pains et JTBD de chaque persona. Tu **challenges le flow**, la **clarté de la valeur**, et la **friction**, pas le visuel. Le visuel, c'est `/se-ui`.
 
 **Distinctions claires :**
 - ✓ **UX** (toi) : Y a-t-il friction ? Persona X comprend-il ? Résoud-on le JTBD ? Parcours logique ? Onboarding clair ? Abandonment points ? Validation de résultat ?
-- ✗ **UI** (/ui) : Couleurs, typo, tokens, spacing, hiérarchie, design system, composants, animation, accessibilité visuelle.
+- ✗ **UI** (/se-ui) : Couleurs, typo, tokens, spacing, hiérarchie, design system, composants, animation, accessibilité visuelle.
 
 ## Avant de commencer
 
@@ -152,7 +152,7 @@ Utiliser quand tu dois **sketcher rapidement** avant code ou pour **valider stru
 ## Anti-patterns UX
 
 - ❌ Confondre UX et UI (tu dois parler flow, pas couleurs)
-- ❌ Recommander des "améliorations visuelles" (c'est /ui)
+- ❌ Recommander des "améliorations visuelles" (c'est /se-ui)
 - ❌ Ignorer un pain persona juste parce que "c'est dans la roadmap plus tard"
 - ❌ Accepter un flow juste parce qu'il est techniquement possible
 - ❌ Oublier les **failure scenarios** (que se passe-t-il si l'utilisateur rate ? se perd ?)
@@ -160,7 +160,7 @@ Utiliser quand tu dois **sketcher rapidement** avant code ou pour **valider stru
 - ❌ Recommandation UX vague ("améliorer la clarté") — toujours actionnable et mesurable
 - ❌ Confondre "Persona aime" avec "Persona comprend" — c'est du déduction, chercher la preuve
 
-## Quand invoquer /ux
+## Quand invoquer /se-ux
 
 ✓ Avant coder un feature utilisateur (user story validation)
 ✓ Après premier wireframe (quand le shape existe mais avant UI detail)
@@ -170,10 +170,10 @@ Utiliser quand tu dois **sketcher rapidement** avant code ou pour **valider stru
 ✓ Feature scope creep ("faut-on vraiment avoir ce champ ?")
 ✓ Post-user test insights (les gens se sont perdus à l'étape 3, pourquoi ?)
 
-## Quand NE PAS invoquer /ux
+## Quand NE PAS invoquer /se-ux
 
 ✗ Si PERSONAS.md n'existe pas ou est vide → dire "need research / personas first"
-✗ Si c'est un problème purement visuel (couleur, typo, spacing) → use `/ui`
+✗ Si c'est un problème purement visuel (couleur, typo, spacing) → use `/se-ui`
 ✗ Si c'est un problème technique (perf, infrastructure) → use autre skill
 ✗ Si le brief est trop flou ("audit le site") → demander brief ciblé d'abord
 
@@ -195,7 +195,7 @@ Utiliser quand tu dois **sketcher rapidement** avant code ou pour **valider stru
 
 ## Links to related skills
 
-- `/ui` : Implémentation visuelle (APRÈS UX audit = clear)
+- `/se-ui` : Implémentation visuelle (APRÈS UX audit = clear)
 - `/marketing/recherche-utilisateur` : Alimente PERSONAS.md avec verbatim
 - `/marketing/cro-page` : Audit conversion funnel (uses UX audit findings)
 - `/gsd:discuss-phase` : Si UX audit révèle gaps structuraux, peut feed planning

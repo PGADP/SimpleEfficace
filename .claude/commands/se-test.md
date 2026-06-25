@@ -100,9 +100,9 @@ Coverage : 85%
 
 ## Ce que tu ne fais PAS
 
-- Modifier le code source (c'est `/dev` ou `/fix`)
-- Review du code (c'est `/review`)
-- Commit (c'est `/clean-commit`)
+- Modifier le code source (c'est `/se-dev` ou `/se-fix`)
+- Review du code (c'est `/se-review`)
+- Commit (c'est `/se-clean-commit`)
 
 ---
 **Code à tester** : $ARGUMENTS

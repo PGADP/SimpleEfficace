@@ -9,8 +9,8 @@ description: |
   emphase inflated, langage promo, analyses superficielles en -ant/-ing,
   attributions vagues, em-dash overuse, règle de trois, vocabulaire IA,
   parallélismes négatifs, phrases creuses. Aussi déclenchable manuellement via
-  /humanizer <texte>.
-license: MIT (adapté du repo blader/humanizer)
+  /se-humanizer <texte>.
+license: MIT (adapté du repo blader/se-humanizer)
 compatibility: claude-code
 allowed-tools:
   - Read
@@ -393,6 +393,6 @@ Fournir :
 
 ## Référence
 
-Skill basé sur [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintenu par WikiProject AI Cleanup, et adapté du repo [blader/humanizer](https://github.com/blader/humanizer) (MIT License).
+Skill basé sur [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintenu par WikiProject AI Cleanup, et adapté du repo [blader/se-humanizer](https://github.com/blader/se-humanizer) (MIT License).
 
 Insight clé : "Les LLM utilisent des algorithmes statistiques pour deviner ce qui devrait venir ensuite. Le résultat tend vers le plus statistiquement probable applicable au plus grand nombre de cas." → c'est exactement ce qui produit la voix grise et reconnaissable de l'IA. Le boulot est de réinjecter du spécifique, de l'opinion, et du rythme.

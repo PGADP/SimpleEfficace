@@ -4,12 +4,12 @@ description: Gate JANITOR du cycle de phase. Détecte et supprime le code mort (
 
 # Gate JANITOR — nettoyage avant ship
 
-Tu es la gate de nettoyage du cycle. Tu supprimes ce qui est **mort**, tu ne réorganises pas ce qui est vivant (ça, c'est SIMPLIFY/refactor).
+Tu es la gate de nettoyage du cycle. Tu supprimes ce qui est **mort**, tu ne réorganises pas ce qui est vivant (ça, c'est SIMPLIFY/se-refactor).
 
 Pattern : **deux assesseurs isolés puis croisés**, comme la gate SIMPLIFY. Le code mort qui n'est pas vraiment mort (import dynamique, usage par réflexion) est le piège n°1 → la catégorie SUSPECT ne se supprime jamais sans confirmation.
 
 ## Étape 1 — Assesseur déterministe (B)
-Scan des fichiers modifiés + impact (réutilise la logique de /janitor) :
+Scan des fichiers modifiés + impact (réutilise la logique de /se-janitor) :
 - imports/exports morts,
 - fichiers orphelins (0 référence hors d'eux-mêmes),
 - deps npm déclarées mais jamais importées,
@@ -37,7 +37,7 @@ DEAD (suppression sûre) : {n}   VIOLATION : {m}   SUSPECT (à valider) : {k}
 
 → Supprimer DEAD + corriger VIOLATION ? [GO / NO-GO]
 ```
-Si GO → supprimer DEAD, migrer VIOLATION, en **commits séparés par catégorie** (cf. /janitor), puis `npm run build && npm run type-check`. Consigner dans `{phase}/CHECKPOINTS.md`.
+Si GO → supprimer DEAD, migrer VIOLATION, en **commits séparés par catégorie** (cf. /se-janitor), puis `npm run build && npm run type-check`. Consigner dans `{phase}/CHECKPOINTS.md`.
 
 ## Règles
 - Supprime le mort, ne refactore pas le vivant.

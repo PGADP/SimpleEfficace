@@ -305,10 +305,10 @@ Use AskUserQuestion:
 
 Run the brainstorm-heavy skill inline with the project subject extracted from questioning:
 
-1. Execute `/brainstorm-heavy [project subject from questioning]`
+1. Execute `/se-brainstorm-heavy [project subject from questioning]`
 2. The session runs its full interactive flow (techniques, facilitation, prioritization)
 3. At the GSD integration step (Phase 5.3 of brainstorm-heavy), **automatically select [S] Skip** — do NOT create phases/roadmap yet (the project isn't initialized yet)
-4. The brainstorming document is saved to `.planning/brainstorming/brainstorm-heavy-{slug}-{date}.md`
+4. The brainstorming document is saved to `.planning/brainstorming/se-brainstorm-heavy-{slug}-{date}.md`
 5. After brainstorming completes, read the output document and extract:
    - **Top prioritized ideas** → inject into PROJECT.md vision and requirements hypotheses
    - **Identified themes** → inform feature categories for Step 7 (Requirements)
@@ -323,17 +323,17 @@ Run the brainstorm-heavy skill inline with the project subject extracted from qu
 [N] idées générées | [N] thèmes identifiés | [N] idées priorisées
 
 Les résultats alimenteront PROJECT.md et les requirements.
-Document : .planning/brainstorming/brainstorm-heavy-{slug}-{date}.md
+Document : .planning/brainstorming/se-brainstorm-heavy-{slug}-{date}.md
 ```
 
 **If "Brainstorm Light":**
 
-Same flow but with `/brainstorm-light [project subject]`:
+Same flow but with `/se-brainstorm-light [project subject]`:
 
-1. Execute `/brainstorm-light [project subject from questioning]`
+1. Execute `/se-brainstorm-light [project subject from questioning]`
 2. The session runs its focused flow (auto-selected techniques, rapid ideation)
 3. At the GSD integration step (Phase 5.2 of brainstorm-light), **automatically select [S] Skip**
-4. Document saved to `.planning/brainstorming/brainstorm-light-{slug}-{date}.md`
+4. Document saved to `.planning/brainstorming/se-brainstorm-light-{slug}-{date}.md`
 5. Extract top ideas, themes, and insights — same as heavy
 6. Display same transition banner with results
 
@@ -669,7 +669,7 @@ Researching [domain] ecosystem...
 Create research directory:
 
 ```bash
-mkdir -p .planning/research
+mkdir -p .planning/se-research
 ```
 
 **Determine milestone context:**
@@ -727,8 +727,8 @@ Your STACK.md feeds into roadmap creation. Be prescriptive:
 </quality_gate>
 
 <output>
-Write to: .planning/research/STACK.md
-Use template: $HOME/.claude/get-shit-done/templates/research-project/STACK.md
+Write to: .planning/se-research/STACK.md
+Use template: $HOME/.claude/get-shit-done/templates/se-research-project/STACK.md
 </output>
 ", subagent_type="gsd-project-researcher", model="{researcher_model}", description="Stack research")
 
@@ -767,8 +767,8 @@ Your FEATURES.md feeds into requirements definition. Categorize clearly:
 </quality_gate>
 
 <output>
-Write to: .planning/research/FEATURES.md
-Use template: $HOME/.claude/get-shit-done/templates/research-project/FEATURES.md
+Write to: .planning/se-research/FEATURES.md
+Use template: $HOME/.claude/get-shit-done/templates/se-research-project/FEATURES.md
 </output>
 ", subagent_type="gsd-project-researcher", model="{researcher_model}", description="Features research")
 
@@ -807,8 +807,8 @@ Your ARCHITECTURE.md informs phase structure in roadmap. Include:
 </quality_gate>
 
 <output>
-Write to: .planning/research/ARCHITECTURE.md
-Use template: $HOME/.claude/get-shit-done/templates/research-project/ARCHITECTURE.md
+Write to: .planning/se-research/ARCHITECTURE.md
+Use template: $HOME/.claude/get-shit-done/templates/se-research-project/ARCHITECTURE.md
 </output>
 ", subagent_type="gsd-project-researcher", model="{researcher_model}", description="Architecture research")
 
@@ -834,7 +834,7 @@ What do [domain] projects commonly get wrong? Critical mistakes?
 ${AGENT_SKILLS_RESEARCHER}
 
 <downstream_consumer>
-Your PITFALLS.md prevents mistakes in roadmap/planning. For each pitfall:
+Your PITFALLS.md prevents mistakes in roadmap/se-planning. For each pitfall:
 - Warning signs (how to detect early)
 - Prevention strategy (how to avoid)
 - Which phase should address it
@@ -847,8 +847,8 @@ Your PITFALLS.md prevents mistakes in roadmap/planning. For each pitfall:
 </quality_gate>
 
 <output>
-Write to: .planning/research/PITFALLS.md
-Use template: $HOME/.claude/get-shit-done/templates/research-project/PITFALLS.md
+Write to: .planning/se-research/PITFALLS.md
+Use template: $HOME/.claude/get-shit-done/templates/se-research-project/PITFALLS.md
 </output>
 ", subagent_type="gsd-project-researcher", model="{researcher_model}", description="Pitfalls research")
 ```
@@ -862,17 +862,17 @@ Synthesize research outputs into SUMMARY.md.
 </task>
 
 <files_to_read>
-- .planning/research/STACK.md
-- .planning/research/FEATURES.md
-- .planning/research/ARCHITECTURE.md
-- .planning/research/PITFALLS.md
+- .planning/se-research/STACK.md
+- .planning/se-research/FEATURES.md
+- .planning/se-research/ARCHITECTURE.md
+- .planning/se-research/PITFALLS.md
 </files_to_read>
 
 ${AGENT_SKILLS_SYNTHESIZER}
 
 <output>
-Write to: .planning/research/SUMMARY.md
-Use template: $HOME/.claude/get-shit-done/templates/research-project/SUMMARY.md
+Write to: .planning/se-research/SUMMARY.md
+Use template: $HOME/.claude/get-shit-done/templates/se-research-project/SUMMARY.md
 Commit after writing.
 </output>
 ", subagent_type="gsd-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
@@ -891,7 +891,7 @@ Display research complete banner and key findings:
 **Table Stakes:** [from SUMMARY.md]
 **Watch Out For:** [from SUMMARY.md]
 
-Files: `.planning/research/`
+Files: `.planning/se-research/`
 ```
 
 **If "Skip research":** Continue to Step 7.
@@ -1071,7 +1071,7 @@ Task(prompt="
 <files_to_read>
 - .planning/PROJECT.md (Project context)
 - .planning/REQUIREMENTS.md (v1 Requirements)
-- .planning/research/SUMMARY.md (Research findings - if exists)
+- .planning/se-research/SUMMARY.md (Research findings - if exists)
 - .planning/config.json (Granularity and mode settings)
 </files_to_read>
 
@@ -1213,7 +1213,7 @@ Present completion summary:
 |----------------|-----------------------------|
 | Project        | `.planning/PROJECT.md`      |
 | Config         | `.planning/config.json`     |
-| Research       | `.planning/research/`       |
+| Research       | `.planning/se-research/`       |
 | Requirements   | `.planning/REQUIREMENTS.md` |
 | Roadmap        | `.planning/ROADMAP.md`      |
 | Project guide  | `CLAUDE.md`                 |
@@ -1290,7 +1290,7 @@ PHASE1_HAS_UI=$(echo "$PHASE1_SECTION" | grep -qi "UI hint.*yes" && echo "true" 
 - `.planning/PROJECT.md`
 - `.planning/config.json`
 - `.planning/brainstorming/` (if brainstorming performed)
-- `.planning/research/` (if research selected)
+- `.planning/se-research/` (if research selected)
   - `STACK.md`
   - `FEATURES.md`
   - `ARCHITECTURE.md`

@@ -97,8 +97,8 @@ Utilise `Bash` pour exécuter.
 
 ## Ce que tu ne fais PAS
 
-- Refactoring (c'est `/refactor`)
-- Ajouter des features (c'est `/dev`)
+- Refactoring (c'est `/se-refactor`)
+- Ajouter des features (c'est `/se-dev`)
 - Deviner sans preuves
 
 ---

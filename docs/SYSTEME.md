@@ -49,7 +49,7 @@
 │  Code que le harness exécute, pas Claude. Ne peut être ni oublié    │
 │  ni contourné.                                                       │
 │  • ui-guard       → édition front sans design-system/UI-spec : rappel│
-│  • humanizer-guard→ contenu user-facing : EXIGE /humanizer           │
+│  • humanizer-guard→ contenu user-facing : EXIGE /se-humanizer           │
 │  • hygiene-guard  → après Edit : souffle code mort / imports / log   │
 │  • hardcode-guard → après Edit : détecte valeurs hardcodées          │
 │  • slop-gate      → au commit : BLOQUE si marqueurs AI non traités   │
@@ -57,7 +57,7 @@
 │  • archive-hook   → phase shippée : déplace en _archive/ auto        │
 └──────────────────────────────────┬───────────────────────────────────┘
                                    │ garantissent en continu
-┌─ STRATE B — LE COFONDATEUR (/pilot, RICHE) ─────────────────────────┐
+┌─ STRATE B — LE COFONDATEUR (/se-pilot, RICHE) ─────────────────────────┐
 │  Sparring, challenge, vision, "teste tes idées". INTACT.            │
 │  Routeur mince à l'intérieur : modes lourds = sous-skills lazy.     │
 └──────────────────────────────────┬───────────────────────────────────┘
@@ -90,7 +90,7 @@ Un hook = script déclaré dans `settings.json`, lancé par le harness sur un é
 
 | Hook | Événement | Déclencheur | Action | Bloquant ? |
 |------|-----------|-------------|--------|------------|
-| **humanizer-guard** | `PostToolUse` Edit/Write | fichier user-facing (heuristique chemin + contenu FR) | system-reminder : « passe /humanizer avant de finir » | non (rappel) |
+| **humanizer-guard** | `PostToolUse` Edit/Write | fichier user-facing (heuristique chemin + contenu FR) | system-reminder : « passe /se-humanizer avant de finir » | non (rappel) |
 | **slop-gate** | au commit (clean-commit) | contenu user-facing avec marqueurs `slop-rules` | refuse le commit | **oui** |
 | **ui-guard** | `PostToolUse` Edit/Write | `.tsx`/`.css`/composant front | si pas de design-system lu OU pas d'UI-spec de phase → rappel ; sinon lance détecteur déterministe (contraste, tailles) | non (rappel) |
 | **hardcode-guard** | `PostToolUse` Edit/Write | code source | détecte valeurs magiques / listes hardcodées (cf. règle CLAUDE.md) | non (rappel) |
@@ -110,10 +110,10 @@ Un hook = script déclaré dans `settings.json`, lancé par le harness sur un é
 - Les 5 modes (briefing, conversation/sparring, clôture, discussion stratégique, redirection marketing).
 
 **Ce qui change (la plomberie) :**
-- `/pilot` devient un **routeur mince**. Le mode Conversation (sparring) se charge instantané. Les modes lourds (briefing, clôture) = sous-skills `user-invocable: false` chargés à la demande.
+- `/se-pilot` devient un **routeur mince**. Le mode Conversation (sparring) se charge instantané. Les modes lourds (briefing, clôture) = sous-skills `user-invocable: false` chargés à la demande.
 - Le briefing lit **un seul** `STATE.md` consolidé (≤150 lignes), pas la cascade STRATEGY→ROADMAP→STATE.
 
-**Ouvert à décider avec Paul :** garder le sparring DANS `/pilot`, ou en faire un skill cofondateur dédié appelé par Pilot. (Paul a évoqué cette option.)
+**Ouvert à décider avec Paul :** garder le sparring DANS `/se-pilot`, ou en faire un skill cofondateur dédié appelé par Pilot. (Paul a évoqué cette option.)
 
 ---
 
@@ -210,7 +210,7 @@ Cherry-pick : mode `live` d'impeccable (overlay navigateur + variantes), AI-prom
 │       ├── UI-SPEC.md        (si front)
 │       └── CHECKPOINTS.md    (journal des gates visuels)
 │
-├── research/                 ← recherches transverses (.planning/research/{slug}.md)
+├── research/                 ← recherches transverses (.planning/se-research/{slug}.md)
 ├── design/                   ← design-system + personas-ux (lus par UI/UX)
 │   ├── DESIGN-SYSTEM.md
 │   └── PERSONAS.md
@@ -303,11 +303,11 @@ Paul a noté « on a beaucoup moins de skills, mais c'est pas mal ». C'est volo
 
 **Garde-fous (Strate A)** — pas des skills, des hooks. Invisibles.
 
-**Orchestration (B)** : `/pilot` (+ sparring intégré ou dédié — à décider).
+**Orchestration (B)** : `/se-pilot` (+ sparring intégré ou dédié — à décider).
 
 **Cycle (C)** : commandes GSD enrichies (scout, discuss, research, plan, check, execute, verify, simplify, janitor, ship) + gestion (insert-phase, complete-milestone, archive auto).
 
-**Spécialistes (E)** : `/ux` (🆕 personas), `/ui`, `/humanizer` v2, `/research`, skills projet, marketing.
+**Spécialistes (E)** : `/se-ux` (🆕 personas), `/se-ui`, `/se-humanizer` v2, `/se-research`, skills projet, marketing.
 
 **Détail exhaustif des skills retenus / fusionnés / supprimés : à produire au chantier dédié.**
 
@@ -320,16 +320,16 @@ Après analyse des sources réelles (`_sources/claude-config` = config perso de 
 | Brique cible | Statut réel | Action |
 |---|---|---|
 | Moteur GSD (18 agents, 57 cmds, workflows, v1.29) | ✅ sur disque, mûr | **Garder, adapter config** |
-| Skills dev (dev/plan/review/fix/test/deploy/janitor/refactor/debug/clean-commit/lint/perf/security/health-check) | ✅ sur disque | **Garder, adapter stack** |
-| `/pilot` + `/planning` | ✅ sur disque | **Garder, rendre mince** |
+| Skills dev (dev/se-plan/se-review/se-fix/se-test/se-deploy/se-janitor/se-refactor/se-debug/se-clean-commit/se-lint/se-perf/se-security/se-health-check) | ✅ sur disque | **Garder, adapter stack** |
+| `/se-pilot` + `/se-planning` | ✅ sur disque | **Garder, rendre mince** |
 | Brainstorming (light+heavy+62 techniques CSV) | ✅ sur disque | **SANCTUARISER** (Paul l'adore) |
-| `/research` (méthodo hyperresearch déjà intégrée : Decompose→Verify, 4 lenses, CoVe) | ✅ `~/.claude/commands/research.md` | **SANCTUARISER** (Paul l'adore). Ajout optionnel : 4 APIs académiques dans le sous-agent `researcher` |
-| `/humanizer` v2.5.1 (29 marqueurs + FR + boucle audit + calibrage voix + âme) | ✅ `~/.claude/commands/humanizer.md` | **Garder**. 2 ajouts ciblés : section anti-faux-positifs + 4 patterns récents (staccato, aphorismes, ouvreurs candides, diff-anchored) |
+| `/se-research` (méthodo hyperresearch déjà intégrée : Decompose→Verify, 4 lenses, CoVe) | ✅ `~/.claude/commands/se-research.md` | **SANCTUARISER** (Paul l'adore). Ajout optionnel : 4 APIs académiques dans le sous-agent `researcher` |
+| `/se-humanizer` v2.5.1 (29 marqueurs + FR + boucle audit + calibrage voix + âme) | ✅ `~/.claude/commands/se-humanizer.md` | **Garder**. 2 ajouts ciblés : section anti-faux-positifs + 4 patterns récents (staccato, aphorismes, ouvreurs candides, diff-anchored) |
 | Marketing (33 fichiers) | ✅ sur disque | **Garder, étanche** |
 | skill-creator + scripts d'éval Python | ✅ sur disque | **Réutiliser pour fabriquer les nouveaux skills** |
 | Design-system standalone + 6 piliers UI | 🔶 enfoui dans gsd-ui-checker/auditor + UI-SPEC.md | **EXTRAIRE** en `design/DESIGN-SYSTEM.md` |
 | Checkpoints visuels | ✅ `references/checkpoints.md` + `ui-brand.md` | **Garder, inverser le défaut end-of-phase** |
-| Garde-fous (hooks Humanizer/UI/hardcode/slop/monolithe/size/archive) | ❌ aucun. Pattern de hook propre existe (`gsd-prompt-guard.js`) | **CRÉER sur le pattern existant** |
+| Garde-fous (hooks Humanizer/UI/hardcode/slop/monolithe/size/se-archive) | ❌ aucun. Pattern de hook propre existe (`gsd-prompt-guard.js`) | **CRÉER sur le pattern existant** |
 | Expert UX personas | ❌ inexistant (gsd-user-profiler = profil DEV pas clients) | **CRÉER** (réutilise matière marketing) |
 | Diète contexte (skillListingBudget, MCP deferral) | ❌ absente de settings.json | **AJOUTER** (gain gratuit) |
 | Anti-entropie (size-gate, archive auto, INDEX vivant) | 🔶 partiel (`/gsd:cleanup`, milestone-archive) | **GÉNÉRALISER** |

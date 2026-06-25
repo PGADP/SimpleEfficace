@@ -1,5 +1,5 @@
 ---
-description: Gate SIMPLIFY du cycle de phase. Vérifie la simplicité du code modifié (duplication, complexité, sur-ingénierie, monolithes) via détecteur déterministe + jugement LLM croisés. S'insère entre VERIFY et SHIP. Quality only — ne chasse pas les bugs (c'est /review).
+description: Gate SIMPLIFY du cycle de phase. Vérifie la simplicité du code modifié (duplication, complexité, sur-ingénierie, monolithes) via détecteur déterministe + jugement LLM croisés. S'insère entre VERIFY et SHIP. Quality only — ne chasse pas les bugs (c'est /se-review).
 ---
 
 # Gate SIMPLIFY — simplicité avant ship
@@ -13,7 +13,7 @@ Lance le détecteur sur les fichiers modifiés de la phase :
 - duplication de blocs (grep de patterns répétés),
 - complexité (fonctions > 60 lignes, imbrication profonde),
 - monolithes (fichiers > 400 lignes, > 12 exports) — cohérent avec `hooks/rules/monolith-thresholds.json`,
-- logique dupliquée vs utilitaires centralisés existants (cf. Checklist Centralisation de /refactor),
+- logique dupliquée vs utilitaires centralisés existants (cf. Checklist Centralisation de /se-refactor),
 - valeurs/listes hardcodées (cf. `hooks/rules/hardcode-patterns.json`).
 
 Produit une liste factuelle `{ fichier, ligne, catégorie }`. AUCUN jugement à ce stade.
@@ -43,10 +43,10 @@ P1 (optionnel)            : {m}
 
 → Appliquer les simplifications P0 ? [GO / NO-GO / sélection]
 ```
-Si GO → appliquer (via /refactor ou édition ciblée, Minimal Viable Change), puis `npm run build && npm run type-check`. Consigner dans `{phase}/CHECKPOINTS.md`.
+Si GO → appliquer (via /se-refactor ou édition ciblée, Minimal Viable Change), puis `npm run build && npm run type-check`. Consigner dans `{phase}/CHECKPOINTS.md`.
 
 ## Règles
-- Quality only. Si tu trouves un bug, NE le corrige PAS ici — note-le pour /review.
+- Quality only. Si tu trouves un bug, NE le corrige PAS ici — note-le pour /se-review.
 - Minimal Viable Change : pas de refacto opportuniste hors scope.
 - Respecte CLAUDE.md : « no over-engineered solutions », « source unique », découplage.
 

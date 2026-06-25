@@ -107,10 +107,10 @@ Use AskUserQuestion:
 
 **If "Brainstorm Light":**
 
-1. Execute `/brainstorm-light [milestone name/goal from Step 2]`
+1. Execute `/se-brainstorm-light [milestone name/goal from Step 2]`
 2. The session runs its focused flow (auto-selected techniques, rapid ideation)
 3. At the GSD integration step (Phase 5.2 of brainstorm-light), **automatically select [S] Skip** — milestone artifacts aren't ready yet
-4. Document saved to `.planning/brainstorming/brainstorm-light-{slug}-{date}.md`
+4. Document saved to `.planning/brainstorming/se-brainstorm-light-{slug}-{date}.md`
 5. Extract outputs and integrate into milestone context:
    - **Top ideas** → enrich target features list in Step 4 (Update PROJECT.md)
    - **Prioritization** → inform category scoping in Step 9 (Define Requirements)
@@ -125,7 +125,7 @@ Use AskUserQuestion:
 [N] idées générées | Top 3 priorisées
 
 Les résultats alimenteront le milestone scope et les requirements.
-Document : .planning/brainstorming/brainstorm-light-{slug}-{date}.md
+Document : .planning/brainstorming/se-brainstorm-light-{slug}-{date}.md
 ```
 
 Commit brainstorming document:
@@ -231,7 +231,7 @@ Then verify `.planning/phases/` no longer contains old milestone directories bef
 
 If `phase_dir_count > 0` but `phase_archive_path` is missing:
 - Stop and explain that reset numbering is unsafe without a completed milestone archive target.
-- Tell the user to complete/archive the previous milestone first, then rerun `/gsd:new-milestone --reset-phase-numbers ${GSD_WS}`.
+- Tell the user to complete/se-archive the previous milestone first, then rerun `/gsd:new-milestone --reset-phase-numbers ${GSD_WS}`.
 
 ## 8. Research Decision
 
@@ -263,7 +263,7 @@ AskUserQuestion: "Research the domain ecosystem for new features before defining
 ```
 
 ```bash
-mkdir -p .planning/research
+mkdir -p .planning/se-research
 ```
 
 Spawn 4 parallel gsd-project-researcher agents. Each uses this template with dimension-specific fields:
@@ -292,8 +292,8 @@ ${AGENT_SKILLS_RESEARCHER}
 <quality_gate>{GATES}</quality_gate>
 
 <output>
-Write to: .planning/research/{FILE}
-Use template: $HOME/.claude/get-shit-done/templates/research-project/{FILE}
+Write to: .planning/se-research/{FILE}
+Use template: $HOME/.claude/get-shit-done/templates/se-research-project/{FILE}
 </output>
 ", subagent_type="gsd-project-researcher", model="{researcher_model}", description="{DIMENSION} research")
 ```
@@ -315,16 +315,16 @@ Task(prompt="
 Synthesize research outputs into SUMMARY.md.
 
 <files_to_read>
-- .planning/research/STACK.md
-- .planning/research/FEATURES.md
-- .planning/research/ARCHITECTURE.md
-- .planning/research/PITFALLS.md
+- .planning/se-research/STACK.md
+- .planning/se-research/FEATURES.md
+- .planning/se-research/ARCHITECTURE.md
+- .planning/se-research/PITFALLS.md
 </files_to_read>
 
 ${AGENT_SKILLS_SYNTHESIZER}
 
-Write to: .planning/research/SUMMARY.md
-Use template: $HOME/.claude/get-shit-done/templates/research-project/SUMMARY.md
+Write to: .planning/se-research/SUMMARY.md
+Use template: $HOME/.claude/get-shit-done/templates/se-research-project/SUMMARY.md
 Commit after writing.
 ", subagent_type="gsd-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
 ```
@@ -433,7 +433,7 @@ Task(prompt="
 <files_to_read>
 - .planning/PROJECT.md
 - .planning/REQUIREMENTS.md
-- .planning/research/SUMMARY.md (if exists)
+- .planning/se-research/SUMMARY.md (if exists)
 - .planning/config.json
 - .planning/MILESTONES.md
 </files_to_read>
@@ -509,7 +509,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: create milest
 | Artifact       | Location                    |
 |----------------|-----------------------------|
 | Project        | `.planning/PROJECT.md`      |
-| Research       | `.planning/research/`       |
+| Research       | `.planning/se-research/`       |
 | Requirements   | `.planning/REQUIREMENTS.md` |
 | Roadmap        | `.planning/ROADMAP.md`      |
 

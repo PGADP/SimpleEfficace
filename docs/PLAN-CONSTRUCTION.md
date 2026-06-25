@@ -71,14 +71,14 @@ Note : le validateur de settings est lui-même un garde-fou (il a bloqué un nom
 | Pattern de hook propre | `_sources/claude-config/hooks/gsd-prompt-guard.js` + `gsd-context-monitor.js` | structure stdin JSON → `hookSpecificOutput.additionalContext`, fail-silent | 🔵 modèle à copier |
 | Hook impeccable (réf) | `_sources/impeccable/.claude/skills/impeccable/scripts/hook.mjs` + `hook-lib.mjs` | thin adapter + lib testable, garde de ré-entrance (env depth), exit 0 toujours | 🔵 modèle |
 | Détecteur déterministe | `_sources/impeccable/cli/engine/detect-antipatterns.mjs` | règles `{id, snippet}`, exit 0/2, fonctions pures | 🔵 modèle pour slop/hardcode/monolithe |
-| Marqueurs slop FR | `~/.claude/commands/humanizer.md` (29 marqueurs) | la liste → `rules/slop-rules` | 🟡 extraire en données |
+| Marqueurs slop FR | `~/.claude/commands/se-humanizer.md` (29 marqueurs) | la liste → `rules/slop-rules` | 🟡 extraire en données |
 | Patterns hardcode | `_sources/get-shit-done/tests/hardcoded-paths.test.cjs` | patterns chemins en dur | 🔵 étendre |
 
 ## 1.2 Les 8 garde-fous — plan de modification
 
 | # | Garde-fou | Événement | Déclencheur | Action | Bloquant |
 |---|---|---|---|---|---|
-| 1 | **humanizer-guard** | PostToolUse Edit/Write | fichier user-facing (chemins : `(public)/`, `emails/`, `*.copy.ts`, blog, FAQ + heuristique contenu FR) | rappel « passe /humanizer » | non |
+| 1 | **humanizer-guard** | PostToolUse Edit/Write | fichier user-facing (chemins : `(public)/`, `emails/`, `*.copy.ts`, blog, FAQ + heuristique contenu FR) | rappel « passe /se-humanizer » | non |
 | 2 | **slop-gate** | au commit (clean-commit) | contenu user-facing avec ≥2 marqueurs slop (règle des clusters) | refuse le commit | **oui** |
 | 3 | **ui-guard** | PostToolUse Edit/Write | `.tsx`/`.css`/composant front | si pas de DESIGN-SYSTEM lu / pas d'UI-spec → rappel ; sinon détecteur visuel | non |
 | 4 | **hardcode-guard** | PostToolUse Edit/Write | code source | valeurs magiques + listes hardcodées (cf. règle CLAUDE.md « no hardcoded lists ») | non |
@@ -150,7 +150,7 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 |---|---|---|
 | 6 piliers UI (Hierarchy, Copywriting, Registry Safety, Typography, Spacing, Color) | `_sources/claude-config/agents/gsd-ui-checker.md` + `gsd-ui-auditor.md` | 🟡 EXTRAIRE |
 | Contrat UI-SPEC | `_sources/get-shit-done/.../templates/UI-SPEC.md` | 🔵 base de DESIGN-SYSTEM |
-| Schéma de règles (le format données) | `_sources/ui-ux-pro-max-skill/` → CSV `data/ux-guidelines.csv` (colonnes : Issue/Do/Don't/Code Good/Code Bad/Severity) | 🟡 modèle pour `rules/ui-rules` |
+| Schéma de règles (le format données) | `_sources/se-ui-ux-pro-max-skill/` → CSV `data/se-ux-guidelines.csv` (colonnes : Issue/Do/Don't/Code Good/Code Bad/Severity) | 🟡 modèle pour `rules/se-ui-rules` |
 | Pattern MASTER + overrides | ui-ux-pro-max `design_system.py` | 🔵 idée d'archi |
 | Mode live / craft | `_sources/impeccable/.claude/skills/impeccable/reference/live.md`, `craft.md` | 🔵 maquette niveau 3 |
 | Détecteur visuel (contraste réel) | `_sources/impeccable/cli/engine/` (screenshot/contrast) | 🔵 pour ui-guard |
@@ -158,9 +158,9 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 
 ## 3.2 Plan de modification
 - 🟡 **`design/DESIGN-SYSTEM.md`** : créer depuis UI-SPEC + 6 piliers, tokens Tailwind/OKLCH, pattern MASTER + overrides par page. LE fichier lu par tous les skills UI.
-- 🟡 **`rules/ui-rules`** : externaliser les critères des 6 piliers au format `slug | norme chiffrée | Do | Don't | Code Good | Code Bad | Severity | source`. Severity → BLOCK/FLAG/PASS mécanique. (Format JSON/TS typé plutôt que CSV, cohérent avec la stack ; ne PAS répliquer le moteur BM25 Python d'ui-ux-pro-max — juste les données.)
+- 🟡 **`rules/se-ui-rules`** : externaliser les critères des 6 piliers au format `slug | norme chiffrée | Do | Don't | Code Good | Code Bad | Severity | source`. Severity → BLOCK/FLAG/PASS mécanique. (Format JSON/TS typé plutôt que CSV, cohérent avec la stack ; ne PAS répliquer le moteur BM25 Python d'ui-ux-pro-max — juste les données.)
 - 🔵 **gsd-ui-researcher / checker / auditor** : les brancher sur DESIGN-SYSTEM + ui-rules au lieu de critères inline. checker/auditor : description auto-trigger-optimisée.
-- 🔴 **`/ux`** (expert personas) : créer. Lit `design/PERSONAS.md`, challenge le parcours/JTBD par persona. Distinct de `/ui` (visuel).
+- 🔴 **`/se-ux`** (expert personas) : créer. Lit `design/PERSONAS.md`, challenge le parcours/JTBD par persona. Distinct de `/se-ui` (visuel).
 - 🟡 **`design/PERSONAS.md`** : créer depuis matière marketing (3-5 personas ancrés VOC réel).
 
 ## 3.3 Maquette — 3 niveaux (mode du flux UI/UX, AVANT le code)
@@ -171,7 +171,7 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 | Live | Next.js + Playwright screenshot | preview + capture |
 
 ## 3.4 Playwright — config une fois, 3 ancrages
-- Config : `playwright.config.ts` (Next.js, 3 projects desktop/tablet/mobile, `webServer` réutilise dev). Deps `@playwright/test`.
+- Config : `playwright.config.ts` (Next.js, 3 projects desktop/tablet/mobile, `webServer` réutilise dev). Deps `@playwright/se-test`.
 - Ancrage 1 : détecteur visuel dans **ui-guard** (screenshot + contraste réel).
 - Ancrage 2 : screenshots 3 breakpoints aux **checkpoints VERIFY**.
 - Ancrage 3 : moteur **E2E** par défaut.
@@ -192,13 +192,13 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 |---|---|---|---|
 | SCOUT | ✅ (étape `scout_codebase` non conditionnelle) | `workflows/discuss-phase.md` + `references/scout-codebase.md` | 🔵 amplifier + anti-monolithe |
 | DISCUSS | ✅ | `workflows/discuss-phase.md` | 🔵 + décision TDD-éligibilité |
-| RESEARCH | ✅ | `workflows/plan-phase.md` §5 + `gsd-phase-researcher` | 🔵 brancher recherche 4 niveaux |
+| RESEARCH | ✅ | `workflows/se-plan-phase.md` §5 + `gsd-phase-researcher` | 🔵 brancher recherche 4 niveaux |
 | PLAN+TDD | ⚙️ off | `references/tdd.md` | 🔵 activer toggles |
 | CHECK | ✅ | `gsd-plan-checker` | 🟢 garder |
 | EXECUTE | ✅ | `workflows/execute-phase.md` | 🟢 + gate MVP+TDD |
 | VERIFY | ✅ | `gsd-verifier` | 🔵 + déterministe×LLM croisé + anti-monolithe + Playwright |
-| SIMPLIFY | ❌ gate | `_sources/claude-config/commands/refactor.md` (+ `~/.claude/commands/simplify.md` si présent) | 🔴 créer gate |
-| JANITOR | ❌ gate | `_sources/claude-config/commands/janitor.md` | 🔴 créer gate |
+| SIMPLIFY | ❌ gate | `_sources/claude-config/commands/se-refactor.md` (+ `~/.claude/commands/simplify.md` si présent) | 🔴 créer gate |
+| JANITOR | ❌ gate | `_sources/claude-config/commands/se-janitor.md` | 🔴 créer gate |
 | SHIP | ✅ | `workflows/ship.md` | 🔵 + slop-gate + archive-hook |
 
 ## 4.2 Toggles GSD config.json (par projet, à activer)
@@ -228,7 +228,7 @@ SCOUT le cartographie · VERIFY le liste au checkpoint · `monolith-guard` souff
 # CHANTIER 5 — Cofondateur / Pilot mince (Strate B)
 
 ## 5.1 Anatomie actuelle (à récupérer)
-Source : `_sources/claude-config/commands/pilot.md` + `planning.md`.
+Source : `_sources/claude-config/commands/se-pilot.md` + `planning.md`.
 
 | Mode | Rôle | Verdict |
 |---|---|---|
@@ -239,16 +239,16 @@ Source : `_sources/claude-config/commands/pilot.md` + `planning.md`.
 | 5 Marketing | dispatch | 🔵 alléger |
 
 ## 5.2 Plan de refonte
-- `/pilot` = routeur mince + sparring (Mode 2) chargé d'emblée. Détecte le mode et délègue.
+- `/se-pilot` = routeur mince + sparring (Mode 2) chargé d'emblée. Détecte le mode et délègue.
 - Sous-skills `user-invocable:false` : `pilot:briefing`, `pilot:closure`, `pilot:strategic-discussion`. Chargés à la demande (pattern hyperresearch : routeur mince + étapes fraîches).
 - Briefing lit **un** STATE.md consolidé (≤150 lignes), pas la cascade.
 
 ## 5.3 Décision tranchée
-**Sparring INTÉGRÉ dans /pilot** (pas skill dédié). Raison : fluidité « je parle, il challenge » sans saut d'invocation. Le routeur mince suffit à régler le poids. → à confirmer par Paul.
+**Sparring INTÉGRÉ dans /se-pilot** (pas skill dédié). Raison : fluidité « je parle, il challenge » sans saut d'invocation. Le routeur mince suffit à régler le poids. → à confirmer par Paul.
 
 ## 5.4 Risques
 - Compaction évince le routeur → STATE mince + dispatch table dans le fichier (re-lisible).
-- Détection de mode ratée → règle explicite en tête (« /pilot seul → briefing ; sinon sparring »).
+- Détection de mode ratée → règle explicite en tête (« /se-pilot seul → briefing ; sinon sparring »).
 
 ---
 
@@ -258,7 +258,7 @@ Source : `_sources/claude-config/commands/pilot.md` + `planning.md`.
 | Niveau | Source | Action |
 |---|---|---|
 | 1 Code local | `gsd-phase-researcher` / scout | 🟢 sanctuariser |
-| 2 Web tech | `~/.claude/commands/research.md` + `~/.claude/agents/researcher.md` | 🟢 SANCTUARISER (Paul l'adore) |
+| 2 Web tech | `~/.claude/commands/se-research.md` + `~/.claude/agents/researcher.md` | 🟢 SANCTUARISER (Paul l'adore) |
 | 3 Scientifique | `_sources/hyperresearch/` (4 APIs) | 🔵 ajout optionnel |
 | 4 Projets existants | `gsd-project-researcher` | 🟢 sanctuariser |
 
@@ -266,8 +266,8 @@ Source : `_sources/claude-config/commands/pilot.md` + `planning.md`.
 Semantic Scholar `api.semanticscholar.org/graph/v1/paper/search` · arXiv `export.arxiv.org/api/query` · OpenAlex `api.openalex.org/works` · PubMed `eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`. Principe « academic-APIs-first » avant WebSearch. Le `researcher.md` a DÉJÀ la structure (ligne ~114-121), il manque juste les endpoints exacts.
 
 ## 6.2 Humanizer — 🟢 garder + 2 ajouts ciblés (non destructifs)
-Source du skill : `~/.claude/commands/humanizer.md` (v2.5.1, déjà excellent : 29 marqueurs, boucle audit, calibrage voix, âme).
-Source des ajouts : `_sources/humanizer/SKILL.md` (v2.8.0 blader).
+Source du skill : `~/.claude/commands/se-humanizer.md` (v2.5.1, déjà excellent : 29 marqueurs, boucle audit, calibrage voix, âme).
+Source des ajouts : `_sources/se-humanizer/SKILL.md` (v2.8.0 blader).
 - **Ajout 1 — section anti-faux-positifs** (CRUCIAL) : règle des clusters (1 marqueur ≠ IA, 2+ = signal), « ce qui N'est PAS une preuve » (tiret cadratin seul, guillemets « » FR, grammaire parfaite), « signes d'écriture humaine à préserver ». Sinon il massacre la bonne prose.
 - **Ajout 2 — 4 patterns récents** (§30-33) adaptés FR : diff-anchored, staccato manufacturé, formules d'aphorisme « X est le Y de Z », ouvreurs candides « Honnêtement ? ».
 
@@ -288,7 +288,7 @@ Source : `_sources/claude-config/commands/`. Tous alignés stack sauf 2.
 |---|---|---|
 | dev, plan, review, fix, test, debug, clean-commit, lint, perf, security, refactor, janitor, explain | 🔵 garder | aucune (stack OK) |
 | **deploy** | 🔵 adapter | Railway (pas Vercel) — via MCP railway |
-| **health-check** | 🔵 adapté générique | checks Railway + build/type-check/test. **Décision Paul : version générique (projet-agnostique). Les checks data spécifiques (Supabase/pipeline/KI) seront recréés comme skill PROJET dans mymozaica, PAS dans cette config globale.** |
+| **health-check** | 🔵 adapté générique | checks Railway + build/type-check/se-test. **Décision Paul : version générique (projet-agnostique). Les checks data spécifiques (Supabase/pipeline/KI) seront recréés comme skill PROJET dans mymozaica, PAS dans cette config globale.** |
 
 > **Note phase 2 (audit rapatriement) :** l'audit a trouvé 4 anomalies, toutes corrigées : pilot.md re-restauré (Mode 5 + icebox + dispatch, 467 lignes), pilot-marketing.md + planning-marketing.md rapatriés (n'étaient que dans ~/.claude). health-check générique confirmé OK. Les 27 autres fichiers sont fidèles.
 
@@ -304,27 +304,27 @@ Source : `_sources/claude-config/commands/`. Tous alignés stack sauf 2.
 | — | Diète de contexte (settings global) | ✅ |
 | 1 | Garde-fous : se-guard (5 advisory) + se-size-gate (bloquant), testés 9/9 + 7/7, câblés local | ✅ |
 | 3 | Design-system + ui-rules.json (18 règles, 6 piliers) + agents UI branchés | ✅ |
-| 3 | /ux + PERSONAS.md (expert UX) | ✅ |
+| 3 | /se-ux + PERSONAS.md (expert UX) | ✅ |
 | 3 | Playwright (config + helper, templates projet-agnostiques) | ✅ |
 | 4 | Gates SIMPLIFY + JANITOR (pattern détecteur+LLM croisés) | ✅ |
 | 6 | Humanizer +2 ajouts (anti-faux-positifs cluster + patterns 30-33) | ✅ |
 | 6 | Recherche niveau 3 (4 APIs académiques dans researcher) | ✅ |
 | 5 | Pilot mince (467→214 l.) + 3 sous-skills lazy, sparring intact | ✅ |
-| 7 | Skills dev rapatriés + adaptés (deploy/health-check Railway) | ✅ |
+| 7 | Skills dev rapatriés + adaptés (deploy/se-health-check Railway) | ✅ |
 
 **Câblage opérationnel (fait après la 1re relance "tout doit être branché") :**
 - ✅ gates SIMPLIFY/JANITOR branchées dans `get-shit-done/workflows/execute-phase.md` (step `simplify_janitor_gate`, vérifié 18/18 steps)
 - ✅ moteur GSD rapatrié dans le dossier (`get-shit-done/`, v1.29) → système autonome
 - ✅ `/init` créé (pilot → brainstorm → PRD → research → roadmap)
 - ✅ template config (`_templates/config.template.json`) active tdd_mode/simplify_gate/janitor_gate — chaîne config→gate vérifiée cohérente
-- ✅ archive-hook livré en **skill `/archive`** (plus sûr qu'un hook auto pour déplacer des dossiers)
+- ✅ archive-hook livré en **skill `/se-archive`** (plus sûr qu'un hook auto pour déplacer des dossiers)
 - ✅ slop-gate au commit (bloquant, testé) — câblage settings au déploiement
 - ✅ README + crédits GitHub
 
 **Reste (non bloquant) :**
 - **Câbler les hooks en global** (décidé : à l'étape DEPLOY, pas avant)
 - **Checkpoints visuels mid-flight** : templates Playwright prêts, mais l'INVERSION du défaut GSD `end-of-phase` dans le workflow verify n'est pas faite (SYSTEME §11)
-- **`/ui` skill standalone** : les agents gsd-ui-* existent, mais pas de commande `/ui` directe — à clarifier
+- **`/se-ui` skill standalone** : les agents gsd-ui-* existent, mais pas de commande `/se-ui` directe — à clarifier
 - remplir DESIGN-SYSTEM.md / PERSONAS.md avec les vraies valeurs au 1er projet (voulu : ce sont des templates)
 - phase-template/ dans _templates/
 - TEST en conditions réelles (nouvelle session)

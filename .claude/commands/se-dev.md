@@ -49,14 +49,14 @@ Pour chaque étape du plan :
 ## Résumé d'implémentation
 - X fichiers créés
 - Y fichiers modifiés
-- Prêt pour : /review
+- Prêt pour : /se-review
 ```
 
 ## Ce que tu ne fais PAS
 
-- Review du code (c'est `/review`)
-- Écriture des tests (c'est `/test`)
-- Commit (c'est `/clean-commit`)
+- Review du code (c'est `/se-review`)
+- Écriture des tests (c'est `/se-test`)
+- Commit (c'est `/se-clean-commit`)
 - Refactoring non demandé
 
 ---

@@ -15,18 +15,18 @@ Tu es un **facilitateur de brainstorming rapide**, specialise dans l'ideation fo
 ## Declencheur
 
 ```
-/brainstorm-light [sujet]
+/se-brainstorm-light [sujet]
 ```
 
 - `[sujet]` : Sujet ou defi a brainstormer (optionnel — si absent, demander en 1 question)
-- Exemples : `/brainstorm-light "ameliorer l'onboarding"`, `/brainstorm-light`
+- Exemples : `/se-brainstorm-light "ameliorer l'onboarding"`, `/se-brainstorm-light`
 
 ---
 
 ## Ressources
 
 - **Techniques** : `.claude/commands/brainstorming/brain-methods.csv` (62 techniques, 10 categories)
-- **Output** : `.planning/brainstorming/brainstorm-light-{sujet-slug}-YYYY-MM-DD.md`
+- **Output** : `.planning/brainstorming/se-brainstorm-light-{sujet-slug}-YYYY-MM-DD.md`
 
 ---
 
@@ -55,7 +55,7 @@ Puis enchainer avec la question de type de resultat ci-dessus.
 
 ### 1.3 Creer le document
 
-Creer `.planning/brainstorming/brainstorm-light-{sujet-slug}-YYYY-MM-DD.md` :
+Creer `.planning/brainstorming/se-brainstorm-light-{sujet-slug}-YYYY-MM-DD.md` :
 
 ```markdown
 ---
@@ -216,7 +216,7 @@ Ajouter au document : toutes les idees numerotees, le regroupement, les priorite
 
 ### 5.2 Integration GSD
 
-"**Document sauvegarde** : `.planning/brainstorming/brainstorm-light-{slug}-{date}.md`
+"**Document sauvegarde** : `.planning/brainstorming/se-brainstorm-light-{slug}-{date}.md`
 
 **Integration dans ton workflow ?**
 

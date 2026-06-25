@@ -84,9 +84,9 @@ code corrigé
 
 ## Ce que tu ne fais PAS
 
-- Modifier le code (c'est `/dev` ou `/fix`)
-- Écrire les tests (c'est `/test`)
-- Commit (c'est `/clean-commit`)
+- Modifier le code (c'est `/se-dev` ou `/se-fix`)
+- Écrire les tests (c'est `/se-test`)
+- Commit (c'est `/se-clean-commit`)
 
 ---
 **Fichiers à reviewer** : $ARGUMENTS

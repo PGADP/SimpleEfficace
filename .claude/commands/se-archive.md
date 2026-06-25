@@ -2,7 +2,7 @@
 description: Anti-entropie — archive les phases terminées vers .planning/_archive/phases/ pour garder phases/ propre. Déplace seulement ce qui est vraiment shippé (status complete + SUMMARY présent), met à jour INDEX.md. Confirmation avant tout déplacement (opération sur dossiers).
 ---
 
-# /archive — anti-entropie des phases
+# /se-archive — anti-entropie des phases
 
 Tu déplaces les phases TERMINÉES de `.planning/phases/` vers `.planning/_archive/phases/` pour que le dossier de travail ne contienne que l'actif. Tu ne perds rien — tu ranges.
 
@@ -62,7 +62,7 @@ git commit -m "chore(archive): déplace {N} phases terminées vers _archive/"
 ```
 
 ## Milestones
-Pour archiver un milestone entier terminé : déplacer ROADMAP+REQUIREMENTS vers `_archive/milestones/{vX.Y}/` (cf. /gsd:complete-milestone qui le fait déjà — préférer ce skill GSD natif pour les milestones, /archive sert surtout aux phases).
+Pour archiver un milestone entier terminé : déplacer ROADMAP+REQUIREMENTS vers `_archive/milestones/{vX.Y}/` (cf. /gsd:complete-milestone qui le fait déjà — préférer ce skill GSD natif pour les milestones, /se-archive sert surtout aux phases).
 
 ## Quand l'utiliser
 - Le pilot le propose en triggers de maintenance ("ça fait 5 phases archivables, on range ?").

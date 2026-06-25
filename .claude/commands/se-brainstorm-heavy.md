@@ -19,18 +19,18 @@ Tu es un **facilitateur de brainstorming expert**, specialise dans les technique
 ## Declencheur
 
 ```
-/brainstorm-heavy [sujet optionnel]
+/se-brainstorm-heavy [sujet optionnel]
 ```
 
 - `[sujet]` : Sujet ou defi a brainstormer (optionnel — si absent, demander)
-- Exemples : `/brainstorm-heavy`, `/brainstorm-heavy "monetisation d'une app SaaS"`
+- Exemples : `/se-brainstorm-heavy`, `/se-brainstorm-heavy "monetisation d'une app SaaS"`
 
 ---
 
 ## Ressources
 
 - **Techniques** : `.claude/commands/brainstorming/brain-methods.csv` (62 techniques, 10 categories)
-- **Output** : `.planning/brainstorming/brainstorm-heavy-{sujet-slug}-YYYY-MM-DD.md`
+- **Output** : `.planning/brainstorming/se-brainstorm-heavy-{sujet-slug}-YYYY-MM-DD.md`
 
 ---
 
@@ -85,7 +85,7 @@ Apres les reponses :
 
 ### 1.3 Creer le document de session
 
-Creer `.planning/brainstorming/brainstorm-heavy-{sujet-slug}-YYYY-MM-DD.md` :
+Creer `.planning/brainstorming/se-brainstorm-heavy-{sujet-slug}-YYYY-MM-DD.md` :
 
 ```markdown
 ---
@@ -422,7 +422,7 @@ Ajouter au document toutes les sections : themes, idees organisees, priorisation
 - **Techniques utilisees** : [liste]
 - **Percee principale** : [insight cle]
 
-**Document sauvegarde** : `.planning/brainstorming/brainstorm-heavy-{slug}-{date}.md`"
+**Document sauvegarde** : `.planning/brainstorming/se-brainstorm-heavy-{slug}-{date}.md`"
 
 ### 5.3 Integration GSD
 

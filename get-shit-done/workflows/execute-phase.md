@@ -19,7 +19,7 @@ Orchestrator coordinates, not executes. Each subagent loads the full execute-pla
 
 **Fallback rule:** If a spawned agent completes its work (commits visible, SUMMARY.md exists) but
 the orchestrator never receives the completion signal, treat it as successful based on spot-checks
-and continue to the next wave/plan. Never block indefinitely waiting for a signal — always verify
+and continue to the next wave/se-plan. Never block indefinitely waiting for a signal — always verify
 via filesystem and git state.
 </runtime_compatibility>
 
@@ -509,13 +509,13 @@ For each gap that has a `debug_session:` field:
 - Update frontmatter `updated:` timestamp
 - Move to resolved directory:
 ```bash
-mkdir -p .planning/debug/resolved
-mv .planning/debug/{slug}.md .planning/debug/resolved/
+mkdir -p .planning/se-debug/resolved
+mv .planning/se-debug/{slug}.md .planning/se-debug/resolved/
 ```
 
 **6. Commit updated artifacts:**
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(phase-${PARENT_PHASE}): resolve UAT gaps and debug sessions after ${PHASE_NUMBER} gap closure" --files .planning/phases/*${PARENT_PHASE}*/*-UAT.md .planning/debug/resolved/*.md
+node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(phase-${PARENT_PHASE}): resolve UAT gaps and debug sessions after ${PHASE_NUMBER} gap closure" --files .planning/phases/*${PARENT_PHASE}*/*-UAT.md .planning/se-debug/resolved/*.md
 ```
 </step>
 
@@ -594,7 +594,7 @@ Both default to `"false"`: these gates are opt-in. Enable per project in `.plann
 **Step 1 — SIMPLIFY gate (if SIMPLIFY_ENABLED is "true"):**
 Invoke the quality gate on the phase's modified files:
 ```
-Skill(skill="gate-simplify", args="phase ${PHASE_NUMBER} — fichiers modifies de la phase")
+Skill(skill="se-gate-simplify", args="phase ${PHASE_NUMBER} — fichiers modifies de la phase")
 ```
 The gate runs deterministic detector + LLM cross-check, classifies P0/P1, and presents a GO/NO-GO checkpoint. If the user approves P0 fixes, it applies them (Minimal Viable Change) then runs `npm run build && npm run type-check`. Findings are logged to `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`.
 If SIMPLIFY_ENABLED is "false": display "Gate SIMPLIFY skipped (workflow.simplify_gate=false)" and proceed.
@@ -602,7 +602,7 @@ If SIMPLIFY_ENABLED is "false": display "Gate SIMPLIFY skipped (workflow.simplif
 **Step 2 — JANITOR gate (if JANITOR_ENABLED is "true"):**
 After SIMPLIFY, invoke the cleanup gate:
 ```
-Skill(skill="gate-janitor", args="phase ${PHASE_NUMBER} — fichiers modifies de la phase")
+Skill(skill="se-gate-janitor", args="phase ${PHASE_NUMBER} — fichiers modifies de la phase")
 ```
 Detector + LLM cross-check classify DEAD / VIOLATION / SUSPECT. SUSPECT is never auto-removed. On GO, deletes DEAD + migrates VIOLATION in separate commits, then `npm run build && npm run type-check`. Logged to CHECKPOINTS.md.
 If JANITOR_ENABLED is "false": display "Gate JANITOR skipped (workflow.janitor_gate=false)" and proceed.

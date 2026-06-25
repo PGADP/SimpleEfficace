@@ -1,5 +1,5 @@
 {
-  "_comment": "TEMPLATE config GSD pour les projets SIMPLE & EFFICACE. À copier en .planning/config.json au démarrage (ou via /init). Active les toggles du système (gates qualité, TDD). Les clés workflow.* non standard GSD (simplify_gate, janitor_gate) sont lues par le step simplify_janitor_gate de execute-phase.md (rapatrié + modifié).",
+  "_comment": "TEMPLATE config GSD pour les projets SIMPLE & EFFICACE. À copier en .planning/config.json au démarrage (ou via /new-project). Active les toggles du système (gates qualité, TDD). Les clés workflow.* non standard GSD (simplify_gate, janitor_gate) sont lues par le step simplify_janitor_gate de execute-phase.md (rapatrié + modifié).",
   "mode": "interactive",
   "granularity": "standard",
   "workflow": {

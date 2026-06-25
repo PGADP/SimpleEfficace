@@ -1,6 +1,6 @@
 ---
 name: pilot:strategic-discussion
-description: Sous-skill du Pilot — discussion stratégique de phase. Recherche code, débat vision (méthode Rodin/steelmanning), produit CONTEXT.md au standard GSD. Chargé à la demande par /pilot quand "on discute la phase X". Non destiné à l'invocation directe.
+description: Sous-skill du Pilot — discussion stratégique de phase. Recherche code, débat vision (méthode Rodin/steelmanning), produit CONTEXT.md au standard GSD. Chargé à la demande par /se-pilot quand "on discute la phase X". Non destiné à l'invocation directe.
 user-invocable: false
 allowed-tools:
   - Skill
