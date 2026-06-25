@@ -21,7 +21,7 @@ Ne **jamais** inventer une architecture ou un CLAUDE.md détaillé tant qu'il n'
   - `size-gate` : bloque STATE.md > 150 / ROADMAP.md > 200 lignes
   - `slop-gate` : bloque le commit de contenu AI-slop
 - **Cycle GSD enrichi** (`get-shit-done/`) : gates simplify/se-janitor/visual-checkpoint actives (cf. `.planning/config.json`).
-- **Contrats** (`.planning/`) : `design/DESIGN-SYSTEM.md`, `rules/se-ui-rules.json`, `CONVENTIONS.md`.
+- **Contrats** (`.planning/`) : `design/DESIGN-SYSTEM.md`, `rules/ui-rules.json`, `CONVENTIONS.md`.
 
 ## Stack par défaut
 

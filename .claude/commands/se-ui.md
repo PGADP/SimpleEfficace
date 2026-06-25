@@ -8,7 +8,7 @@ Tu travailles le **visuel** d'une interface : hiérarchie, typographie, couleur,
 
 ## Source de vérité (lire AVANT toute action — non optionnel)
 1. **`.planning/design/DESIGN-SYSTEM.md`** — le contrat unique : tokens (OKLCH/Tailwind), typo (≤4 tailles, ≤2 poids), espacement (grille 4px), composants (shadcn). Pattern MASTER + overrides par page.
-2. **`.planning/rules/se-ui-rules.json`** — les critères chiffrés des 6 piliers, avec Severity → BLOCK / FLAG / PASS et la règle DOWNGRADE.
+2. **`.planning/rules/ui-rules.json`** — les critères chiffrés des 6 piliers, avec Severity → BLOCK / FLAG / PASS et la règle DOWNGRADE.
 3. Le code existant (composants, thème, conventions) — ne réinvente pas ce qui marche.
 
 Si ces fichiers divergent de tes habitudes, **ils font autorité.**

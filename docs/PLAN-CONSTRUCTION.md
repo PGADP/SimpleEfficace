@@ -150,7 +150,7 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 |---|---|---|
 | 6 piliers UI (Hierarchy, Copywriting, Registry Safety, Typography, Spacing, Color) | `_sources/claude-config/agents/gsd-ui-checker.md` + `gsd-ui-auditor.md` | 🟡 EXTRAIRE |
 | Contrat UI-SPEC | `_sources/get-shit-done/.../templates/UI-SPEC.md` | 🔵 base de DESIGN-SYSTEM |
-| Schéma de règles (le format données) | `_sources/se-ui-ux-pro-max-skill/` → CSV `data/se-ux-guidelines.csv` (colonnes : Issue/Do/Don't/Code Good/Code Bad/Severity) | 🟡 modèle pour `rules/se-ui-rules` |
+| Schéma de règles (le format données) | `_sources/ui-ux-pro-max-skill/` → CSV `data/ux-guidelines.csv` (colonnes : Issue/Do/Don't/Code Good/Code Bad/Severity) | 🟡 modèle pour `rules/ui-rules` |
 | Pattern MASTER + overrides | ui-ux-pro-max `design_system.py` | 🔵 idée d'archi |
 | Mode live / craft | `_sources/impeccable/.claude/skills/impeccable/reference/live.md`, `craft.md` | 🔵 maquette niveau 3 |
 | Détecteur visuel (contraste réel) | `_sources/impeccable/cli/engine/` (screenshot/contrast) | 🔵 pour ui-guard |
@@ -158,7 +158,7 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 
 ## 3.2 Plan de modification
 - 🟡 **`design/DESIGN-SYSTEM.md`** : créer depuis UI-SPEC + 6 piliers, tokens Tailwind/OKLCH, pattern MASTER + overrides par page. LE fichier lu par tous les skills UI.
-- 🟡 **`rules/se-ui-rules`** : externaliser les critères des 6 piliers au format `slug | norme chiffrée | Do | Don't | Code Good | Code Bad | Severity | source`. Severity → BLOCK/FLAG/PASS mécanique. (Format JSON/TS typé plutôt que CSV, cohérent avec la stack ; ne PAS répliquer le moteur BM25 Python d'ui-ux-pro-max — juste les données.)
+- 🟡 **`rules/ui-rules`** : externaliser les critères des 6 piliers au format `slug | norme chiffrée | Do | Don't | Code Good | Code Bad | Severity | source`. Severity → BLOCK/FLAG/PASS mécanique. (Format JSON/TS typé plutôt que CSV, cohérent avec la stack ; ne PAS répliquer le moteur BM25 Python d'ui-ux-pro-max — juste les données.)
 - 🔵 **gsd-ui-researcher / checker / auditor** : les brancher sur DESIGN-SYSTEM + ui-rules au lieu de critères inline. checker/auditor : description auto-trigger-optimisée.
 - 🔴 **`/se-ux`** (expert personas) : créer. Lit `design/PERSONAS.md`, challenge le parcours/JTBD par persona. Distinct de `/se-ui` (visuel).
 - 🟡 **`design/PERSONAS.md`** : créer depuis matière marketing (3-5 personas ancrés VOC réel).
