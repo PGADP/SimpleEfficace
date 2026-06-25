@@ -61,28 +61,25 @@ Le principe fondateur : **ce qui DOIT arriver ne dépend pas de la mémoire de C
 
 ---
 
-## Installation (niveau projet, jamais global)
+## Installation — clone et c'est parti (niveau projet, jamais global)
 
-Le repo **est** déjà la structure d'un projet Claude Code. Tu le clones comme base de ton projet et tout est actif immédiatement — uniquement dans ce projet.
+Le repo **est** un projet Claude Code prêt à l'emploi. Tu le clones, tu lances Claude, et tu démarres. Tout est actif **uniquement dans ce projet** — ta config globale `~/.claude/` n'est jamais touchée.
 
 ```bash
-# 1. Cloner comme base de ton projet
 git clone https://github.com/PGADP/SimpleEfficace.git mon-projet
 cd mon-projet
-
-# 2. (optionnel) Activer les gates qualité du cycle
-cp .planning/_templates/config.template.json .planning/config.json
-
-# 3. Lancer Claude Code → skills, agents et hooks se chargent au démarrage
 claude
+```
 
-# 4. Démarrer
+Puis, dans Claude :
+
+```
 /init "mon idée de produit"
 ```
 
-> Les hooks se chargent **au démarrage de la session** : lance `claude` après le clone. Le système n'affecte **que ce projet** — ta config globale `~/.claude/` n'est jamais touchée.
+C'est tout. `/init` cadre le projet (pilot → brainstorm → PRD → research → roadmap), les hooks et les gates qualité sont déjà actifs.
 
-Pour ajouter le système à un projet **existant** : copie les dossiers `.claude/`, `hooks/`, `get-shit-done/`, `.planning/` dans ton projet.
+> Les hooks se chargent au démarrage de la session — lance `claude` après le clone.
 
 ---
 
@@ -90,6 +87,7 @@ Pour ajouter le système à un projet **existant** : copie les dossiers `.claude
 
 ```
 .
+├── CLAUDE.md          # comment ce projet est piloté (lu par Claude au démarrage)
 ├── .claude/
 │   ├── commands/      # skills : /pilot /init /ui /ux /research /humanizer /gate-* + dev + marketing/
 │   │   └── pilot/     # sous-skills lazy du pilot (briefing, closure, strategic-discussion)
@@ -97,9 +95,8 @@ Pour ajouter le système à un projet **existant** : copie les dossiers `.claude
 │   └── settings.json  # câblage des hooks (niveau projet)
 ├── hooks/             # garde-fous .cjs + rules/ (slop, hardcode, monolithe) — source unique
 ├── get-shit-done/     # moteur GSD (workflows, references, templates) — cycle enrichi
-├── .planning/         # design-system, personas, ui-rules, conventions, INDEX, templates
-├── SYSTEME.md         # conception complète (les 5 strates)
-└── PLAN-CONSTRUCTION.md  # plan de cherry-picking + état d'avancement
+├── .planning/         # design-system, personas, ui-rules, conventions, config (gates actives)
+└── docs/              # conception du système (SYSTEME.md, plan, specs)
 ```
 
 ---
