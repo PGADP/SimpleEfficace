@@ -80,7 +80,7 @@ process.stdin.on('end', () => {
     const list = flagged.map((x) => `  • ${x.f} (${x.fams.join(', ')})`).join('\n');
     deny(
       `slop-gate: ${flagged.length} fichier(s) user-facing avec marqueurs AI-slop non traites :\n${list}\n` +
-      `Passe /humanizer dessus avant de commiter. (Source: hooks/rules/slop-rules.json)`
+      `Passe /se-humanizer dessus avant de commiter. (Source: hooks/rules/slop-rules.json)`
     );
   } catch {
     process.exit(0); // silent fail — ne JAMAIS bloquer un commit par accident

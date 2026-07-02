@@ -320,7 +320,7 @@ Après analyse des sources réelles (`_sources/claude-config` = config perso de 
 | Brique cible | Statut réel | Action |
 |---|---|---|
 | Moteur GSD (18 agents, 57 cmds, workflows, v1.29) | ✅ sur disque, mûr | **Garder, adapter config** |
-| Skills dev (dev/se-plan/se-review/se-fix/se-test/se-deploy/se-janitor/se-refactor/se-debug/se-clean-commit/se-lint/se-perf/se-security/se-health-check) | ✅ sur disque | **Garder, adapter stack** |
+| Skills dev (dev/se-plan/se-review/se-fix/se-test/se-deploy/se-janitor/se-refactor/se-debug/se-clean-commit/se-security/se-health-check) | ✅ sur disque | **Garder, adapter stack** |
 | `/se-pilot` + `/se-planning` | ✅ sur disque | **Garder, rendre mince** |
 | Brainstorming (light+heavy+62 techniques CSV) | ✅ sur disque | **SANCTUARISER** (Paul l'adore) |
 | `/se-research` (méthodo hyperresearch déjà intégrée : Decompose→Verify, 4 lenses, CoVe) | ✅ `~/.claude/commands/se-research.md` | **SANCTUARISER** (Paul l'adore). Ajout optionnel : 4 APIs académiques dans le sous-agent `researcher` |
