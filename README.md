@@ -26,15 +26,15 @@ Le principe fondateur : **ce qui DOIT arriver ne dépend pas de la mémoire de C
 ```
 ┌─ A · GARDE-FOUS (hooks, mécaniques, invisibles) ───────────────────┐
 │  Du code que le harness exécute. Ne peut être ni oublié ni contourné.│
-│  humanizer · ui · hardcode · hygiène · monolithe (advisory)          │
-│  size-gate · slop-gate (bloquants)                                   │
+│  humanizer · ui · hardcode · hygiène · monolithe · sécurité (advisory)│
+│  size-gate · slop-gate · secret-gate (bloquants)                     │
 └───────────────────────────────┬──────────────────────────────────────┘
 ┌─ B · COFONDATEUR (/se-pilot) ─────┴──────────────────────────────────────┐
 │  Sparring, challenge, vision. Routeur mince : la plomberie est lazy.   │
 └───────────────────────────────┬──────────────────────────────────────┘
 ┌─ C · CYCLE DE PHASE (GSD enrichi) ────────────────────────────────────┐
 │  scout → discuss → research → plan(+TDD) → execute →                  │
-│  verify → SIMPLIFY → JANITOR → ship                                   │
+│  verify → SIMPLIFY → JANITOR → SECURITY → ship                        │
 └───────────────────────────────┬──────────────────────────────────────┘
 ┌─ D · MOTEURS PARTAGÉS ─────────┴──────────────────────────────────────┐
 │  recherche 4 niveaux (code · web · scientifique · projets)            │
@@ -56,18 +56,21 @@ Le principe fondateur : **ce qui DOIT arriver ne dépend pas de la mémoire de C
 | Tu écris un email/landing | Le hook **réclame `/se-humanizer`** ; le commit **refuse** le contenu AI-slop |
 | Tu touches un composant | Le hook **rappelle le design-system** et souffle les écarts |
 | Tu hardcodes une valeur | Le hook le **signale** (no magic values) |
-| Une phase se termine | **simplify + janitor** passent en gate avant le ship |
+| Tu hardcodes une clé API | Le hook le signale à l'édition ; le **secret-gate refuse le commit** |
+| Tu codes une route API sans Zod | Le hook **security-guard** te le rappelle |
+| Une phase se termine | **simplify + janitor + security** passent en gate avant le ship |
 | `STATE.md` gonfle | Le **size-gate bloque** à 150 lignes — fini les fichiers de 10 000 lignes |
 
 ---
 
-## Installation — clone et c'est parti (niveau projet, jamais global)
+## Installation
 
-Le repo **est** un projet Claude Code prêt à l'emploi. Tu le clones, tu lances Claude, et tu démarres. Tout est actif **uniquement dans ce projet** — ta config globale `~/.claude/` n'est jamais touchée.
+Le repo **est** un projet Claude Code prêt à l'emploi : skills, hooks et contrats sont au niveau projet. Une seule dépendance globale : le moteur [GSD](https://github.com/gsd-build/get-shit-done) (installé une fois par machine), que les patches SE enrichissent.
 
 ```bash
 git clone https://github.com/PGADP/SimpleEfficace.git mon-projet
 cd mon-projet
+node scripts/install-gsd-patches.cjs   # enrichit le moteur GSD global (gates SE)
 claude
 ```
 
@@ -80,6 +83,8 @@ Puis, dans Claude :
 C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → research → roadmap), les hooks et les gates qualité sont déjà actifs.
 
 > Les hooks se chargent au démarrage de la session — lance `claude` après le clone.
+> Après un `/gsd:update`, relance `node scripts/install-gsd-patches.cjs` (les workflows patchés sont sauvegardés en `*.orig`).
+> Si tu viens de l'ancien système (skills non préfixés dans `~/.claude/commands/`) : `node scripts/prune-legacy-global.cjs --apply` archive les doublons.
 
 ---
 
@@ -89,12 +94,14 @@ C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → 
 .
 ├── CLAUDE.md          # comment ce projet est piloté (lu par Claude au démarrage)
 ├── .claude/
-│   ├── commands/      # skills : /se-pilot /se-new-project /se-ui /se-ux /se-research /se-humanizer /gate-* + dev + marketing/
+│   ├── commands/      # skills : /se-pilot /se-new-project /se-ui /se-ux /se-research /se-humanizer /se-gate-* + dev
 │   │   └── pilot/     # sous-skills lazy du pilot (briefing, closure, strategic-discussion)
-│   ├── agents/        # sous-agents (gsd-*, researcher, ui-*)
+│   ├── agents/        # sous-agent researcher (les agents gsd-* enrichis vivent dans gsd-patches/)
 │   └── settings.json  # câblage des hooks (niveau projet)
-├── hooks/             # garde-fous .cjs + rules/ (slop, hardcode, monolithe) — source unique
-├── get-shit-done/     # moteur GSD (workflows, references, templates) — cycle enrichi
+├── hooks/             # garde-fous .cjs + rules/ (slop, hardcode, secrets, monolithe) — source unique
+├── gsd-patches/       # workflows + agents GSD enrichis (gates SE) → appliqués au moteur global
+├── scripts/           # install-gsd-patches.cjs · prune-legacy-global.cjs
+├── extras/            # hors template : suite marketing My Mozaica (à installer par projet)
 ├── .planning/         # design-system, personas, ui-rules, conventions, config (gates actives)
 └── docs/              # conception du système (SYSTEME.md, plan, specs)
 ```
@@ -103,17 +110,21 @@ C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → 
 
 ## Garde-fous (Strate A)
 
+Trois scripts câblés dans `settings.json`, dont un dispatcher qui porte six détecteurs advisory (source unique des critères dans `hooks/rules/*.json`) :
+
 | Hook | Déclencheur | Action | Bloquant |
 |------|-------------|--------|----------|
 | `humanizer-guard` | édition contenu user-facing | rappel `/se-humanizer` | non |
 | `ui-guard` | édition front | rappel design-system | non |
 | `hardcode-guard` | code source | signale valeurs/listes en dur | non |
-| `hygiene-guard` | code source | imports/console.log/code mort | non |
-| `monolith-guard` | code source | fichier/fonction trop gros | non (advisory) |
+| `hygiene-guard` | code source | console.log / code commenté | non |
+| `monolith-guard` | code source | fichier/exports trop gros | non |
+| `security-guard` | code source | secrets en dur, XSS, eval, route API sans Zod | non |
 | `size-gate` | écriture STATE/ROADMAP | refuse au-delà du plafond | **oui** |
-| `slop-gate` | `git commit` | refuse le contenu AI-slop user-facing | **oui** |
+| `slop-gate` | `git commit` | refuse le contenu AI-slop user-facing stagé | **oui** |
+| `secret-gate` | `git commit` | refuse un diff stagé contenant un secret (clé API, token, PEM) — hook harness, insensible au `--no-verify` | **oui** |
 
-Contrat commun : *jamais casser un tour · exit 0 sauf gate · garde de ré-entrance · silent fail*. Un hook qui plante ne bloque jamais ton travail.
+Contrat commun : *jamais casser un tour · exit 0 sauf gate · silent fail*. Un hook qui plante ne bloque jamais ton travail. Les six premiers = un seul dispatcher (`se-guard.cjs`), testé par `node hooks/se-guard.test.cjs`.
 
 ---
 

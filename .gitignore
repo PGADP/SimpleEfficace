@@ -10,7 +10,6 @@
 .planning/_playwright-results.json
 .planning/_screenshots/
 .planning/ARCHIVE.log
-**/*.lock
 **/scheduled_tasks.lock
 
 # Atelier de cherry-picking (supprimé après build, ne doit pas revenir)
