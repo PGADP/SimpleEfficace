@@ -2,7 +2,7 @@
 
 **Statut :** Template squelette à remplir au lancement de chaque projet.  
 **Objectif :** Anchor tous les audits UX et decisions de flow utilisateur.  
-**Mise à jour :** Post-research utilisateur (via `/marketing/recherche-utilisateur` ou interviews qualitatives).
+**Mise à jour :** Post-research utilisateur (interviews qualitatives, verbatim clients, reviews).
 
 ---
 
@@ -196,5 +196,4 @@ Copier/coller intégralement, sans modification.
 
 - `/se-ux` : Audit parcours utilisateur vs JTBD de chaque persona
 - `/se-ui` : Implémentation visuelle (tokens, couleurs, hiérarchie) — Ne PAS remplacer audit UX
-- `/marketing/recherche-utilisateur` : Collecte verbatim bruts pour nourrir PERSONAS.md
-- `/marketing/contexte` : Enrichir CONTEXT.md avec synthèse JTBD
+- `/se-research` : collecte verbatim et données utilisateurs pour nourrir PERSONAS.md
