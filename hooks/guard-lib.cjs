@@ -57,7 +57,7 @@ function detectUi({ filePath }) {
   if (!isFrontFile(filePath)) return [];
   return [{
     id: 'ui-guard',
-    message: 'Edition front detectee. Contrat: .planning/design/DESIGN-SYSTEM.md (tokens, 6 piliers) + criteres: .planning/rules/ui-rules.json. Respecte-les avant de livrer le visuel.',
+    message: 'Edition front detectee. Rituel /se-ui : (1) contrat .planning/design/DESIGN-SYSTEM.md + ui-rules.json, (2) coherence parcours .planning/design/JOURNEYS.md, (3) textes UI via /se-humanizer, (4) verification visuelle Playwright avant livraison.',
   }];
 }
 

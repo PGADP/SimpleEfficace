@@ -641,16 +641,16 @@ fi
 ```
 Si présent : Claude lance le serveur dev lui-même (cf. checkpoints — l'humain ne lance jamais de commande).
 
-**Step 2 — Capturer les 3 breakpoints** via le helper réutilisable (PAS un spec par feature) :
+**Step 2 — Capturer les 3 breakpoints** via le helper réutilisable (PAS un spec par feature). Les routes à capturer = celles modifiées par la phase, **complétées par les étapes des parcours touchés dans `.planning/design/JOURNEYS.md`** (si un écran d'un parcours a changé, on capture aussi l'étape amont et l'étape aval — la friction vit dans les transitions) :
 ```bash
-# Pour chaque route/écran modifié par la phase :
+# Pour chaque route/écran modifié par la phase (+ étapes adjacentes du parcours) :
 SHOT_ROUTE="<route>" SHOT_NAME="<ecran>" SHOT_OUTDIR=".planning/phases/${PADDED}-*/screenshots" \
   npx playwright test tests/e2e/checkpoint-shots.ts
 # → desktop / tablet / mobile dans le dossier screenshots/ de la phase
 ```
 (Helper template : `.planning/design/checkpoint-shots.template.ts` → à copier en `tests/e2e/checkpoint-shots.ts` au 1er usage.)
 
-**Step 3 — Lancer le détecteur visuel** (contraste réel, débordements) sur les captures, et croiser avec `ui-rules.json` (les critères chiffrés des 6 piliers).
+**Step 3 — Lancer le détecteur visuel** (contraste réel, débordements) sur les captures, et croiser avec `ui-rules.json` (les critères chiffrés des 6 piliers). Vérifier aussi que les textes UI visibles sur les captures sont passés par `/se-humanizer` (labels, CTA, erreurs, états vides).
 
 **Step 4 — Checkpoint humain (GO / NO-GO visuel):**
 ```
@@ -660,7 +660,7 @@ Captures : desktop / tablet / mobile (voir screenshots/)
 
 → Le rendu est bon ? [GO / décrire les problèmes]
 ```
-Consigner verdict + chemins des captures dans `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`.
+Consigner verdict + chemins des captures dans `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`. Sur GO : passer les étapes de parcours concernées à `vérifié` dans `.planning/design/JOURNEYS.md` (+ date du checkpoint).
 
 **Error handling:** si Playwright échoue (serveur, timeout), display "Checkpoint visuel non disponible (non-bloquant): {error}" et proceed. Ne JAMAIS bloquer le flow sur un échec de capture.
 

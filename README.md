@@ -41,7 +41,7 @@ Le principe fondateur : **ce qui DOIT arriver ne dépend pas de la mémoire de C
 │  banques de règles : design-system · ui-rules · slop-rules            │
 └───────────────────────────────┬──────────────────────────────────────┘
 ┌─ E · SPÉCIALISTES ─────────────┴──────────────────────────────────────┐
-│  UX (personas) · UI · Humanizer · skills dev · marketing              │
+│  UX (personas + parcours E2E) · UI · Humanizer · skills dev           │
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -101,8 +101,7 @@ C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → 
 ├── hooks/             # garde-fous .cjs + rules/ (slop, hardcode, secrets, monolithe) — source unique
 ├── gsd-patches/       # workflows + agents GSD enrichis (gates SE) → appliqués au moteur global
 ├── scripts/           # install-gsd-patches.cjs · prune-legacy-global.cjs
-├── extras/            # hors template : suite marketing My Mozaica (à installer par projet)
-├── .planning/         # design-system, personas, ui-rules, conventions, config (gates actives)
+├── .planning/         # design-system, journeys (parcours E2E), personas, ui-rules, conventions, config
 └── docs/              # conception du système (SYSTEME.md, plan, specs)
 ```
 
@@ -136,7 +135,7 @@ Contrat commun : *jamais casser un tour · exit 0 sauf gate · silent fail*. Un 
 - **Anti-entropie par défaut.** Plafonds de taille + archivage. Rien ne gonfle sans limite.
 - **Source unique.** Les critères (design, slop, hardcode) vivent dans des données lues par celui qui propose ET celui qui vérifie.
 
-Détail complet dans [`SYSTEME.md`](SYSTEME.md).
+Détail complet dans [`docs/SYSTEME.md`](docs/SYSTEME.md).
 
 ---
 

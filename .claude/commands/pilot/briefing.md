@@ -22,7 +22,6 @@ Procédure lourde du Mode 1, chargée à la demande pour garder /se-pilot mince.
    - Alertes (retards, bloqueurs, dependances externes)
    - Recommandation pour la session
 
-**Note marketing** : ne lis PAS `.planning/marketing/`. Si l'utilisateur demande le marketing → rediriger vers `/se-pilot-marketing`.
 
 4. **Icebox** : si STATE.md montre qu'un nouveau milestone vient d'etre active, proposer `/gsd:check-todos` + `/gsd:review-backlog` pour revoir les idees capturees. Attendre confirmation, ne pas lancer auto.
 

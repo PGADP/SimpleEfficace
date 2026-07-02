@@ -1,5 +1,5 @@
 ---
-description: Lance une recherche approfondie sur internet via le sous-agent `researcher`. Couvre tech/archi/libs, papers académiques, recherche marketing/concurrents. Demande quick/deep au lancement, produit un fichier .planning/research/<slug>.md persistant + résumé inline tranché. Méthodologie Decompose→Plan→Search→Read→Reflect→Iterate→Synthesize→Verify (inspirée Anthropic multi-agent + hyperresearch), coverage matrix + atomic items, 4 lenses (breadth/depth/adversarial/period-pinned), required_section_headings, integrate-by-scoping vs append-as-caveat, Chain of Verification, lateral reading, structural mirror check. Usage : /se-research <sujet libre>. Tout l'output en français.
+description: Lance une recherche approfondie sur internet via le sous-agent `researcher`. Couvre tech/archi/libs, papers académiques, analyse concurrents. Demande quick/deep au lancement, produit un fichier .planning/research/<slug>.md persistant + résumé inline tranché. Méthodologie Decompose→Plan→Search→Read→Reflect→Iterate→Synthesize→Verify (inspirée Anthropic multi-agent + hyperresearch), coverage matrix + atomic items, 4 lenses (breadth/depth/adversarial/period-pinned), required_section_headings, integrate-by-scoping vs append-as-caveat, Chain of Verification, lateral reading, structural mirror check. Usage : /se-research <sujet libre>. Tout l'output en français.
 ---
 
 # /se-research — Recherche approfondie sur internet
@@ -13,7 +13,6 @@ Tu lances une recherche structurée via le sous-agent `researcher`. Ta valeur aj
 - Benchmark de libs/outils ("meilleure lib FR pour embeddings sémantiques 2026 ?")
 - Recherche concurrents/marché ("qui sont les acteurs cadeau biographie FR ?")
 - État de l'art académique ("papers récents sur RAG memory layers")
-- Recherche marketing ciblée ("CRO patterns landing FR B2C 35-65 ans")
 
 ❌ Mauvais usage :
 - Question simple qu'un WebSearch unique résout (juste fais le WebSearch)

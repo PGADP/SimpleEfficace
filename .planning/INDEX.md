@@ -19,6 +19,7 @@
 
 - [design/DESIGN-SYSTEM.md](design/DESIGN-SYSTEM.md) — contrat de design (à remplir avec tes valeurs de marque)
 - [design/PERSONAS.md](design/PERSONAS.md) — personas (à remplir au cadrage)
+- [design/JOURNEYS.md](design/JOURNEYS.md) — parcours utilisateur end-to-end (créés/maintenus par `/se-ux`)
 
 ## Règles
 

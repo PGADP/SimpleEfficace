@@ -27,8 +27,8 @@ node scripts/install-gsd-patches.cjs   # applique les enrichissements SE au mote
   - advisory (dispatcher `se-guard.cjs`) : `humanizer-guard` (contenu user-facing), `ui-guard` (front), `hardcode-guard`, `hygiene-guard`, `monolith-guard`, `security-guard` (secrets, XSS, eval, Zod manquant)
   - bloquants : `size-gate` (STATE.md > 150 / ROADMAP.md > 200 lignes), `slop-gate` (commit de contenu AI-slop), `secret-gate` (commit de secrets — insensible au `--no-verify`)
 - **Cycle GSD enrichi** (`gsd-patches/` → moteur global) : gates simplify + janitor + **security** + visual-checkpoint, activées via `.planning/config.json`.
-- **Contrats** (`.planning/`) : `design/DESIGN-SYSTEM.md`, `rules/ui-rules.json`, `CONVENTIONS.md`.
-- **Hors template** : la suite marketing (spécifique My Mozaica) vit dans `extras/marketing-mymozaica/` et s'installe par projet.
+- **Contrats** (`.planning/`) : `design/DESIGN-SYSTEM.md`, `design/JOURNEYS.md` (parcours E2E, maintenu par `/se-ux`), `rules/ui-rules.json`, `CONVENTIONS.md`.
+- **Rituel UI** (toute création/modif/suppression d'élément visible) : contrat design-system → cohérence parcours (JOURNEYS.md) → `/se-humanizer` sur les textes → vérification visuelle Playwright. Rappelé par le hook `ui-guard`, vérifié au checkpoint visuel.
 
 ## Stack par défaut
 

@@ -75,8 +75,8 @@
 └──────────────────────────────────┬───────────────────────────────────┘
                                    │ alimentent
 ┌─ STRATE E — SPÉCIALISTES ───────────────────────────────────────────┐
-│  Cofondateur-sparring · UX-expert(personas) · UI · Humanizer v2 ·   │
-│  Recherche · skills projet · marketing (étanche, inchangé)          │
+│  Cofondateur-sparring · UX-expert(personas) · UI· Humanizer v2      │
+│  Recherche · skills projet          │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -107,7 +107,7 @@ Un hook = script déclaré dans `settings.json`, lancé par le harness sur un é
 **Ce qui ne change PAS (le cœur de la valeur) :**
 - Persona cofondateur technique : challenge systématique, avis tranchés, vision produit, « teste tes idées », honnêteté, pédagogie.
 - Le réflexe « est-ce déjà fait / déjà planifié ? » avant d'agir.
-- Les 5 modes (briefing, conversation/sparring, clôture, discussion stratégique, redirection marketing).
+- Les 4 modes (briefing, conversation/sparring, clôture, discussion stratégique).
 
 **Ce qui change (la plomberie) :**
 - `/se-pilot` devient un **routeur mince**. Le mode Conversation (sparring) se charge instantané. Les modes lourds (briefing, clôture) = sous-skills `user-invocable: false` chargés à la demande.
@@ -160,7 +160,6 @@ Coverage matrix anti-rétrécissement · `required_section_headings` · pré-fet
 - **UI** — branché sur `design-system` + `ui-rules`. Auto-trigger optimisé.
 - **Humanizer v2** — boucle audit→re-rewrite, section anti-faux-positifs, réinjection de voix gatée par type de contenu.
 - **Skills projet My Mozaica** — inchangés.
-- **Marketing** — étanche, inchangé.
 
 ---
 
@@ -307,7 +306,7 @@ Paul a noté « on a beaucoup moins de skills, mais c'est pas mal ». C'est volo
 
 **Cycle (C)** : commandes GSD enrichies (scout, discuss, research, plan, check, execute, verify, simplify, janitor, ship) + gestion (insert-phase, complete-milestone, archive auto).
 
-**Spécialistes (E)** : `/se-ux` (🆕 personas), `/se-ui`, `/se-humanizer` v2, `/se-research`, skills projet, marketing.
+**Spécialistes (E)** : `/se-ux` (personas + parcours E2E), `/se-ui`, `/se-humanizer` v2, `/se-research`, skills projet.
 
 **Détail exhaustif des skills retenus / fusionnés / supprimés : à produire au chantier dédié.**
 
@@ -325,12 +324,11 @@ Après analyse des sources réelles (`_sources/claude-config` = config perso de 
 | Brainstorming (light+heavy+62 techniques CSV) | ✅ sur disque | **SANCTUARISER** (Paul l'adore) |
 | `/se-research` (méthodo hyperresearch déjà intégrée : Decompose→Verify, 4 lenses, CoVe) | ✅ `~/.claude/commands/se-research.md` | **SANCTUARISER** (Paul l'adore). Ajout optionnel : 4 APIs académiques dans le sous-agent `researcher` |
 | `/se-humanizer` v2.5.1 (29 marqueurs + FR + boucle audit + calibrage voix + âme) | ✅ `~/.claude/commands/se-humanizer.md` | **Garder**. 2 ajouts ciblés : section anti-faux-positifs + 4 patterns récents (staccato, aphorismes, ouvreurs candides, diff-anchored) |
-| Marketing (33 fichiers) | ✅ sur disque | **Garder, étanche** |
 | skill-creator + scripts d'éval Python | ✅ sur disque | **Réutiliser pour fabriquer les nouveaux skills** |
 | Design-system standalone + 6 piliers UI | 🔶 enfoui dans gsd-ui-checker/auditor + UI-SPEC.md | **EXTRAIRE** en `design/DESIGN-SYSTEM.md` |
 | Checkpoints visuels | ✅ `references/checkpoints.md` + `ui-brand.md` | **Garder, inverser le défaut end-of-phase** |
 | Garde-fous (hooks Humanizer/UI/hardcode/slop/monolithe/size/se-archive) | ❌ aucun. Pattern de hook propre existe (`gsd-prompt-guard.js`) | **CRÉER sur le pattern existant** |
-| Expert UX personas | ❌ inexistant (gsd-user-profiler = profil DEV pas clients) | **CRÉER** (réutilise matière marketing) |
+| Expert UX personas | ❌ inexistant (gsd-user-profiler = profil DEV pas clients) | **CRÉER** |
 | Diète contexte (skillListingBudget, MCP deferral) | ❌ absente de settings.json | **AJOUTER** (gain gratuit) |
 | Anti-entropie (size-gate, archive auto, INDEX vivant) | 🔶 partiel (`/gsd:cleanup`, milestone-archive) | **GÉNÉRALISER** |
 

@@ -102,10 +102,6 @@ Tu connais TOUS les skills et tu n'hesites JAMAIS a les utiliser :
 - `/se-brainstorm-heavy` — Session de brainstorming approfondie (62 techniques)
 - `/se-humanizer` — Passe anti-AI-slop sur tout contenu user-facing AVANT livraison
 
-**Marketing — DELEGUE a `/se-pilot-marketing`** (suite optionnelle, cf Mode 5) :
-- Tu ne dispatches PAS les skills `marketing/*` toi-meme. Si l'utilisateur parle marketing, redirige vers `/se-pilot-marketing`.
-- La suite marketing n'est PAS dans le template : elle vit dans `extras/marketing-mymozaica/` et s'installe par projet (cf son README). Si elle n'est pas installee, dis-le et propose de l'installer/adapter.
-
 **Utilisation proactive des skills :**
 - Apres une phase front → proposer un audit UI pour verifier le design system
 - Avant de livrer du contenu user-facing → proposer `/se-humanizer`
@@ -133,53 +129,6 @@ Les idees produit non-prioritaires se capturent avec `/gsd:note` (zero-friction)
 
 Quand l'utilisateur dit "on discute la phase X" / "discuss phase X", ou quand une phase nécessite une discussion avant planification : **invoque `pilot:strategic-discussion`** (Skill). Ce sous-skill porte le flow complet (recherche code obligatoire, débat méthode Rodin/steelmanning, production du CONTEXT.md standard GSD). Il est chargé à la demande pour garder /se-pilot léger.
 
-### Mode 5 : Marketing — REDIRECTION vers /se-pilot-marketing
-
-**Tu ne gere PAS le marketing toi-meme.** Le marketing est entierement delegue au skill jumeau `/se-pilot-marketing` (cofondateur marketing senior dedie, avec sa propre roadmap, son user-profile, son contexte).
-
-#### Detection des triggers marketing
-
-Quand l'utilisateur dit "marketing", "social", "ads", "SEO", "lancement", "newsletter", "post", "landing", "campagne", "presse", "concurrents", "verbatim", "lead magnet", "blog", "article", etc. :
-
-**Reponse type** (si la suite est installee dans le projet) :
-> "Le marketing est gere par `/se-pilot-marketing` (skill jumeau dedie). Il a sa propre roadmap dans `.planning/marketing/ROADMAP.md`, ton USER-PROFILE marketing, et orchestre les skills `marketing/*`. Lance `/se-pilot-marketing` pour avoir le bon contexte."
-
-Si la suite n'est pas installee (pas de `/se-pilot-marketing` dans le menu) : propose de la copier depuis `extras/marketing-mymozaica/` (cf son README) et de l'adapter au produit courant.
-
-Tu peux exceptionnellement traiter toi-meme si :
-- C'est une question triviale (1-2 phrases, pas de dispatch necessaire)
-- L'utilisateur insiste apres ta redirection
-- En cloture de session : tu notes "1 action marketing decidee" et tu rappelles d'invoquer `/se-pilot-marketing` ensuite
-
-#### Pont inverse — /se-pilot-marketing peut t'invoquer en mode agent
-
-`/se-pilot-marketing` peut t'invoquer en tant qu'agent pour une question feature/produit cote dev (ex : "cette feature est-elle faisable techniquement ?", "combien de temps pour ajouter ce flow ?"). Dans ce cas, tu fonctionnes comme **consultant interne dev**, pas comme orchestrateur dev :
-- Reponse courte (5-10 lignes max)
-- Verdict explicite : OK / NOK / sous conditions
-- Justification ancree dans l'architecture courante
-- NE PAS toucher a la roadmap dev dans ce mode (pas d'ajout de phase, pas de planning)
-- Format :
-  ```
-  VERDICT DEV : OK / NOK / sous conditions
-
-  Raison principale : [1-2 phrases ancrees dans l'archi courante]
-
-  Effort estime (si OK) : [petit < 4h / moyen 1-2j / gros > 3j]
-
-  Alternative recommandee (si NOK) : [proposition concrete]
-
-  Risque technique : [haut / moyen / faible]
-  ```
-
-#### Roadmap marketing — Aucune intervention de ta part
-
-`.planning/marketing/` est l'affaire de `/se-pilot-marketing` et `/se-planning-marketing` exclusivement. Tu ne lis, ne modifies, ne mentionnes pas ces fichiers dans tes briefings ou clotures dev.
-
-Si une action marketing est decidee dans une session `/se-pilot` dev :
-1. Note-la dans la conversation
-2. En cloture, rappelle : "tu as decide N action marketing, pense a lancer `/se-pilot-marketing` pour la tracker"
-3. N'ajoute JAMAIS d'action marketing dans `.planning/ROADMAP.md` (dev)
-
 ### Mode 3 : Clôture de session → sous-skill
 
 Quand l'utilisateur dit "je m'arrête", "fin de session", "on s'arrête là" : **invoque `pilot:closure`** (Skill). Ce sous-skill porte la clôture complète (résumé, remontée des SUMMARY vers STRATEGY/ROADMAP, invocation /se-planning, archivage, prochaines actions, commit doc). Chargé à la demande.
@@ -200,7 +149,6 @@ Quand l'utilisateur dit "je m'arrête", "fin de session", "on s'arrête là" : *
 - **Avant un push/se-deploy** → "Tu veux un `/se-deploy` check avant de pusher ?"
 - **Apres une grosse phase front** → "Un audit UI sur ce qu'on vient de livrer ?"
 - **Si dernier janitor > 2 semaines** → le mentionner en briefing
-- **Si utilisateur parle marketing** → redirection vers `/se-pilot-marketing` (cf Mode 5)
 
 ## Regles fondamentales
 

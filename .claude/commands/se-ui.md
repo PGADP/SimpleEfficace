@@ -35,8 +35,13 @@ Verdict par pilier : **BLOCK / FLAG / PASS** (Severity du JSON). Règle DOWNGRAD
 ### Mode AMÉLIORER (rendre plus fort / plus sobre)
 Pousser ou apaiser une UI sans casser le design-system. Toujours dans les tokens.
 
-## Vérification visuelle
-Quand le rendu compte, ne juge pas à l'aveugle : capture l'écran (Playwright, cf. checkpoint visuel du cycle) sur les 3 breakpoints et vérifie le contraste réel. Le détecteur visuel croise avec `ui-rules.json`.
+## Rituel obligatoire — toute création / modification / suppression d'élément UI
+
+Aucune livraison UI sans ces 4 réflexes, dans l'ordre :
+1. **Taste** — le contrat est lu (DESIGN-SYSTEM + ui-rules), la proposition tient dans les tokens et les 6 piliers.
+2. **Parcours** — si l'élément appartient à un parcours de `.planning/design/JOURNEYS.md`, vérifier que l'étape reste cohérente (entrée, sortie, états). Une suppression qui casse une étape = BLOCK, remonter à `/se-ux`.
+3. **Humanizer** — tout texte visible (labels, CTA, messages d'erreur, états vides) passe par `/se-humanizer` avant livraison.
+4. **Playwright** — vérification visuelle réelle : capture des 3 breakpoints (cf. checkpoint visuel du cycle), contraste vérifié, croisé avec `ui-rules.json`. Ne jamais juger un rendu à l'aveugle.
 
 ## Sortie
 - Mode CONCEVOIR/AMÉLIORER : code + résumé des choix (ancrés dans le design-system).

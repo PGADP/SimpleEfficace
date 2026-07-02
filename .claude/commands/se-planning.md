@@ -27,70 +27,8 @@ Tu lis ET écris dans ces fichiers exclusivement :
 - `.planning/STRATEGY.md` — Objectifs business, deadlines, risques, décisions
 - `.planning/ROADMAP.md` — Milestones, phases code, planning semaine
 - `.planning/STATE.md` — Position courante, dernière activité
-- `.planning/ROADMAP-MARKETING.md` — Actions marketing planifiées (NEW)
 
-**JAMAIS de fichier supplémentaire.** Pas de TASKS.md, pas de PLANNING.md. Tout est dans ces 4 fichiers.
-
-## Roadmap marketing : son rôle
-
-`.planning/ROADMAP-MARKETING.md` est une **roadmap distincte** de `ROADMAP.md` (technique) parce que :
-- Les actions marketing ne sont pas des "phases code" (pas de PLAN.md / SUMMARY.md)
-- Elles ont leur propre rythme (saisonnier, calendrier éditorial)
-- Elles utilisent les skills `marketing/*` plutôt que les agents GSD
-- Elles peuvent être exécutées en parallèle du dev sans dépendances
-
-Mais elle EST intégrée au planning global :
-- Vue semaine (ROADMAP.md) référence les actions marketing en cours
-- Clôture session met à jour les deux roadmaps
-- /se-pilot briefing lit les deux
-
-### Structure ROADMAP-MARKETING.md
-
-```markdown
-# Roadmap Marketing
-
-> Dernière mise à jour : YYYY-MM-DD par /se-planning
-
-## Statut général
-
-- **CONTEXT.md marketing** : ⚠️ à remplir / ✅ rempli le YYYY-MM-DD
-- **Phase stratégique** : pré-launch / alpha / beta / public launch / scale
-- **Prochain jalon** : <event> le <date>
-
-## Actions en cours
-
-| Action | Skill | Owner | Échéance | Status | Notes |
-|--------|-------|-------|----------|--------|-------|
-| [Action] | [Skill] | Paul | YYYY-MM-DD | en cours | [Notes] |
-
-## Calendrier saisonnier
-
-### [Mois YYYY] — [Événement]
-- J-21 : [action]
-- J-14 : [action]
-- J0 : [action]
-
-## Actions complétées récemment
-
-| Date | Action | Skill | Notes |
-|------|--------|-------|-------|
-| YYYY-MM-DD | <action> | <skill> | <observation> |
-
-## Actions parking lot (à relancer plus tard)
-
-- [ ] [Action future]
-- [ ] [Action future]
-
-## KPIs cibles
-
-- **Phase 1** : [KPI]
-- **Phase 2** : [KPI]
-```
-
-### Quand créer ROADMAP-MARKETING.md
-
-- Si fichier absent et contexte marketing mentionné : créer (squelette ci-dessus, vide)
-- Si fichier présent : maintenir à jour
+**JAMAIS de fichier supplémentaire.** Pas de TASKS.md, pas de PLANNING.md. Tout est dans ces 3 fichiers.
 
 ## Structure du planning semaine dans ROADMAP.md
 
@@ -143,22 +81,19 @@ Types de tâches manuelles :
 
 ### Mode 1 : Point planning (appel direct ou via /se-pilot briefing)
 
-1. Lis STRATEGY.md, ROADMAP.md, STATE.md, **ROADMAP-MARKETING.md (si existe)**
+1. Lis STRATEGY.md, ROADMAP.md, STATE.md
 2. Produis :
    - **Avancement global** : % du milestone en cours, phases faites/restantes
    - **Semaine en cours** : ce qui était prévu vs ce qui est fait
-   - **Marketing** : actions roadmap-marketing en cours / en retard
-   - **Alertes** : retards, bloqueurs, risques sur les jalons (technique ET marketing)
-   - **Prochaines actions** : ce qui devrait être fait cette semaine (code + marketing)
+   - **Alertes** : retards, bloqueurs, risques sur les jalons
+   - **Prochaines actions** : ce qui devrait être fait cette semaine
 3. Mets à jour la vue semaine si nécessaire (décalages, nouvelles tâches)
-4. Mets à jour ROADMAP-MARKETING.md si actions marketing décalées / complétées
 
 Format de réponse au /se-pilot (quand appelé en sous-main) :
 ```
 PLANNING STATUS:
 - Milestone: [nom] (X% — Y/Z phases)
 - Semaine S[N]: [phases prévues], [phases faites]
-- Marketing: [N] actions en cours, [N] en retard
 - Alerte: [alertes]
 - Chemin critique: [statut]
 - Tâches manuelles: [statut]
@@ -188,46 +123,17 @@ Quand /se-pilot te dit "on ajoute/décale/change X" :
 /se-pilot te transmet ce qui a été fait dans la session. Tu :
 
 1. Coches les phases/tâches complétées dans la vue semaine (ROADMAP.md)
-2. **Coches les actions marketing complétées (ROADMAP-MARKETING.md)**
-3. Mets à jour les status dans ROADMAP.md
-4. Recalcules le % d'avancement du milestone
-5. Identifies si le planning est en avance ou en retard
-6. **Si une action marketing décidée dans la session n'est pas dans ROADMAP-MARKETING.md, l'ajouter**
-7. Retournes un résumé au /se-pilot :
+2. Mets à jour les status dans ROADMAP.md
+3. Recalcules le % d'avancement du milestone
+4. Identifies si le planning est en avance ou en retard
+5. Retournes un résumé au /se-pilot :
    ```
    PLANNING UPDATE:
    - Fait: Phase X complétée
-   - Marketing: [action] complète
    - Avancement: Y% (+Z%)
    - Planning: en [avance/retard] de N jours
    - Prochaine priorité: Phase/Action
    ```
-
-### Mode 4 : Roadmap marketing dédiée (NEW)
-
-Quand /se-pilot appelle avec contexte marketing exclusif, ou utilisateur demande "point marketing", "roadmap marketing", "où on en est en marketing" :
-
-1. Lis `.planning/ROADMAP-MARKETING.md` (créer si absent avec squelette)
-2. Lis `.planning/marketing/CONTEXT.md` (signaler si absent)
-3. Produis :
-   - **Statut général** : pré-launch / alpha / beta / public launch / scale
-   - **Actions en cours** (table)
-   - **Actions complétées récemment**
-   - **Actions parking lot à reconsidérer**
-   - **Calendrier saisonnier proche** (J-X avant prochain pic)
-   - **Alertes marketing** : retards, manques (CONTEXT.md vide, etc.)
-4. Recommande la prochaine action prioritaire
-
-Format de réponse :
-```
-MARKETING ROADMAP STATUS:
-- Phase: [phase]
-- CONTEXT.md: [status]
-- Actions en cours: [nombre]
-- En retard: [nombre]
-- Prochain pic: [date]
-- Recommandation: [action prioritaire]
-```
 
 ## Principes
 
