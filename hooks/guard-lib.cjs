@@ -48,7 +48,7 @@ function detectSlop({ filePath, content }) {
   if (hit.length < (rules.clusterThreshold || 2)) return [];
   return [{
     id: 'humanizer-guard',
-    message: `Contenu user-facing avec ${hit.length} familles de marqueurs AI-slop (${hit.join(', ')}). Passe /humanizer avant de finir.`,
+    message: `Contenu user-facing avec ${hit.length} familles de marqueurs AI-slop (${hit.join(', ')}). Passe /se-humanizer avant de finir.`,
   }];
 }
 
@@ -130,7 +130,43 @@ function detectMonolith({ filePath, content }) {
   }];
 }
 
-const DETECTORS = [detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith];
+// 6. security-guard: secrets en dur, sinks XSS, eval, route API sans validation Zod.
+function detectSecurity({ filePath, content }) {
+  if (!isSourceFile(filePath)) return [];
+  // the guards themselves legitimately contain these patterns as regex literals
+  if (/(^|[\\/])hooks[\\/]/.test(filePath)) return [];
+  const findings = [];
+  const lines = content.split('\n').filter((l) => !/^\s*(\/\/|\*)/.test(l));
+
+  const rules = loadJson('secret-patterns.json');
+  if (rules && !isExcluded(filePath, rules.excludeFilePatterns)) {
+    const allow = rules.allowPatterns.map((p) => new RegExp(p, 'i'));
+    const hit = rules.patterns.find((p) => {
+      const re = new RegExp(p.regex, 'i');
+      return lines.some((l) => re.test(l) && !allow.some((a) => a.test(l)));
+    });
+    if (hit) findings.push(`secret en dur (${hit.label}) — mets-le dans .env, le secret-gate refusera le commit`);
+  }
+
+  if (lines.some((l) => /dangerouslySetInnerHTML/.test(l))) {
+    findings.push('dangerouslySetInnerHTML — sanitize le HTML (ou évite-le)');
+  }
+  if (lines.some((l) => /\beval\s*\(|new\s+Function\s*\(/.test(l))) {
+    findings.push('eval()/new Function() — exécution de code arbitraire, à bannir');
+  }
+
+  const isApiRoute = /(^|\/)route\.(ts|js)$|\/api\//.test(filePath.replace(/\\/g, '/'));
+  const handlesBody = /export\s+(async\s+)?function\s+(POST|PUT|PATCH)|request\.json\(\)|req\.body/.test(content);
+  const hasZod = /\bz\.|zod|safeParse|\.parse\(/.test(content);
+  if (isApiRoute && handlesBody && !hasZod) {
+    findings.push('route API avec body sans validation Zod apparente — valide les inputs (règle CLAUDE.md)');
+  }
+
+  if (!findings.length) return [];
+  return [{ id: 'security-guard', message: `Sécurité: ${findings.join(' ; ')}.` }];
+}
+
+const DETECTORS = [detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity];
 
 function runAll({ filePath, content }) {
   const out = [];
@@ -142,6 +178,6 @@ function runAll({ filePath, content }) {
 
 module.exports = {
   runAll,
-  detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith,
+  detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity,
   isSourceFile, isFrontFile, isUserFacingFile,
 };

@@ -12,6 +12,23 @@
             "statusMessage": "se-size-gate"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-slop-gate.cjs\"",
+            "timeout": 5,
+            "statusMessage": "se-slop-gate"
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-secret-gate.cjs\"",
+            "timeout": 5,
+            "statusMessage": "se-secret-gate"
+          }
+        ]
       }
     ],
     "PostToolUse": [

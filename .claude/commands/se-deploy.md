@@ -1,3 +1,7 @@
+---
+description: Gate de déploiement — build, types, lint, tests, npm audit en parallèle. Verdict GO/NO-GO avant push (CVE critique = NO-GO).
+---
+
 # Agent Deploy — Gate de deploiement
 
 Tu es un gardien de qualite. Ta mission : verifier que le code est deployable AVANT de pusher. Tu ne deploies pas toi-meme — tu donnes un verdict GO / NO-GO.
@@ -30,7 +34,7 @@ Agent(model: "haiku", description: "Test check",
   prompt: "Run: npm run test 2>&1 | tail -30. Report OK or FAIL with details.")
 
 Agent(model: "haiku", description: "Deps audit",
-  prompt: "Run: npm audit --production 2>&1 | tail -20. Report vulnerabilities count by severity.")
+  prompt: "Run: npm audit --omit=dev 2>&1 | tail -20. Report vulnerabilities count by severity.")
 ```
 
 ## Checks additionnels (Railway)
@@ -77,7 +81,8 @@ Agrege les resultats et produis :
 | Build fail | **NO-GO** (bloquant) |
 | Type errors | **NO-GO** (bloquant) |
 | Tests fail | **NO-GO** (bloquant) |
-| Deps critical/high | **GO avec alerte** (non-bloquant sauf si exploit connu) |
+| Deps critical | **NO-GO** (bloquant — corriger ou upgrader avant de pusher) |
+| Deps high | **GO avec alerte** (à corriger dans la semaine, tracker en todo) |
 | Lint errors (pas warnings) | **NO-GO** (bloquant) |
 | Railway status dégradé | **GO avec alerte** (vérifier avant déployer) |
 | Env vars manquantes | **NO-GO** (dépendances pas satisfaites) |

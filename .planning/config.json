@@ -13,6 +13,7 @@
     "tdd_mode": true,
     "simplify_gate": true,
     "janitor_gate": true,
+    "security_gate": true,
     "visual_checkpoint": true
   },
   "parallelization": {

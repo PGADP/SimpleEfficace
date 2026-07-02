@@ -53,5 +53,35 @@ check('gros fichier → monolith-guard',
   has(runAll({ filePath: 'src/lib/huge.ts', content:
     'const x = 1;\n'.repeat(450) }), 'monolith-guard'));
 
+// --- SÉCURITÉ (security-guard) ---
+
+check('clé API sk- en dur → security-guard',
+  has(runAll({ filePath: 'src/lib/client.ts', content:
+    'const key = "sk-abc123def456ghi789jkl012mno";\n' }), 'security-guard'));
+
+check('placeholder de clé (process.env / your-api-key) → PAS de security-guard',
+  !has(runAll({ filePath: 'src/lib/client.ts', content:
+    'const key = process.env.OPENAI_API_KEY;\nconst doc = "mets your-api-key ici";\n' }), 'security-guard'));
+
+check('dangerouslySetInnerHTML → security-guard',
+  has(runAll({ filePath: 'src/components/Rich.tsx', content:
+    'export function Rich({ html }) { return <div dangerouslySetInnerHTML={{ __html: html }} />; }\n' }), 'security-guard'));
+
+check('eval() → security-guard',
+  has(runAll({ filePath: 'src/lib/calc.ts', content:
+    'export function run(expr: string) { return eval(expr); }\n' }), 'security-guard'));
+
+check('route API POST sans Zod → security-guard',
+  has(runAll({ filePath: 'src/app/api/users/route.ts', content:
+    'export async function POST(request: Request) {\n  const body = await request.json();\n  return Response.json(body);\n}\n' }), 'security-guard'));
+
+check('route API POST avec Zod → PAS de security-guard',
+  !has(runAll({ filePath: 'src/app/api/users/route.ts', content:
+    'import { z } from "zod";\nconst S = z.object({ name: z.string() });\nexport async function POST(request: Request) {\n  const body = S.safeParse(await request.json());\n  return Response.json(body);\n}\n' }), 'security-guard'));
+
+check('fichier hooks/ exclu du security-guard',
+  !has(runAll({ filePath: 'hooks/guard-lib.cjs', content:
+    'const re = /dangerouslySetInnerHTML/;\n' }), 'security-guard'));
+
 console.log(`\n${pass} pass / ${fail} fail`);
 process.exit(fail === 0 ? 0 : 1);

@@ -9,10 +9,6 @@
 const path = require('path');
 const { runAll } = require('./guard-lib.cjs');
 
-// Re-entrancy guard: if a child process already ran the guard, do nothing.
-if (process.env.SE_GUARD_DEPTH) process.exit(0);
-process.env.SE_GUARD_DEPTH = '1';
-
 let input = '';
 const stdinTimeout = setTimeout(() => process.exit(0), 3000);
 process.stdin.setEncoding('utf8');
