@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+// install-gsd-patches — applies the Simple & Efficace enrichments to the GLOBAL
+// GSD engine (~/.claude/get-shit-done/ and ~/.claude/agents/).
+//
+// Why global: /gsd:* commands are user-level and user-level always shadows
+// project-level, so project-local copies of workflows/agents are never loaded.
+// The only reliable wiring is to patch the engine itself.
+//
+// Safe by design:
+// - every patched file is backed up once as <name>.md.orig (never overwritten)
+// - idempotent: re-running only copies files whose content differs
+// - enriched workflows are config-gated (.planning/config.json toggles), so
+//   other projects using the global engine are unaffected unless they opt in
+//
+// Run after: cloning this template, and after every /gsd:update.
+//   node scripts/install-gsd-patches.cjs
+
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+const REPO = path.resolve(__dirname, '..');
+const HOME = os.homedir();
+const EXPECTED_GSD_VERSION = '1.29.0';
+
+const TARGETS = [
+  { src: path.join(REPO, 'gsd-patches', 'workflows'), dst: path.join(HOME, '.claude', 'get-shit-done', 'workflows') },
+  { src: path.join(REPO, 'gsd-patches', 'agents'), dst: path.join(HOME, '.claude', 'agents') },
+];
+
+function fail(msg) {
+  console.error(`✗ ${msg}`);
+  process.exit(1);
+}
+
+const versionFile = path.join(HOME, '.claude', 'get-shit-done', 'VERSION');
+if (!fs.existsSync(versionFile)) {
+  fail(`GSD introuvable (${versionFile}). Installe get-shit-done d'abord : https://github.com/gsd-build/get-shit-done`);
+}
+const installed = fs.readFileSync(versionFile, 'utf8').trim();
+if (installed !== EXPECTED_GSD_VERSION) {
+  console.warn(`⚠ GSD ${installed} installé, patches écrits pour ${EXPECTED_GSD_VERSION}. Ils s'appliquent quand même — vérifie le comportement après un /gsd:update majeur.`);
+}
+
+let applied = 0, unchanged = 0;
+for (const { src, dst } of TARGETS) {
+  if (!fs.existsSync(src)) continue;
+  if (!fs.existsSync(dst)) fail(`Dossier cible manquant: ${dst}`);
+  for (const name of fs.readdirSync(src).filter((f) => f.endsWith('.md'))) {
+    const from = path.join(src, name);
+    const to = path.join(dst, name);
+    const next = fs.readFileSync(from, 'utf8');
+    const current = fs.existsSync(to) ? fs.readFileSync(to, 'utf8') : null;
+    if (current === next) { unchanged++; continue; }
+    if (current !== null) {
+      const backup = `${to}.orig`;
+      if (!fs.existsSync(backup)) fs.copyFileSync(to, backup);
+    }
+    fs.writeFileSync(to, next);
+    console.log(`✓ patché ${path.relative(HOME, to)}`);
+    applied++;
+  }
+}
+
+console.log(applied ? `\n${applied} fichier(s) patché(s), ${unchanged} déjà à jour. Backups upstream en *.orig.` : `Tout est déjà à jour (${unchanged} fichiers).`);

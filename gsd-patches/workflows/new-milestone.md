@@ -231,7 +231,7 @@ Then verify `.planning/phases/` no longer contains old milestone directories bef
 
 If `phase_dir_count > 0` but `phase_archive_path` is missing:
 - Stop and explain that reset numbering is unsafe without a completed milestone archive target.
-- Tell the user to complete/se-archive the previous milestone first, then rerun `/gsd:new-milestone --reset-phase-numbers ${GSD_WS}`.
+- Tell the user to complete/archive the previous milestone first, then rerun `/gsd:new-milestone --reset-phase-numbers ${GSD_WS}`.
 
 ## 8. Research Decision
 
@@ -292,8 +292,8 @@ ${AGENT_SKILLS_RESEARCHER}
 <quality_gate>{GATES}</quality_gate>
 
 <output>
-Write to: .planning/se-research/{FILE}
-Use template: $HOME/.claude/get-shit-done/templates/se-research-project/{FILE}
+Write to: .planning/research/{FILE}
+Use template: $HOME/.claude/get-shit-done/templates/research-project/{FILE}
 </output>
 ", subagent_type="gsd-project-researcher", model="{researcher_model}", description="{DIMENSION} research")
 ```
@@ -315,16 +315,16 @@ Task(prompt="
 Synthesize research outputs into SUMMARY.md.
 
 <files_to_read>
-- .planning/se-research/STACK.md
-- .planning/se-research/FEATURES.md
-- .planning/se-research/ARCHITECTURE.md
-- .planning/se-research/PITFALLS.md
+- .planning/research/STACK.md
+- .planning/research/FEATURES.md
+- .planning/research/ARCHITECTURE.md
+- .planning/research/PITFALLS.md
 </files_to_read>
 
 ${AGENT_SKILLS_SYNTHESIZER}
 
-Write to: .planning/se-research/SUMMARY.md
-Use template: $HOME/.claude/get-shit-done/templates/se-research-project/SUMMARY.md
+Write to: .planning/research/SUMMARY.md
+Use template: $HOME/.claude/get-shit-done/templates/research-project/SUMMARY.md
 Commit after writing.
 ", subagent_type="gsd-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
 ```
@@ -433,7 +433,7 @@ Task(prompt="
 <files_to_read>
 - .planning/PROJECT.md
 - .planning/REQUIREMENTS.md
-- .planning/se-research/SUMMARY.md (if exists)
+- .planning/research/SUMMARY.md (if exists)
 - .planning/config.json
 - .planning/MILESTONES.md
 </files_to_read>
@@ -509,7 +509,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: create milest
 | Artifact       | Location                    |
 |----------------|-----------------------------|
 | Project        | `.planning/PROJECT.md`      |
-| Research       | `.planning/se-research/`       |
+| Research       | `.planning/research/`       |
 | Requirements   | `.planning/REQUIREMENTS.md` |
 | Roadmap        | `.planning/ROADMAP.md`      |
 

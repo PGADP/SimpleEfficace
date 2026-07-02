@@ -19,7 +19,7 @@ Orchestrator coordinates, not executes. Each subagent loads the full execute-pla
 
 **Fallback rule:** If a spawned agent completes its work (commits visible, SUMMARY.md exists) but
 the orchestrator never receives the completion signal, treat it as successful based on spot-checks
-and continue to the next wave/se-plan. Never block indefinitely waiting for a signal — always verify
+and continue to the next wave/plan. Never block indefinitely waiting for a signal — always verify
 via filesystem and git state.
 </runtime_compatibility>
 
@@ -509,13 +509,13 @@ For each gap that has a `debug_session:` field:
 - Update frontmatter `updated:` timestamp
 - Move to resolved directory:
 ```bash
-mkdir -p .planning/se-debug/resolved
-mv .planning/se-debug/{slug}.md .planning/se-debug/resolved/
+mkdir -p .planning/debug/resolved
+mv .planning/debug/{slug}.md .planning/debug/resolved/
 ```
 
 **6. Commit updated artifacts:**
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(phase-${PARENT_PHASE}): resolve UAT gaps and debug sessions after ${PHASE_NUMBER} gap closure" --files .planning/phases/*${PARENT_PHASE}*/*-UAT.md .planning/se-debug/resolved/*.md
+node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(phase-${PARENT_PHASE}): resolve UAT gaps and debug sessions after ${PHASE_NUMBER} gap closure" --files .planning/phases/*${PARENT_PHASE}*/*-UAT.md .planning/debug/resolved/*.md
 ```
 </step>
 
@@ -587,9 +587,10 @@ Use AskUserQuestion to present the options.
 ```bash
 SIMPLIFY_ENABLED=$(gsd-sdk query config-get workflow.simplify_gate 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.simplify_gate 2>/dev/null || echo "false")
 JANITOR_ENABLED=$(gsd-sdk query config-get workflow.janitor_gate 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.janitor_gate 2>/dev/null || echo "false")
+SECURITY_ENABLED=$(gsd-sdk query config-get workflow.security_gate 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.security_gate 2>/dev/null || echo "false")
 ```
 
-Both default to `"false"`: these gates are opt-in. Enable per project in `.planning/config.json` under `workflow.simplify_gate` / `workflow.janitor_gate`.
+All default to `"false"`: these gates are opt-in. Enable per project in `.planning/config.json` under `workflow.simplify_gate` / `workflow.janitor_gate` / `workflow.security_gate`.
 
 **Step 1 — SIMPLIFY gate (if SIMPLIFY_ENABLED is "true"):**
 Invoke the quality gate on the phase's modified files:
@@ -606,6 +607,14 @@ Skill(skill="se-gate-janitor", args="phase ${PHASE_NUMBER} — fichiers modifies
 ```
 Detector + LLM cross-check classify DEAD / VIOLATION / SUSPECT. SUSPECT is never auto-removed. On GO, deletes DEAD + migrates VIOLATION in separate commits, then `npm run build && npm run type-check`. Logged to CHECKPOINTS.md.
 If JANITOR_ENABLED is "false": display "Gate JANITOR skipped (workflow.janitor_gate=false)" and proceed.
+
+**Step 3 — SECURITY gate (if SECURITY_ENABLED is "true"):**
+Only when the phase touched sensitive surface — any modified file matching: `/api/`, `route.(ts|js)`, `middleware.*`, `auth`, `login`, `session`, `*.sql`, `migrations/`, `prisma/schema.prisma`, `next.config.*`, or code calling Supabase/DB clients. Otherwise display "Gate SECURITY skipped (surface non sensible)" and proceed.
+```
+Skill(skill="se-security", args="phase ${PHASE_NUMBER} — fichiers sensibles modifies de la phase")
+```
+The audit classifies findings CRITICAL/HIGH/MEDIUM/LOW and presents a GO/NO-GO checkpoint. CRITICAL findings must be fixed (or explicitly accepted by the human with a written reason) before ship; findings and verdict are logged to `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`.
+If SECURITY_ENABLED is "false": display "Gate SECURITY skipped (workflow.security_gate=false)" and proceed.
 
 **Error handling:** If either Skill invocation fails or throws, catch the error, display "Gate {name} encountered an error (non-blocking): {error}" and proceed. Gate failures must NEVER block execution.
 
