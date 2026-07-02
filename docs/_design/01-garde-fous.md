@@ -10,7 +10,7 @@ hooks/
 ├── se-guard.mjs          ← dispatcher PostToolUse (thin stdin/stdout adapter)
 ├── guard-lib.mjs         ← logique pure, testable (1 fonction par garde-fou)
 ├── rules/
-│   ├── slop-rules.json        ← marqueurs AI-slop FR (source unique, lu aussi par /humanizer plus tard)
+│   ├── slop-rules.json        ← marqueurs AI-slop FR (source unique, lu aussi par /se-humanizer plus tard)
 │   ├── hardcode-patterns.json ← patterns valeurs/listes en dur
 │   └── monolith-thresholds.json ← seuils lignes/fonction/fichier
 └── se-guard.test.mjs     ← vérif unitaire (on VÉRIFIE, pas on espère)
@@ -36,7 +36,7 @@ Le dispatcher `se-guard.cjs` route selon le type de fichier touché et lance les
 ### 1. humanizer-guard
 - **Déclencheur** : fichier user-facing. Heuristique chemin (pas de liste en dur figée — patterns) : contient `(public)`, `/emails/`, `/blog/`, `.copy.`, `/landing`, `/content/`, FAQ, ou extension de page avec contenu FR détecté.
 - **Détection** : présence de ≥2 marqueurs de `slop-rules.json` (règle des clusters).
-- **Action** : « Ce fichier semble user-facing et contient des marqueurs AI-slop. Passe /humanizer avant de finir. »
+- **Action** : « Ce fichier semble user-facing et contient des marqueurs AI-slop. Passe /se-humanizer avant de finir. »
 
 ### 2. ui-guard
 - **Déclencheur** : `.tsx`, `.jsx`, `.css`, `.scss`, ou composant.

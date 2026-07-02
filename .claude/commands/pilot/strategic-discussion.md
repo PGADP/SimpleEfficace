@@ -91,7 +91,7 @@ Format obligatoire :
 
 ## Étape 6 : Commit + suite
 ```bash
-node ./.claude/get-shit-done/bin/gsd-tools.js commit "docs(${padded_phase}): capture phase context (pilot discussion)" --files "${phase_dir}/${padded_phase}-CONTEXT.md"
+node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(${padded_phase}): capture phase context (pilot discussion)" --files "${phase_dir}/${padded_phase}-CONTEXT.md"
 ```
 Puis : "Prochaine étape : /gsd:plan-phase X. /clear d'abord → contexte frais pour le planner."
 

@@ -194,7 +194,7 @@ Copier/coller intégralement, sans modification.
 
 ## Skills connexes
 
-- `/ux` : Audit parcours utilisateur vs JTBD de chaque persona
-- `/ui` : Implémentation visuelle (tokens, couleurs, hiérarchie) — Ne PAS remplacer audit UX
+- `/se-ux` : Audit parcours utilisateur vs JTBD de chaque persona
+- `/se-ui` : Implémentation visuelle (tokens, couleurs, hiérarchie) — Ne PAS remplacer audit UX
 - `/marketing/recherche-utilisateur` : Collecte verbatim bruts pour nourrir PERSONAS.md
 - `/marketing/contexte` : Enrichir CONTEXT.md avec synthèse JTBD

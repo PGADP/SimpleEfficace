@@ -24,7 +24,7 @@ Procédure lourde du Mode 1, chargée à la demande pour garder /se-pilot mince.
 
 **Note marketing** : ne lis PAS `.planning/marketing/`. Si l'utilisateur demande le marketing → rediriger vers `/se-pilot-marketing`.
 
-4. **Icebox** : si STATE.md montre qu'un nouveau milestone vient d'etre active, parcourir `.planning/icebox/INDEX.md`, compter les idees taggees pour ce milestone. Si N>0 : "On a N idees en icebox pour ce milestone. On les revoit avec `/idee review` ?" Attendre confirmation, ne pas lancer auto.
+4. **Icebox** : si STATE.md montre qu'un nouveau milestone vient d'etre active, proposer `/gsd:check-todos` + `/gsd:review-backlog` pour revoir les idees capturees. Attendre confirmation, ne pas lancer auto.
 
 5. **Si l'utilisateur veut relancer quelque chose** : chercher dans `.planning/phases/` d'abord. Si trouve : "On a deja fait ca en phase X. Resume : [...]"
 

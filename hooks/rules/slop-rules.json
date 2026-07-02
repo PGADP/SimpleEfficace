@@ -1,5 +1,5 @@
 {
-  "_comment": "Marqueurs AI-slop FR détectables mécaniquement (sous-ensemble du skill /humanizer). Le hook SOUFFLE quand >=2 clusters sont présents (règle des clusters). Le jugement fin reste au skill /humanizer. Source unique: aussi destiné à être lu par /humanizer et le slop-gate.",
+  "_comment": "Marqueurs AI-slop FR détectables mécaniquement (sous-ensemble du skill /se-humanizer). Le hook SOUFFLE quand >=2 clusters sont présents (règle des clusters). Le jugement fin reste au skill /se-humanizer. Source unique: aussi destiné à être lu par /se-humanizer et le slop-gate.",
   "clusterThreshold": 2,
   "categories": [
     {

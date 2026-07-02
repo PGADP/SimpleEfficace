@@ -60,7 +60,7 @@
 ### Design-system / ui-rules / ux / personas
 - [ ] DESIGN-SYSTEM.md = source unique, lu par les 3 agents UI.
 - [ ] ui-rules.json = 6 piliers, Severity→BLOCK/FLAG, DOWNGRADE scopé.
-- [ ] /ux distinct de /ui (parcours/JTBD vs visuel), lit PERSONAS.md.
+- [ ] /se-ux distinct de /se-ui (parcours/JTBD vs visuel), lit PERSONAS.md.
 - [ ] PERSONAS template projet-agnostique.
 
 ### Gates / Playwright
