@@ -1,3 +1,7 @@
+---
+description: Explication pédagogique d'un code — vue d'ensemble, flux d'exécution, concepts clés, pièges. Pour apprendre, pas pour auditer (ça c'est /se-review).
+---
+
 Explique ce code comme si tu faisais une code review pédagogique :
 
 1. **Vue d'ensemble** — Quel problème ce code résout (1-2 phrases)
