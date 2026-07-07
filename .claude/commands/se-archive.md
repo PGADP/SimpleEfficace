@@ -55,6 +55,8 @@ echo "[$(date +%F)] archive: phases/{NN}-{slug} -> _archive/phases/" >> .plannin
 - L'ajouter sous "Archive — Phases".
 - Mettre à jour la date de l'INDEX.
 
+Note : l'INDEX est maintenu en continu à la clôture de chaque phase via le step `update_planning_index` du workflow execute-phase. Cette étape ne refait pas l'entrée : elle la déplace seulement de "Phases actives" vers "Archive", sans recréer la ligne.
+
 ## Étape 5 — Commit
 ```bash
 git add -A .planning/

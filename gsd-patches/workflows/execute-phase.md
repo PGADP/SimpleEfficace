@@ -875,6 +875,64 @@ fi
 **Skip this step if** `docs/reference/` directory does not exist.
 </step>
 
+<step name="update_planning_index">
+**Maintain `.planning/INDEX.md` at phase completion: continuous tracking, not just at archival.**
+
+This step ensures that phase closure updates the INDEX immediately, so the next phase can discover completed work without grepping. The INDEX is the single map of everything.
+
+**Skip this step if** `.planning/INDEX.md` does not exist.
+
+**Step 1: Verify the INDEX exists:**
+```bash
+if [ ! -f ".planning/INDEX.md" ]; then
+  echo "INDEX.md not found - skipping"
+  exit 0
+fi
+```
+
+**Step 2: Update the INDEX with phase completion and artifacts:**
+
+1. **Move the phase from "Phases actives" to completed (or add it if absent):**
+   - Locate the "## Phases actives" section in INDEX.md
+   - Add a line or update the existing entry with the phase status: `- {NN}-{slug}` to `- ✓ {NN}-{slug}` (marked complete with SUMMARY link)
+   - Link to the phase's SUMMARY: `[{phase_num}-SUMMARY.md](phases/{phase_num}-{slug}/{phase_num}-SUMMARY.md)`
+
+2. **Scan the phase directory for new reference artifacts and add to INDEX:**
+   - Check if new research files were created: `.planning/research/` files authored after phase start
+   - Check if new design artifacts: `.planning/design/` files (new PERSONAS, JOURNEYS sections, etc.)
+   - Check if new decision documents: `.planning/decisions/` or `DECISIONS.md`
+   - For each found, add a bullet under the appropriate INDEX section (Design, Règles, Système)
+   - Keep the description concise and in italics
+
+Example of expected edits:
+```markdown
+## Phases actives
+
+- ✓ 01-fondations ([01-SUMMARY.md](phases/01-fondations/01-SUMMARY.md))
+
+## Design
+
+- [design/DESIGN-SYSTEM.md](design/DESIGN-SYSTEM.md) - contrat de design
+- [design/PERSONAS.md](design/PERSONAS.md) - personas (créés en phase 01)
+```
+
+**Step 3: Commit if INDEX changed:**
+
+```bash
+INDEX_CHANGED=$(git status --short .planning/INDEX.md | wc -l)
+if [ "$INDEX_CHANGED" -gt 0 ]; then
+  node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(phase-${PHASE_NUMBER}): update INDEX.md at phase completion" --files .planning/INDEX.md
+else
+  echo "INDEX.md unchanged - no commit"
+fi
+```
+
+**Philosophy:** The INDEX is maintained continuously in-phase (not just at /se-archive archival), so every completed phase appears in the map immediately. This ensures:
+- Next phase discovery finds prior work without grep
+- Human navigation stays current with zero delay
+- Archival can focus on moving complete phases to _archive/ without reindexing
+</step>
+
 <step name="offer_next">
 
 **Exception:** If `gaps_found`, the `verify_phase_goal` step already presents the gap-closure path (`/gsd:plan-phase {X} --gaps`). No additional routing needed — skip auto-advance.
