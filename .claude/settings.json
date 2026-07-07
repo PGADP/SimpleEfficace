@@ -1,5 +1,5 @@
 {
-  "description": "Config locale SimpleEfficace — câble les garde-fous Strate A (advisory) pour ce projet uniquement. Le settings global n'est pas affecté.",
+  "description": "Config locale SimpleEfficace — câble les garde-fous pour ce projet uniquement : se-guard (advisory) + gates bloquantes size/slop/secret. Le settings global n'est pas affecté.",
   "hooks": {
     "PreToolUse": [
       {

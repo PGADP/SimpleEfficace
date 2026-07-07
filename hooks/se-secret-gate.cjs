@@ -26,11 +26,17 @@ function deny(reason) {
   process.exit(0);
 }
 
-// Scans added lines of the staged diff, keyed by file. Returns [{file, line, label}].
-function scanStagedDiff(rules) {
+// `git commit -a` / `--all` stages tracked-file changes at commit time, so the
+// working-tree diff must be scanned too (it is not in --cached yet).
+function stagesAll(cmd) {
+  return /\bgit\s+commit\b[^|;&]*?\s(--all\b|-[a-zA-Z]*a)/.test(cmd);
+}
+
+// Scans added lines of a diff (`--cached` or working tree), keyed by file. Returns [{file, label}].
+function scanDiff(rules, diffArgs) {
   let diff = '';
   try {
-    diff = execSync('git diff --cached --unified=0 --no-color', {
+    diff = execSync(`git diff ${diffArgs}--unified=0 --no-color`, {
       encoding: 'utf8', timeout: 3000, maxBuffer: 10 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],
     });
   } catch { return []; } // pas un repo git / diff énorme → ne bloque pas
@@ -50,9 +56,11 @@ function scanStagedDiff(rules) {
     }
     if (skipFile || !line.startsWith('+') || line.startsWith('+++')) continue;
     const added = line.slice(1);
-    if (allow.some((re) => re.test(added))) continue;
     for (const { label, re } of checks) {
-      if (re.test(added)) { findings.push({ file, label }); break; }
+      // allowPatterns are tested against the MATCHED TOKEN only: testing the whole
+      // line would let any placeholder-looking word on the line mask a real secret.
+      const m = re.exec(added);
+      if (m && !allow.some((a) => a.test(m[0]))) { findings.push({ file, label }); break; }
     }
   }
   return findings;
@@ -73,7 +81,8 @@ process.stdin.on('end', () => {
     const rules = loadRules();
     if (!rules) process.exit(0);
 
-    const findings = scanStagedDiff(rules);
+    let findings = scanDiff(rules, '--cached ');
+    if (stagesAll(cmd)) findings = findings.concat(scanDiff(rules, ''));
     if (!findings.length) process.exit(0);
 
     const seen = new Set();

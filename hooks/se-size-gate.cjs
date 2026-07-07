@@ -7,11 +7,11 @@
 // Contrat: exit 0 TOUJOURS (la décision passe par le JSON, pas par le code de sortie).
 //          Silent fail = ne JAMAIS bloquer une écriture par accident si le hook plante.
 //
-// Robustesse input: on lit content | new_string | file_text | edits[] — selon ce que le
-// harness envoie (le nom du champ a varié entre versions). Pour Edit on ne peut pas toujours
-// connaître le fichier final exact ; on borne sur la meilleure info disponible.
+// Robustesse input: on lit content | file_text pour un Write ; pour Edit/MultiEdit on
+// SIMULE l'édition sur le fichier disque (sinon on ne mesurerait que le fragment édité,
+// et ajouter 40 lignes à un fichier déjà au plafond passerait sous le radar).
 
-const path = require('path');
+const fs = require('fs');
 
 // Plafonds (source: .planning/CONVENTIONS.md). Patterns, pas chemins en dur.
 const CAPS = [
@@ -19,14 +19,30 @@ const CAPS = [
   { match: /(^|[\\/])ROADMAP\.md$/i, limit: 200, label: 'ROADMAP.md' },
 ];
 
-function pickContent(toolInput) {
+// Projette le contenu du fichier APRÈS l'opération. null = pas mesurable → laisse passer.
+function projectedContent(toolName, toolInput) {
   if (!toolInput) return null;
-  if (typeof toolInput.content === 'string') return toolInput.content;
-  if (typeof toolInput.file_text === 'string') return toolInput.file_text;
-  if (typeof toolInput.new_string === 'string') return toolInput.new_string;
-  if (Array.isArray(toolInput.edits)) return toolInput.edits.map((e) => e.new_string || e.new_text || '').join('\n');
-  if (Array.isArray(toolInput.replacement_spans)) return toolInput.replacement_spans.map((s) => s.new_text || '').join('\n');
-  return null;
+  if (typeof toolInput.content === 'string') return toolInput.content;    // Write
+  if (typeof toolInput.file_text === 'string') return toolInput.file_text; // Write (variante)
+
+  // Edit / MultiEdit : rejoue les remplacements sur le fichier existant.
+  let base;
+  try { base = fs.readFileSync(toolInput.file_path, 'utf8'); } catch { return null; }
+  const edits = Array.isArray(toolInput.edits) ? toolInput.edits
+    : (typeof toolInput.new_string === 'string' ? [toolInput] : null);
+  if (!edits) return null;
+  for (const e of edits) {
+    const oldS = e.old_string ?? e.old_text;
+    const newS = e.new_string ?? e.new_text;
+    if (typeof oldS !== 'string' || typeof newS !== 'string') continue;
+    base = e.replace_all ? base.split(oldS).join(newS) : base.replace(oldS, newS);
+  }
+  return base;
+}
+
+// Nombre de lignes "réelles" : un \n final ne compte pas une ligne de plus.
+function countLines(content) {
+  return content.replace(/\r?\n$/, '').split('\n').length;
 }
 
 function deny(reason) {
@@ -61,10 +77,10 @@ process.stdin.on('end', () => {
     const cap = CAPS.find((c) => c.match.test(filePath.replace(/\\/g, '/')));
     if (!cap) process.exit(0); // pas un fichier plafonné
 
-    const content = pickContent(data.tool_input);
-    if (content == null) process.exit(0); // rien à mesurer (ex: Edit partiel sans contenu complet)
+    const content = projectedContent(data.tool_name, data.tool_input);
+    if (content == null) process.exit(0); // rien à mesurer → laisse passer
 
-    const lineCount = content.split('\n').length;
+    const lineCount = countLines(content);
 
     if (lineCount > cap.limit) {
       deny(

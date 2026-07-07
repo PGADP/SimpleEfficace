@@ -27,7 +27,7 @@
     "\\.test\\.",
     "\\.spec\\.",
     "\\.config\\.",
-    "constants?\\.(ts|js)",
+    "(^|[/.])constants?\\.(ts|js)$",
     "\\.d\\.ts$"
   ]
 }

@@ -26,12 +26,17 @@ function isFrontFile(filePath) {
 }
 
 function isUserFacingFile(filePath) {
-  const p = filePath.replace(/\\/g, '/');
-  return /\(public\)|\/emails?\/|\/blog\/|\.copy\.|\/landing|\/content\/|faq/i.test(p);
+  // Slash de tête forcé pour que les chemins relatifs au repo (git diff --name-only)
+  // matchent aussi au premier niveau (content/hero.md → /content/hero.md).
+  const p = '/' + filePath.replace(/\\/g, '/').replace(/^\/+/, '');
+  // "faq"/"landing" ancrés : sinon n'importe quel chemin contenant la sous-chaîne matche
+  // (src/myfaqtool.ts, /landingpad/...).
+  return /\(public\)|\/emails?\/|\/blog\/|\.copy\.|\/landing([\/.-]|page)|\/content\/|\/faq([\/.-]|$)/i.test(p);
 }
 
 function isExcluded(filePath, excludePatterns) {
-  return (excludePatterns || []).some((re) => new RegExp(re).test(filePath));
+  const p = filePath.replace(/\\/g, '/'); // les patterns sont écrits avec des slashs
+  return (excludePatterns || []).some((re) => new RegExp(re, 'i').test(p));
 }
 
 // ---- detectors ----
@@ -74,7 +79,7 @@ function detectHardcode({ filePath, content }) {
     if (rule.id === 'magic-number') {
       const suspicious = lines.some((l) => {
         if (/^\s*(\/\/|\*)/.test(l)) return false;        // comment
-        if (/[<>]/.test(l)) return false;                  // likely JSX/markup
+        if (/<[A-Za-z!/]/.test(l)) return false;           // JSX/HTML tag — a bare `x > 42` comparison stays eligible
         if (!/[=<>]=?|return\s/.test(l)) return false;     // only assignments/comparisons/returns
         return new RegExp(rule.regex).test(l);
       });
@@ -141,9 +146,14 @@ function detectSecurity({ filePath, content }) {
   const rules = loadJson('secret-patterns.json');
   if (rules && !isExcluded(filePath, rules.excludeFilePatterns)) {
     const allow = rules.allowPatterns.map((p) => new RegExp(p, 'i'));
+    // allow testé sur le TOKEN matché, pas la ligne : un placeholder ailleurs sur la
+    // ligne ne doit pas masquer un vrai secret (même logique que se-secret-gate).
     const hit = rules.patterns.find((p) => {
       const re = new RegExp(p.regex, 'i');
-      return lines.some((l) => re.test(l) && !allow.some((a) => a.test(l)));
+      return lines.some((l) => {
+        const m = re.exec(l);
+        return m && !allow.some((a) => a.test(m[0]));
+      });
     });
     if (hit) findings.push(`secret en dur (${hit.label}) — mets-le dans .env, le secret-gate refusera le commit`);
   }
