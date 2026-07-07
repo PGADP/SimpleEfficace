@@ -634,12 +634,18 @@ Default `"false"` — opt-in via `.planning/config.json` (`workflow.visual_check
 
 **Step 1 — Préparer Playwright (Claude le fait, pas l'humain):**
 ```bash
-# Vérifier la présence de Playwright ; sinon, le proposer une fois.
-if [ ! -f "playwright.config.ts" ] && [ ! -f "playwright.config.js" ]; then
-  echo "Playwright non configuré. Copier le template .planning/design/playwright.config.template.ts ?"
+# Deux conditions pour capturer : la config ET la dépendance installée.
+# (se-new-project pose souvent la config avant que le package.json existe →
+#  vérifier la seule présence du .ts ne suffit pas, npx échouerait.)
+HAS_CONFIG=$([ -f "playwright.config.ts" ] || [ -f "playwright.config.js" ] && echo 1 || echo 0)
+HAS_DEP=$([ -d "node_modules/@playwright/test" ] && echo 1 || echo 0)
+if [ "$HAS_CONFIG" = "0" ]; then
+  echo "Playwright non configuré. Copier .planning/design/playwright.config.template.ts → playwright.config.ts + le helper ?"
+elif [ "$HAS_DEP" = "0" ]; then
+  echo "Config Playwright présente mais dépendance absente. Installer : npm i -D @playwright/test ?"
 fi
 ```
-Si présent : Claude lance le serveur dev lui-même (cf. checkpoints — l'humain ne lance jamais de commande).
+Si config + dépendance présentes : Claude lance le serveur dev lui-même (cf. checkpoints — l'humain ne lance jamais de commande). Sinon, il propose l'action manquante une fois, puis — si l'humain décline — passe le checkpoint en non-bloquant (cf. Error handling).
 
 **Step 2 — Capturer les 3 breakpoints** via le helper réutilisable (PAS un spec par feature). Les routes à capturer = celles modifiées par la phase, **complétées par les étapes des parcours touchés dans `.planning/design/JOURNEYS.md`** (si un écran d'un parcours a changé, on capture aussi l'étape amont et l'étape aval — la friction vit dans les transitions) :
 ```bash

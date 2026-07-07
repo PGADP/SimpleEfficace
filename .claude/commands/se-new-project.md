@@ -86,7 +86,12 @@ Une fois PRD + recherches en main, génère la roadmap. Délègue au moteur GSD 
 - Produit `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md` (phases), `STATE.md`, `config.json`.
 
 ## Étape 6 — Cadrage des toggles + clôture
-- Propose d'activer les gates qualité du cycle : "On active TDD / simplify-gate / janitor-gate pour ce projet ? (recommandé pour un projet où tu connais peu le code)". Si oui, écris-les dans `.planning/config.json` (`workflow.tdd_mode`, `workflow.simplify_gate`, `workflow.janitor_gate`).
+- Propose d'activer les gates qualité du cycle : "On active simplify-gate / janitor-gate / security-gate pour ce projet ? (recommandé pour un projet où tu connais peu le code)". Si oui, confirme-les dans `.planning/config.json` (`workflow.simplify_gate`, `workflow.janitor_gate`, `workflow.security_gate`). (Le TDD se pilote par tâche via `tdd="true"` au plan, pas par un toggle global.)
+- **Setup Playwright (si stack front + Playwright)** : pose les templates de vision dès maintenant pour que la phase fondations n'ait plus qu'à installer la dépendance :
+  - copie `.planning/design/playwright.config.template.ts` → `playwright.config.ts` et `.planning/design/checkpoint-shots.template.ts` → `tests/e2e/checkpoint-shots.ts` ;
+  - inscris dans la phase fondations de la roadmap la tâche `npm i -D @playwright/test` (la dépendance ne peut s'installer qu'une fois le `package.json` créé au scaffolding) ;
+  - laisse `workflow.visual_checkpoint` et `workflow.ui_front_pass` à `true` (défaut). Le checkpoint visuel du cycle prend le relais automatiquement dès qu'une phase touche du front.
+  - Si la stack n'a pas de front (CLI, lib, API pure) → **SKIP**, ne pose pas Playwright.
 - Mets à jour `INDEX.md`.
 - Briefing de clôture : "Projet initialisé. PRD + [N] recherches + roadmap [M] phases. Prochaine étape : `/gsd:discuss-phase 1` ou `/se-pilot` pour discuter la phase 1."
 
