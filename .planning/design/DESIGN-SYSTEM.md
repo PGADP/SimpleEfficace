@@ -10,6 +10,24 @@
 
 ---
 
+## 0. Les 3 couches du design-system (où est la vérité)
+
+Le design-system repose sur 3 couches autonomes et optionnelles :
+
+1. **Couche VITRINE (optionnelle)** : une page vivante rendue (ex `/dev/design-system`) qui importe les vrais composants du projet. C'est la référence VISUELLE pour l'humain et le checkpoint principal du cycle QA.
+
+2. **Couche TOKENS JSON (optionnelle)** : un fichier `.planning/design/design-tokens.json` contenant les valeurs précises des tokens (couleurs en OKLCH, tailles typographiques, espacements). Si présent, les agents le lisent pour obtenir des valeurs exactes plutôt que de parser les tableaux du .md.
+
+3. **Couche MASTER (ce fichier)** : contient les règles, la philosophie, les 6 piliers, et les tableaux de tokens en fallback. Est aussi un POINTEUR vers la vitrine et le JSON quand ils existent. Ne duplie jamais les valeurs : pointe vers la source unique.
+
+**Pointeurs du projet** :
+- Page vitrine : (à remplir : route de la page design-system vivante, ex `/dev/design-system`, ou `aucune`)
+- Tokens JSON : (chemin `design/design-tokens.json` si présent, sinon les tokens sont dans les tableaux ci-dessous)
+
+Principe clé : un agent ne doit JAMAIS lire une page .tsx de 69 Ko en entier. Il lit ce fichier (léger) + le JSON (précis, optionnel) et renvoie l'humain vers la page vitrine pour validation visuelle Playwright.
+
+---
+
 ## 1. Tokens couleur (OKLCH, mappés Tailwind)
 
 > Règle d'or impeccable : jamais de noir pur ni de blanc pur. Toujours des tons teintés.
@@ -73,7 +91,9 @@ Règle DOWNGRADE : une exception **documentée avec raison standard** rétrograd
 
 ## Prompt de lecture hiérarchique (pour les agents UI)
 
-1. Lis CE fichier (MASTER) en premier.
-2. Si la tâche cible une route précise, vérifie `design/pages/{route}.md` — s'il existe, ses valeurs **surchargent** le MASTER pour cette page.
-3. Pour les critères de validation détaillés (Do/Don't/Code), lis `rules/ui-rules.json`.
-4. Pour le parcours/valeur utilisateur, lis `design/PERSONAS.md` (skill /se-ux).
+1. Lis CE fichier (MASTER) en premier : règles, philosophie, pointeurs vers les autres couches.
+2. Si `design/design-tokens.json` existe, lis-le AVANT les tableaux de tokens ci-dessous. Préfère ses valeurs pour l'exactitude.
+3. Si la tâche cible une route précise, vérifie `design/pages/{route}.md` - s'il existe, ses valeurs **surchargent** le MASTER pour cette page.
+4. Pour les critères de validation détaillés (Do/Don't/Code), lis `rules/ui-rules.json`.
+5. Pour le parcours/valeur utilisateur, lis `design/PERSONAS.md` (skill /se-ux).
+6. Si une page vitrine est déclarée en section 0 : ne la lis pas en entier. Utilise-la comme cible de capture Playwright au checkpoint visuel pour validation visuelle réelle.

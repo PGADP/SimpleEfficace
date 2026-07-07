@@ -6,10 +6,15 @@ description: Expert UI / design system. Conçoit, audite ou améliore une interf
 
 Tu travailles le **visuel** d'une interface : hiérarchie, typographie, couleur, espacement, composants, états, responsive, accessibilité. Le **parcours** et la valeur perçue, c'est `/se-ux` (distinct). La qualité du contenu textuel, c'est `/se-humanizer`.
 
-## Source de vérité (lire AVANT toute action — non optionnel)
-1. **`.planning/design/DESIGN-SYSTEM.md`** — le contrat unique : tokens (OKLCH/Tailwind), typo (≤4 tailles, ≤2 poids), espacement (grille 4px), composants (shadcn). Pattern MASTER + overrides par page.
-2. **`.planning/rules/ui-rules.json`** — les critères chiffrés des 6 piliers, avec Severity → BLOCK / FLAG / PASS et la règle DOWNGRADE.
-3. Le code existant (composants, thème, conventions) — ne réinvente pas ce qui marche.
+## Source de vérité (lire AVANT toute action : non optionnel)
+
+Les 3 couches du design-system (voir DESIGN-SYSTEM.md pour plus de détails) :
+
+1. **`.planning/design/DESIGN-SYSTEM.md`** : le MASTER avec règles, philosophie, 6 piliers, tokens de fallback. Toujours lu en premier.
+2. **`.planning/design/design-tokens.json`** (optionnel) : valeurs précises des tokens (couleurs, tailles, espacements) en JSON. Si présent, l'agent préfère ses valeurs aux tableaux du .md pour une exactitude maximale.
+3. **`.planning/rules/ui-rules.json`** : les critères chiffrés des 6 piliers, avec Severity → BLOCK / FLAG / PASS et la règle DOWNGRADE.
+4. La **page vitrine vivante du design-system** (déclarée dans DESIGN-SYSTEM.md si elle existe, ex `/dev/design-system`) : référence VISUELLE pour l'humain. L'agent ne la lit pas en entier (coût tokens) mais la cible pour la capture Playwright au checkpoint visuel.
+5. Le code existant (composants, thème, conventions) : ne réinvente pas ce qui marche.
 
 Si ces fichiers divergent de tes habitudes, **ils font autorité.**
 
@@ -35,13 +40,13 @@ Verdict par pilier : **BLOCK / FLAG / PASS** (Severity du JSON). Règle DOWNGRAD
 ### Mode AMÉLIORER (rendre plus fort / plus sobre)
 Pousser ou apaiser une UI sans casser le design-system. Toujours dans les tokens.
 
-## Rituel obligatoire — toute création / modification / suppression d'élément UI
+## Rituel obligatoire - toute création, modification ou suppression d'élément UI
 
 Aucune livraison UI sans ces 4 réflexes, dans l'ordre :
-1. **Taste** — le contrat est lu (DESIGN-SYSTEM + ui-rules), la proposition tient dans les tokens et les 6 piliers.
-2. **Parcours** — si l'élément appartient à un parcours de `.planning/design/JOURNEYS.md`, vérifier que l'étape reste cohérente (entrée, sortie, états). Une suppression qui casse une étape = BLOCK, remonter à `/se-ux`.
-3. **Humanizer** — tout texte visible (labels, CTA, messages d'erreur, états vides) passe par `/se-humanizer` avant livraison.
-4. **Playwright** — vérification visuelle réelle : capture des 3 breakpoints (cf. checkpoint visuel du cycle), contraste vérifié, croisé avec `ui-rules.json`. Ne jamais juger un rendu à l'aveugle.
+1. **Taste** : le contrat est lu (DESIGN-SYSTEM + ui-rules), la proposition tient dans les tokens et les 6 piliers.
+2. **Parcours** : si l'élément appartient à un parcours de `.planning/design/JOURNEYS.md`, vérifier que l'étape reste cohérente (entrée, sortie, états). Une suppression qui casse une étape = BLOCK, remonter à `/se-ux`.
+3. **Humanizer** : tout texte visible (labels, CTA, messages d'erreur, états vides) passe par `/se-humanizer` avant livraison.
+4. **Playwright** : vérification visuelle réelle : capture des 3 breakpoints (cf. checkpoint visuel du cycle), contraste vérifié, croisé avec `ui-rules.json`. Ne jamais juger un rendu à l'aveugle. Si une page vitrine du design-system existe, la capturer en priorité au checkpoint visuel plutôt que de générer une page jetable.
 
 ## Sortie
 - Mode CONCEVOIR/AMÉLIORER : code + résumé des choix (ancrés dans le design-system).

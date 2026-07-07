@@ -17,9 +17,11 @@
 
 ## Design
 
-- [design/DESIGN-SYSTEM.md](design/DESIGN-SYSTEM.md) — contrat de design (à remplir avec tes valeurs de marque)
-- [design/PERSONAS.md](design/PERSONAS.md) — personas (à remplir au cadrage)
-- [design/JOURNEYS.md](design/JOURNEYS.md) — parcours utilisateur end-to-end (créés/maintenus par `/se-ux`)
+- [design/DESIGN-SYSTEM.md](design/DESIGN-SYSTEM.md) - contrat de design (à remplir avec tes valeurs de marque) et pointeurs vers les 3 couches
+- `design/design-tokens.json` - *(optionnel) tokens précis en JSON (couleurs, tailles, espacements) - lu par les agents pour exactitude*
+- **Page vitrine du design-system** - *(route vivante, ex `/dev/design-system`, déclarée dans DESIGN-SYSTEM.md si elle existe - référence visuelle pour l'humain)*
+- [design/PERSONAS.md](design/PERSONAS.md) - personas (à remplir au cadrage)
+- [design/JOURNEYS.md](design/JOURNEYS.md) - parcours utilisateur end-to-end (créés/maintenus par `/se-ux`)
 
 ## Règles
 
