@@ -1,5 +1,5 @@
 ---
-description: Analyse le projet pour identifier le code mort et propose une stratégie de refactoring globale.
+description: Analyse le projet pour identifier code mort et code smells, et propose une stratégie de refactoring globale. Read-only — propose, ne modifie rien (la suppression effective, c'est /se-janitor).
 ---
 
 # Instructions pour l'Assistant
@@ -17,7 +17,7 @@ Exécute une exploration complète pour cartographier le projet :
 ## Étape 2 : Analyse de Qualité
 Identifie les "Code Smells" :
 * **Duplication** : Blocs de code identiques dans plusieurs fichiers.
-* **Complexité** : Fonctions trop longues (> 50 lignes) ou trop imbriquées.
+* **Complexité** : Fonctions trop longues (> 60 lignes, cf. hooks/rules/monolith-thresholds.json) ou trop imbriquées.
 * **Responsabilité** : Fichiers qui font trop de choses (Dieu-objets).
 
 ### Checklist Centralisation

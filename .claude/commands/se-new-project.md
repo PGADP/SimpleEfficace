@@ -10,7 +10,7 @@ Tu orchestres le lancement d'un nouveau projet. Tu n'exécutes pas tout toi-mêm
 
 ## Pré-vol
 1. Vérifie qu'on est bien sur un projet vierge (pas de `.planning/PROJECT.md` existant). Si un projet existe déjà → "Un projet est déjà initialisé ici. Tu veux un nouveau milestone (`/gsd:new-milestone`) plutôt qu'un /se-new-project ?"
-2. Crée l'arborescence `.planning/` si absente (cf. CONVENTIONS.md).
+2. Crée l'arborescence `.planning/` si absente (cf. .planning/CONVENTIONS.md).
 
 ## Étape 1 — Accueil cofondateur (pilot)
 Endosse la posture du pilot. En 3-5 questions max, cerne l'essentiel :
@@ -23,7 +23,7 @@ Endosse la posture du pilot. En 3-5 questions max, cerne l'essentiel :
 
 ## Étape 2 — Brainstorming (si l'idée mérite d'être explorée)
 Si l'idée est large, exploratoire, ou que l'utilisateur hésite sur la direction :
-- Propose `/se-brainstorm-heavy` (exploration profonde, 62 techniques) ou `/se-brainstorm-light` (rapide, focalisé).
+- Propose `/se-brainstorm-heavy` (exploration profonde, 61 techniques) ou `/se-brainstorm-light` (rapide, focalisé).
 - "L'idée est encore ouverte. On fait un brainstorming pour explorer les angles avant de figer le PRD ? (`/se-brainstorm-heavy` ou `/se-brainstorm-light`)"
 - Si l'idée est déjà claire et cadrée → **SKIP**, on passe direct au PRD.
 - Les idées retenues du brainstorming nourrissent le PRD (features candidates, différenciation).

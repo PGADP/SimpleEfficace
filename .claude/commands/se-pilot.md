@@ -34,9 +34,9 @@ Tu connais **intimement** le produit et son domaine. Tu raisonnes en termes de v
 
 `/se-pilot` est un **routeur mince**. Le sparring (Mode 2) est chargé d'emblée — c'est le cœur. Les modes lourds (briefing, clôture, discussion stratégique) sont des **sous-skills chargés à la demande** pour ne pas alourdir le démarrage :
 
-- `/se-pilot` seul, "on reprend", "où on en est" → **invoque `pilot:briefing`** (Skill).
-- "on discute la phase X", "discuss phase X" → **invoque `pilot:strategic-discussion`** (Skill).
-- "je m'arrête", "fin de session", "on s'arrête là" → **invoque `pilot:closure`** (Skill).
+- **Mode 1 — Briefing** : `/se-pilot` seul, "on reprend", "où on en est" → **invoque `pilot:briefing`** (Skill).
+- **Mode 3 — Discussion stratégique** : "on discute la phase X", "discuss phase X" → **invoque `pilot:strategic-discussion`** (Skill).
+- **Mode 4 — Clôture** : "je m'arrête", "fin de session", "on s'arrête là" → **invoque `pilot:closure`** (Skill).
 - Tout le reste (l'utilisateur parle, discute, demande conseil) → **Mode 2 ci-dessous, ici même, instantané**.
 
 ## Mode 2 : Conversation (sparring + dispatch) — LE CŒUR, toujours chargé
@@ -57,15 +57,15 @@ Quand l'utilisateur parle, discute, demande conseil :
 4. **Evaluer la taille** :
    - Trivial (< 30 min) → `/gsd:fast` ou `/gsd:quick`
    - Petit (1-2h) → `/gsd:quick`
-   - Moyen (demi-journee) → Mode 4 (discussion strategique) → `/gsd:plan-phase` → `/gsd:execute-phase`
-   - Gros (plusieurs sessions) → Mode 4 (discussion strategique) d'abord
+   - Moyen (demi-journee) → Mode 3 (discussion strategique) → `/gsd:plan-phase` → `/gsd:execute-phase`
+   - Gros (plusieurs sessions) → Mode 3 (discussion strategique) d'abord
 
 #### Dispatch vers les bons skills
 Tu connais TOUS les skills et tu n'hesites JAMAIS a les utiliser :
 
 **Gestion de projet :**
 - `/se-planning` — Point planning, replanification, mise a jour (TOUJOURS l'appeler pour les questions de planning/dates/sequencage)
-- **Mode 4** (discussion strategique) — Debat vision + production CONTEXT.md (PREFERE a discuss-phase)
+- **Mode 3** (discussion strategique) — Debat vision + production CONTEXT.md (PREFERE a discuss-phase)
 - `/gsd:discuss-phase N` — Clarifier une phase (questions bottom-up, quand le Mode 4 n'est pas necessaire)
 - `/gsd:plan-phase N` — Creer les plans d'execution
 - `/gsd:execute-phase N` — Executer les plans
@@ -88,22 +88,31 @@ Tu connais TOUS les skills et tu n'hesites JAMAIS a les utiliser :
 - `/se-review lint` — Analyse statique approfondie
 - `/se-security` — Audit securite
 - `/se-review perf` — Analyse performance approfondie
-- `/se-refactor` — Code mort et refactoring
+- `/se-refactor` — Analyse refactoring (propose une strategie, ne supprime rien)
 - `/se-clean-commit` — Commit propre
+- `/se-explain` — Explication pedagogique d'un code
+
+**UI / UX :**
+- `/se-ui` — Concevoir, auditer ou ameliorer une interface (design system, 6 piliers)
+- `/se-ux` — Parcours client end-to-end (build/audit/review, maintient JOURNEYS.md)
 
 **Maintenance et qualite :**
 - `/se-deploy` — Check pre-deploy (build, types, lint, tests, deps) — GO/NO-GO
-- `/se-janitor` — Nettoyage code mort, imports, fichiers orphelins
+- `/se-janitor` — Nettoyage code mort, imports, fichiers orphelins (supprime, contrairement a /se-refactor qui propose)
 - `/se-health-check` — Diagnostic global (build + deps + infra)
+- `/se-archive` — Archivage des phases terminees vers .planning/_archive/
+
+**Demarrage :**
+- `/se-new-project` — Onboarding complet d'un projet vierge (pilot → brainstorm → PRD → research → roadmap)
 
 **Recherche et ideation :**
 - `/se-research` — Recherche approfondie sur internet (decisions archi, benchmarks libs, concurrents)
 - `/se-brainstorm-light` — Session de brainstorming rapide (5 techniques, 10 min)
-- `/se-brainstorm-heavy` — Session de brainstorming approfondie (62 techniques)
+- `/se-brainstorm-heavy` — Session de brainstorming approfondie (61 techniques)
 - `/se-humanizer` — Passe anti-AI-slop sur tout contenu user-facing AVANT livraison
 
 **Utilisation proactive des skills :**
-- Apres une phase front → proposer un audit UI pour verifier le design system
+- Apres une phase front → proposer un audit UI (`/se-ui`) pour verifier le design system
 - Avant de livrer du contenu user-facing → proposer `/se-humanizer`
 - Decision archi structurante ou choix de lib → proposer `/se-research`
 - Question de planning/dates/sequencage → appeler `/se-planning`
@@ -125,11 +134,11 @@ Les idees produit non-prioritaires se capturent avec `/gsd:note` (zero-friction)
 
 **4. Regle d'or anti-dispersion** — Ne JAMAIS interrompre un flow de travail (execution de phase, debug) pour capturer une idee. On capture entre les moments, pas pendant.
 
-### Mode 4 : Discussion stratégique de phase → sous-skill
+### Mode 3 : Discussion stratégique de phase → sous-skill
 
 Quand l'utilisateur dit "on discute la phase X" / "discuss phase X", ou quand une phase nécessite une discussion avant planification : **invoque `pilot:strategic-discussion`** (Skill). Ce sous-skill porte le flow complet (recherche code obligatoire, débat méthode Rodin/steelmanning, production du CONTEXT.md standard GSD). Il est chargé à la demande pour garder /se-pilot léger.
 
-### Mode 3 : Clôture de session → sous-skill
+### Mode 4 : Clôture de session → sous-skill
 
 Quand l'utilisateur dit "je m'arrête", "fin de session", "on s'arrête là" : **invoque `pilot:closure`** (Skill). Ce sous-skill porte la clôture complète (résumé, remontée des SUMMARY vers STRATEGY/ROADMAP, invocation /se-planning, archivage, prochaines actions, commit doc). Chargé à la demande.
 
@@ -147,7 +156,7 @@ Quand l'utilisateur dit "je m'arrête", "fin de session", "on s'arrête là" : *
 - **Toutes les 5 phases completees** → "Ca fait 5 phases. Un `/se-janitor` pour nettoyer le code mort ?"
 - **Toutes les 10 phases ou avant cloture de milestone** → "Avant de fermer ce milestone, un `/se-health-check` rapide ?"
 - **Avant un push/se-deploy** → "Tu veux un `/se-deploy` check avant de pusher ?"
-- **Apres une grosse phase front** → "Un audit UI sur ce qu'on vient de livrer ?"
+- **Apres une grosse phase front** → "Un audit `/se-ui` sur ce qu'on vient de livrer ?"
 - **Si dernier janitor > 2 semaines** → le mentionner en briefing
 
 ## Regles fondamentales

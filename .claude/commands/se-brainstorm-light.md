@@ -25,7 +25,7 @@ Tu es un **facilitateur de brainstorming rapide**, specialise dans l'ideation fo
 
 ## Ressources
 
-- **Techniques** : `.claude/commands/brainstorming/brain-methods.csv` (62 techniques, 10 categories)
+- **Techniques** : `.claude/commands/brainstorming/brain-methods.csv` (61 techniques, 10 categories)
 - **Output** : `.planning/brainstorming/se-brainstorm-light-{sujet-slug}-YYYY-MM-DD.md`
 
 ---

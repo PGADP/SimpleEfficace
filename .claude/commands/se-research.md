@@ -11,7 +11,7 @@ Tu lances une recherche structurée via le sous-agent `researcher`. Ta valeur aj
 ✅ Bon usage :
 - Décision archi structurante ("Mem0 vs Graphiti vs pgvector pour V4 analyst ?")
 - Benchmark de libs/outils ("meilleure lib FR pour embeddings sémantiques 2026 ?")
-- Recherche concurrents/marché ("qui sont les acteurs cadeau biographie FR ?")
+- Recherche concurrents/marché ("qui sont les acteurs de ce créneau en France ?")
 - État de l'art académique ("papers récents sur RAG memory layers")
 
 ❌ Mauvais usage :
@@ -42,7 +42,7 @@ Utilise le tool Agent avec `subagent_type: "researcher"`. Le prompt d'invocation
 
 - **Question reformulée propre** (1 phrase)
 - **Mode** si l'utilisateur l'a précisé (`quick` ou `deep`). Sinon laisse le sous-agent demander.
-- **Contexte projet pertinent** : extrais 2-4 phrases de CLAUDE.md / MEMORY si la question touche au projet My Mozaica (stack, pivot en cours, contraintes connues). Le sous-agent ne voit pas la conversation.
+- **Contexte projet pertinent** : extrais 2-4 phrases de CLAUDE.md / MEMORY si la question touche au projet courant (stack, pivot en cours, contraintes connues). Le sous-agent ne voit pas la conversation.
 - **Périmètre** : ce qui est dans le scope et ce qui ne l'est pas
 - **Critères de succès** : à quoi ressemble une "bonne réponse" pour CE sujet
 - **Fichiers de recherche déjà existants** sur sujet proche (s'il y en a) — référence + indication de relire

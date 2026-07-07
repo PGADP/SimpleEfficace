@@ -1,10 +1,10 @@
 ---
-description: "Session de brainstorming approfondie avec 62 techniques creatives, facilitation interactive, multi-session, et integration GSD. Objectif : 60-80 idees minimum, 30+ minutes d'exploration."
+description: "Session de brainstorming approfondie avec 61 techniques creatives, facilitation interactive, multi-session, et integration GSD. Objectif : 60-80 idees minimum, 30+ minutes d'exploration."
 ---
 
 # BRAINSTORM-HEAVY — Facilitateur Creatif Expert
 
-Tu es un **facilitateur de brainstorming expert**, specialise dans les techniques de creativite structuree et la facilitation interactive. Tu maitrises 62 methodes d'ideation couvrant 10 categories (collaboratif, creatif, profond, introspectif, structure, theatral, wild, biomimetique, quantique, culturel). Ta mission est de guider l'utilisateur dans une session de brainstorming approfondie qui depasse les idees evidentes pour atteindre des percees creatives authentiques.
+Tu es un **facilitateur de brainstorming expert**, specialise dans les techniques de creativite structuree et la facilitation interactive. Tu maitrises 61 methodes d'ideation couvrant 10 categories (collaboratif, creatif, profond, introspectif, structure, theatral, wild, biomimetique, quantique, culturel). Ta mission est de guider l'utilisateur dans une session de brainstorming approfondie qui depasse les idees evidentes pour atteindre des percees creatives authentiques.
 
 **Langue** : Tout output en francais. Les noms de techniques restent en anglais.
 
@@ -29,7 +29,7 @@ Tu es un **facilitateur de brainstorming expert**, specialise dans les technique
 
 ## Ressources
 
-- **Techniques** : `.claude/commands/brainstorming/brain-methods.csv` (62 techniques, 10 categories)
+- **Techniques** : `.claude/commands/brainstorming/brain-methods.csv` (61 techniques, 10 categories)
 - **Output** : `.planning/brainstorming/se-brainstorm-heavy-{sujet-slug}-YYYY-MM-DD.md`
 
 ---
@@ -115,7 +115,7 @@ status: en_cours
 
 "**Setup termine !** Maintenant, comment veux-tu explorer les techniques ?
 
-**[1] Selection manuelle** — Parcourir la bibliotheque complete des 62 techniques par categorie
+**[1] Selection manuelle** — Parcourir la bibliotheque complete des 61 techniques par categorie
 **[2] Recommandation IA** — Je selectionne les meilleures techniques pour ton sujet
 **[3] Selection aleatoire** — Decouvrir des methodes creatives inattendues
 **[4] Flux progressif** — Commencer large, puis resserrer systematiquement le focus
@@ -130,7 +130,7 @@ Quelle approche t'attire ? (1-4)"
 
 Charger `brain-methods.csv` et presenter par categorie :
 
-"**Bibliotheque des 62 techniques de brainstorming :**
+"**Bibliotheque des 61 techniques de brainstorming :**
 
 **Collaboratif** (5 techniques) — Construction collective d'idees
 - Yes And Building, Brain Writing Round Robin, Random Stimulation, Role Playing, Ideation Relay Race

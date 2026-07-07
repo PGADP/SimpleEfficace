@@ -1,5 +1,5 @@
 ---
-name: humanizer
+name: se-humanizer
 version: 2.5.1
 description: |
   Garant anti-AI-slop pour tout contenu user-facing. À INVOQUER
