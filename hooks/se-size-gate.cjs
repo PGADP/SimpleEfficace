@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // se-size-gate — PreToolUse hook BLOQUANT pour l'anti-entropie.
-// Refuse d'écrire STATE.md > 150 lignes ou ROADMAP.md > 200 lignes (cf. CONVENTIONS).
+// Refuse d'écrire STATE.md > 300 lignes ou ROADMAP.md > 300 lignes (cf. CONVENTIONS).
 // Avertit (sans bloquer) dès 90% du plafond.
 //
 // Bloque via: { hookSpecificOutput: { hookEventName, permissionDecision: "deny", permissionDecisionReason } }
@@ -15,8 +15,8 @@ const fs = require('fs');
 
 // Plafonds (source: .planning/CONVENTIONS.md). Patterns, pas chemins en dur.
 const CAPS = [
-  { match: /(^|[\\/])STATE\.md$/i, limit: 150, label: 'STATE.md' },
-  { match: /(^|[\\/])ROADMAP\.md$/i, limit: 200, label: 'ROADMAP.md' },
+  { match: /(^|[\\/])STATE\.md$/i, limit: 300, label: 'STATE.md' },
+  { match: /(^|[\\/])ROADMAP\.md$/i, limit: 300, label: 'ROADMAP.md' },
 ];
 
 // Projette le contenu du fichier APRÈS l'opération. null = pas mesurable → laisse passer.

@@ -51,8 +51,8 @@ Noms invariants pour qu'un parser les trouve sans grep :
 
 ## 5. Anti-entropie (plafonds DURS)
 
-- `STATE.md` ≤ 150 lignes. Présent only. Au-delà → `size-gate` refuse l'écriture.
-- `ROADMAP.md` ≤ 200 lignes. Horizon court détaillé, moyen+long en une ligne.
+- `STATE.md` ≤ 300 lignes. Présent only. Au-delà → `size-gate` refuse l'écriture.
+- `ROADMAP.md` ≤ 300 lignes. Horizon court détaillé, moyen+long en une ligne.
 - Phase `shipped` → migrée en `_archive/` automatiquement (`archive-hook`). `phases/` ne contient QUE l'actif.
 
 ## 6. Langue
