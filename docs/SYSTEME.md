@@ -3,8 +3,8 @@
 > Système de pilotage de développement personnel, conçu pour **Paul** (Next.js / Tailwind / Railway / Postgres / Prisma / Vitest, auth Supabase ou BetterAuth).
 > Successeur du système GSD + Pilot de My Mozaica. Objectif : **lourd quand il faut, invisible le reste du temps. Propre par mécanique, pas par vigilance.**
 >
-> Statut : CONCEPTION (v0.2). Rien n'est encore construit. Ce fichier est la source de vérité du design.
-> Dernière mise à jour : 2026-06-24.
+> Statut : CONSTRUIT (v1.0). Le système décrit ici est implémenté (hooks, gates, skills, patches GSD) ; ce fichier reste la référence du design et est maintenu aligné sur le réel.
+> Dernière mise à jour : 2026-07-07.
 >
 > **Méthode imposée par Paul : CHERRY-PICKING, pas from-scratch.** On relit l'existant (GSD, ui-ux-pro-max, impeccable, hyperresearch, skills perso), on l'adapte à la nouvelle structure, on vérifie que l'ensemble tient. On ne recrée RIEN de zéro. Sources clonées dans `_sources/`.
 
@@ -49,12 +49,14 @@
 │  Code que le harness exécute, pas Claude. Ne peut être ni oublié    │
 │  ni contourné.                                                       │
 │  • ui-guard       → édition front sans design-system/UI-spec : rappel│
-│  • humanizer-guard→ contenu user-facing : EXIGE /se-humanizer           │
+│  • humanizer-guard→ contenu user-facing : EXIGE /se-humanizer        │
 │  • hygiene-guard  → après Edit : souffle code mort / imports / log   │
 │  • hardcode-guard → après Edit : détecte valeurs hardcodées          │
+│  • monolith-guard → après Edit : souffle les god services            │
+│  • security-guard → après Edit : secrets/XSS/eval/Zod manquant       │
 │  • slop-gate      → au commit : BLOQUE si marqueurs AI non traités   │
+│  • secret-gate    → au commit : BLOQUE si secret dans le diff        │
 │  • size-gate      → écriture STATE/ROADMAP : BLOQUE si trop long     │
-│  • archive-hook   → phase shippée : déplace en _archive/ auto        │
 └──────────────────────────────────┬───────────────────────────────────┘
                                    │ garantissent en continu
 ┌─ STRATE B — LE COFONDATEUR (/se-pilot, RICHE) ─────────────────────────┐
@@ -64,7 +66,7 @@
                                    │ dispatche vers
 ┌─ STRATE C — LE CYCLE DE PHASE ──────────────────────────────────────┐
 │  SCOUT → DISCUSS → RESEARCH → PLAN(+TDD) → CHECK → EXECUTE →         │
-│  VERIFY → SIMPLIFY → JANITOR → SHIP                                  │
+│  VERIFY → SIMPLIFY → JANITOR → SECURITY → SHIP                       │
 │  Chaque flèche = un artefact rangé. Checkpoints visuels aux gates.  │
 └──────────────────────────────────┬───────────────────────────────────┘
                                    │ s'appuie sur
@@ -84,21 +86,25 @@
 
 ## 3. Strate A — Les garde-fous
 
-Un hook = script déclaré dans `settings.json`, lancé par le harness sur un événement. Il rend un `additionalContext` (system-reminder que Claude voit forcément) ou **bloque** (exit 2). Claude ne peut ni l'oublier ni l'ignorer.
+Un hook = script déclaré dans `settings.json`, lancé par le harness sur un événement. Il rend un `additionalContext` (system-reminder que Claude voit forcément) ou **bloque** (`permissionDecision: deny` en PreToolUse). Claude ne peut ni l'oublier ni l'ignorer.
 
 **Contrat commun (volé à impeccable) :** jamais casser un tour · exit 0 sauf gate explicite · garde de ré-entrance (variable d'env de profondeur) · timeout 5s · audit-log optionnel.
 
 | Hook | Événement | Déclencheur | Action | Bloquant ? |
 |------|-----------|-------------|--------|------------|
 | **humanizer-guard** | `PostToolUse` Edit/Write | fichier user-facing (heuristique chemin + contenu FR) | system-reminder : « passe /se-humanizer avant de finir » | non (rappel) |
-| **slop-gate** | au commit (clean-commit) | contenu user-facing avec marqueurs `slop-rules` | refuse le commit | **oui** |
+| **slop-gate** | `PreToolUse` Bash (`git commit`) | contenu user-facing à commiter avec marqueurs `slop-rules` | refuse le commit | **oui** |
 | **ui-guard** | `PostToolUse` Edit/Write | `.tsx`/`.css`/composant front | si pas de design-system lu OU pas d'UI-spec de phase → rappel ; sinon lance détecteur déterministe (contraste, tailles) | non (rappel) |
 | **hardcode-guard** | `PostToolUse` Edit/Write | code source | détecte valeurs magiques / listes hardcodées (cf. règle CLAUDE.md) | non (rappel) |
 | **hygiene-guard** | `PostToolUse` Edit | code source | scan rapide imports inutilisés / console.log / code mort | non (rappel) |
-| **size-gate** | `PostToolUse` Write | STATE.md / ROADMAP.md | si dépasse le plafond → refuse + exige archivage | **oui** |
-| **archive-hook** | à `ship` réussi | phase passée en `shipped` | déplace le dossier de phase en `_archive/` | auto |
+| **monolith-guard** | `PostToolUse` Edit/Write | code source | seuils fichier/exports (`monolith-thresholds.json`) — souffle les god services | non (rappel) |
+| **security-guard** | `PostToolUse` Edit/Write | code source | secrets en dur, XSS, eval, route API sans Zod | non (rappel) |
+| **secret-gate** | `PreToolUse` Bash (`git commit`) | secret dans le diff à commiter (`secret-patterns.json`) | refuse le commit (insensible au `--no-verify`) | **oui** |
+| **size-gate** | `PreToolUse` Edit/Write | STATE.md / ROADMAP.md | si dépasse le plafond → refuse + exige archivage | **oui** |
 
-**Note d'implémentation :** chaque hook est un petit script Node (`.mjs`), thin adapter stdin/stdout, logique testable dans une lib séparée (modèle impeccable `hook.mjs` + `hook-lib.mjs`). On veut **peu** de scripts, donc un seul dispatcher de hooks qui route par type d'événement, pas un script par hook.
+L'archivage des phases shippées n'est pas un hook : c'est le skill **`/se-archive`** (confirmation humaine avant tout déplacement de dossier).
+
+**Note d'implémentation :** les hooks sont des scripts Node `.cjs` (`hooks/`), thin adapters stdin/stdout ; les 6 détecteurs advisory vivent dans `guard-lib.cjs` (testable, dispatché par `se-guard.cjs`), les 3 gates bloquantes sont des scripts dédiés. Peu de scripts : un dispatcher unique pour l'advisory, pas un script par détecteur.
 
 ---
 
@@ -130,7 +136,8 @@ Un hook = script déclaré dans `settings.json`, lancé par le harness sur un é
 | 7 | **VERIFY** | GSD (upgrade) | déterministe (exit 0/2) + LLM, isolés puis croisés |
 | 8 | **SIMPLIFY** | 🆕 gate | détecteur duplication/complexité + LLM |
 | 9 | **JANITOR** | 🆕 gate | code mort + hardcode, déterministe + LLM |
-| 10 | **SHIP** | GSD + slop-gate + archive-hook | commit propre → PR → archivage auto |
+| 10 | **SECURITY** | 🆕 gate | audit /se-security si la phase touche auth/API/DB — CRITICAL bloquant |
+| 11 | **SHIP** | GSD + slop-gate + secret-gate | commit propre → PR → archivage via /se-archive |
 
 ---
 
@@ -146,7 +153,7 @@ Coverage matrix anti-rétrécissement · `required_section_headings` · pré-fet
 
 ### Banques de règles externalisées (source unique, modèle ui-ux-pro-max)
 - `design-system` — LE fichier lu par TOUS les skills UI (tokens, couleurs, typo, espacement, composants). Cf. §12.
-- `ui-rules` — 6 piliers + ~250 règles chiffrées sourcées, Severity → BLOCK/FLAG/PASS.
+- `ui-rules` — 6 piliers + 18 règles chiffrées sourcées, Severity → BLOCK/FLAG/PASS.
 - `slop-rules` — marqueurs AI-slop FR (lus par Humanizer ET slop-gate).
 - `code-rules` — patterns code mort / hardcode / anti-patterns (lus par janitor ET hygiene/hardcode-guard).
 - `personas-ux` — personas clients/utilisateurs (lus par l'expert UX).
@@ -209,7 +216,7 @@ Cherry-pick : mode `live` d'impeccable (overlay navigateur + variantes), AI-prom
 │       ├── UI-SPEC.md        (si front)
 │       └── CHECKPOINTS.md    (journal des gates visuels)
 │
-├── research/                 ← recherches transverses (.planning/se-research/{slug}.md)
+├── research/                 ← recherches transverses ({YYYY-MM-DD}-{slug}.md)
 ├── design/                   ← design-system + personas-ux (lus par UI/UX)
 │   ├── DESIGN-SYSTEM.md
 │   └── PERSONAS.md
@@ -247,8 +254,8 @@ Le problème de Paul : STATE/ROADMAP qui gonflent à 10 000 lignes, 250 phases j
 - `STATE.md` ≤ 150 lignes. Ne contient que le présent. Au-delà → le hook refuse l'écriture et exige de pousser le vieux en archive.
 - `ROADMAP.md` : horizon court détaillé, moyen+long en une ligne chacun. Plafond ~200 lignes.
 
-### b) Archivage automatique (archive-hook, auto)
-- Phase `shipped` → son dossier migre en `_archive/phases/` immédiatement. `phases/` ne contient QUE l'actif.
+### b) Archivage des phases shippées (skill /se-archive, avec confirmation)
+- Phase `shipped` → son dossier migre en `_archive/phases/` via `/se-archive`. `phases/` ne contient QUE l'actif.
 - `complete-milestone` → ROADMAP+REQUIREMENTS du milestone migrent en `_archive/milestones/{vX.Y}/`, la roadmap active repart propre.
 
 ### c) INDEX.md (la carte)
@@ -321,7 +328,7 @@ Après analyse des sources réelles (`_sources/claude-config` = config perso de 
 | Moteur GSD (18 agents, 57 cmds, workflows, v1.29) | ✅ sur disque, mûr | **Garder, adapter config** |
 | Skills dev (dev/se-plan/se-review/se-fix/se-test/se-deploy/se-janitor/se-refactor/se-debug/se-clean-commit/se-security/se-health-check) | ✅ sur disque | **Garder, adapter stack** |
 | `/se-pilot` + `/se-planning` | ✅ sur disque | **Garder, rendre mince** |
-| Brainstorming (light+heavy+62 techniques CSV) | ✅ sur disque | **SANCTUARISER** (Paul l'adore) |
+| Brainstorming (light+heavy+61 techniques CSV) | ✅ sur disque | **SANCTUARISER** (Paul l'adore) |
 | `/se-research` (méthodo hyperresearch déjà intégrée : Decompose→Verify, 4 lenses, CoVe) | ✅ `~/.claude/commands/se-research.md` | **SANCTUARISER** (Paul l'adore). Ajout optionnel : 4 APIs académiques dans le sous-agent `researcher` |
 | `/se-humanizer` v2.5.1 (29 marqueurs + FR + boucle audit + calibrage voix + âme) | ✅ `~/.claude/commands/se-humanizer.md` | **Garder**. 2 ajouts ciblés : section anti-faux-positifs + 4 patterns récents (staccato, aphorismes, ouvreurs candides, diff-anchored) |
 | skill-creator + scripts d'éval Python | ✅ sur disque | **Réutiliser pour fabriquer les nouveaux skills** |

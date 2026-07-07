@@ -23,3 +23,9 @@ node_modules/
 
 # Captures de checkpoint (générées par projet)
 **/screenshots/
+
+# Sorties d'outils de la stack (Next.js / Playwright / Vitest)
+.next/
+playwright-report/
+test-results/
+coverage/

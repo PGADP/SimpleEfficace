@@ -171,7 +171,7 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 | Live | Next.js + Playwright screenshot | preview + capture |
 
 ## 3.4 Playwright — config une fois, 3 ancrages
-- Config : `playwright.config.ts` (Next.js, 3 projects desktop/tablet/mobile, `webServer` réutilise dev). Deps `@playwright/se-test`.
+- Config : `playwright.config.ts` (Next.js, 3 projects desktop/tablet/mobile, `webServer` réutilise dev). Deps `@playwright/test`.
 - Ancrage 1 : détecteur visuel dans **ui-guard** (screenshot + contraste réel).
 - Ancrage 2 : screenshots 3 breakpoints aux **checkpoints VERIFY**.
 - Ancrage 3 : moteur **E2E** par défaut.
@@ -192,7 +192,7 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 |---|---|---|---|
 | SCOUT | ✅ (étape `scout_codebase` non conditionnelle) | `workflows/discuss-phase.md` + `references/scout-codebase.md` | 🔵 amplifier + anti-monolithe |
 | DISCUSS | ✅ | `workflows/discuss-phase.md` | 🔵 + décision TDD-éligibilité |
-| RESEARCH | ✅ | `workflows/se-plan-phase.md` §5 + `gsd-phase-researcher` | 🔵 brancher recherche 4 niveaux |
+| RESEARCH | ✅ | `workflows/plan-phase.md` §5 + `gsd-phase-researcher` | 🔵 brancher recherche 4 niveaux |
 | PLAN+TDD | ⚙️ off | `references/tdd.md` | 🔵 activer toggles |
 | CHECK | ✅ | `gsd-plan-checker` | 🟢 garder |
 | EXECUTE | ✅ | `workflows/execute-phase.md` | 🟢 + gate MVP+TDD |
@@ -288,7 +288,7 @@ Source : `_sources/claude-config/commands/`. Tous alignés stack sauf 2.
 |---|---|---|
 | dev, plan, review, fix, test, debug, clean-commit, lint, perf, security, refactor, janitor, explain | 🔵 garder | aucune (stack OK) |
 | **deploy** | 🔵 adapter | Railway (pas Vercel) — via MCP railway |
-| **health-check** | 🔵 adapté générique | checks Railway + build/type-check/se-test. **Décision Paul : version générique (projet-agnostique). Les checks data spécifiques (Supabase/pipeline/KI) seront recréés comme skill PROJET dans mymozaica, PAS dans cette config globale.** |
+| **health-check** | 🔵 adapté générique | checks Railway + build/type-check/test. **Décision Paul : version générique (projet-agnostique). Les checks data spécifiques (Supabase/pipeline/KI) seront recréés comme skill PROJET dans mymozaica, PAS dans cette config globale.** |
 
 > **Note phase 2 (audit rapatriement) :** l'audit a trouvé 4 anomalies, toutes corrigées : pilot.md re-restauré (Mode 5 + icebox + dispatch, 467 lignes), pilot-marketing.md + planning-marketing.md rapatriés (n'étaient que dans ~/.claude). health-check générique confirmé OK. Les 27 autres fichiers sont fidèles.
 
@@ -324,7 +324,7 @@ Source : `_sources/claude-config/commands/`. Tous alignés stack sauf 2.
 **Reste (non bloquant) :**
 - **Câbler les hooks en global** (décidé : à l'étape DEPLOY, pas avant)
 - **Checkpoints visuels mid-flight** : templates Playwright prêts, mais l'INVERSION du défaut GSD `end-of-phase` dans le workflow verify n'est pas faite (SYSTEME §11)
-- **`/se-ui` skill standalone** : les agents gsd-ui-* existent, mais pas de commande `/se-ui` directe — à clarifier
+- ✅ **`/se-ui` skill standalone** : `.claude/commands/se-ui.md` existe (et le Front Pass de ui-phase pointe dessus)
 - remplir DESIGN-SYSTEM.md / PERSONAS.md avec les vraies valeurs au 1er projet (voulu : ce sont des templates)
 - phase-template/ dans _templates/
 - TEST en conditions réelles (nouvelle session)

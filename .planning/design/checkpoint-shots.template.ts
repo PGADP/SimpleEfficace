@@ -3,7 +3,8 @@
 // À copier en tests/e2e/checkpoint-shots.ts au 1er besoin.
 //
 // Usage par Claude au moment d'un checkpoint visuel (gate VERIFY) :
-//   npx playwright test tests/e2e/checkpoint-shots.ts -- --route=/dashboard --name=dashboard
+//   SHOT_ROUTE=/dashboard SHOT_NAME=dashboard npx playwright test tests/e2e/checkpoint-shots.ts
+//   (variables d'environnement — Playwright ne transmet pas de flags custom)
 // → capture la route sur les 3 breakpoints dans .planning/phases/<phase>/screenshots/
 //   puis Claude lit les PNG et les présente à l'humain pour le GO/NO-GO.
 

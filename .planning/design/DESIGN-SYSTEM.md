@@ -5,7 +5,7 @@
 > Pattern MASTER + overrides : ce fichier est le MASTER global. Une page peut surcharger une valeur
 > dans `design/pages/{route}.md` (override explicite, documenté), sinon le MASTER s'applique.
 >
-> Stack : Next.js 15 + Tailwind + OKLCH dans le thème. Composants : shadcn/se-ui par défaut.
+> Stack : Next.js 15 + Tailwind + OKLCH dans le thème. Composants : shadcn/ui par défaut.
 > Statut : SQUELETTE — à remplir au premier projet réel avec les vraies valeurs de marque.
 
 ---
@@ -48,12 +48,12 @@ Exception légitime connue : **44px** touch target (WCAG 2.5.5 / Apple HIG).
 
 ## 4. Composants
 
-Base : **shadcn/se-ui officiel**. Tout registre tiers passe le Safety Gate (cf. pilier 6).
+Base : **shadcn/ui officiel**. Tout registre tiers passe le Safety Gate (cf. pilier 6).
 Registre local des composants verrouillés : *(à remplir — Button, Card, Input, etc. + chemin)*
 
 ## 5. Les 6 piliers (contrat de qualité)
 
-Détail chiffré et exemples Code Good/Bad : voir `.planning/rules/se-ui-rules.json` (source unique des critères).
+Détail chiffré et exemples Code Good/Bad : voir `.planning/rules/ui-rules.json` (source unique des critères).
 
 1. **Copywriting** — CTA = verbe + nom spécifique. États vides/erreur avec chemin de solution. Jamais "Submit/OK/Cliquez ici".
 2. **Visuals** — focal point déclaré, hiérarchie visuelle explicite, icônes + labels.
@@ -75,5 +75,5 @@ Règle DOWNGRADE : une exception **documentée avec raison standard** rétrograd
 
 1. Lis CE fichier (MASTER) en premier.
 2. Si la tâche cible une route précise, vérifie `design/pages/{route}.md` — s'il existe, ses valeurs **surchargent** le MASTER pour cette page.
-3. Pour les critères de validation détaillés (Do/Don't/Code), lis `rules/se-ui-rules.json`.
+3. Pour les critères de validation détaillés (Do/Don't/Code), lis `rules/ui-rules.json`.
 4. Pour le parcours/valeur utilisateur, lis `design/PERSONAS.md` (skill /se-ux).
