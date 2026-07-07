@@ -109,7 +109,7 @@ Before executing ANY task that modifies existing files:
    grep -r "functionNameOrPattern" src/ --include="*.ts" -l
    ```
    If similar code exists → extend or reuse it, don't duplicate
-5. **Check project skills** — If `.claude/commands/` contains relevant skills for the domain being modified (e.g., `/front` for UI, `/pipeline-check` for pipeline), note them for post-task verification
+5. **Check project skills** — If `.claude/commands/` contains relevant skills for the domain being modified (e.g., `/se-ui` for UI, `/pipeline-check` for pipeline), note them for post-task verification
 
 **The goal:** Every line you write should look like it was written by the same developer who wrote the rest of the file. No layering, no style breaks, no duplicate utilities.
 </step>

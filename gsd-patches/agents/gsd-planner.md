@@ -1368,4 +1368,3 @@ Planning complete when:
 - [ ] User knows to run `/gsd:execute-phase {X}` next
 
 </success_criteria>
-</content>

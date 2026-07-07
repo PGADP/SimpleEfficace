@@ -669,7 +669,7 @@ Researching [domain] ecosystem...
 Create research directory:
 
 ```bash
-mkdir -p .planning/se-research
+mkdir -p .planning/research
 ```
 
 **Determine milestone context:**

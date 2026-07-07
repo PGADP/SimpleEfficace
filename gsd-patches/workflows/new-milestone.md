@@ -263,7 +263,7 @@ AskUserQuestion: "Research the domain ecosystem for new features before defining
 ```
 
 ```bash
-mkdir -p .planning/se-research
+mkdir -p .planning/research
 ```
 
 Spawn 4 parallel gsd-project-researcher agents. Each uses this template with dimension-specific fields:
