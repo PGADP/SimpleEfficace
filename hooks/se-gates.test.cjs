@@ -107,31 +107,37 @@ check('fichier non user-facing slopé → laisse passer', (() => {
 // ---------- se-size-gate ----------
 console.log('se-size-gate:');
 
+// Plafond lu depuis le source du gate (source unique) : le test suit le seuil réel,
+// il ne le re-hardcode pas.
+const gateSrc = fs.readFileSync(path.join(__dirname, 'se-size-gate.cjs'), 'utf8');
+const CAP = Number((gateSrc.match(/STATE\\\.md\$\/i,\s*limit:\s*(\d+)/) || [])[1]);
+if (!CAP) { console.error('  FAIL  impossible de lire le plafond STATE.md dans se-size-gate.cjs'); process.exit(1); }
+
 const statePath = path.join(repo, 'STATE.md');
 const lines = (n) => Array.from({ length: n }, (_, i) => `ligne ${i + 1}`).join('\n') + '\n';
 
-check('Write STATE.md 151 lignes → deny', denies(runHook('se-size-gate.cjs', {
-  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(151) },
+check(`Write STATE.md ${CAP + 1} lignes → deny`, denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(CAP + 1) },
 }, repo)));
-check('Write STATE.md 100 lignes → laisse passer', !denies(runHook('se-size-gate.cjs', {
-  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(100) },
+check(`Write STATE.md ${CAP - 50} lignes → laisse passer`, !denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(CAP - 50) },
 }, repo)));
-check('\\n final non compté comme ligne (150 pile → pas de deny)', !denies(runHook('se-size-gate.cjs', {
-  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(150) },
+check(`\\n final non compté comme ligne (${CAP} pile → pas de deny)`, !denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(CAP) },
 }, repo)));
 
 // SIZE-1 (régression) : un Edit qui fait déborder le fichier existant est bien mesuré
-write('STATE.md', lines(149));
-check('Edit qui pousse STATE.md à 153 lignes → deny', denies(runHook('se-size-gate.cjs', {
+write('STATE.md', lines(CAP - 1));
+check(`Edit qui pousse STATE.md au-delà du plafond (${CAP}) → deny`, denies(runHook('se-size-gate.cjs', {
   tool_name: 'Edit',
-  tool_input: { file_path: statePath, old_string: 'ligne 149', new_string: 'ligne 149\na\nb\nc\nd' },
+  tool_input: { file_path: statePath, old_string: `ligne ${CAP - 1}`, new_string: `ligne ${CAP - 1}\na\nb\nc\nd` },
 }, repo)));
 check('Edit neutre sur STATE.md sous plafond → laisse passer', !denies(runHook('se-size-gate.cjs', {
   tool_name: 'Edit',
-  tool_input: { file_path: statePath, old_string: 'ligne 149', new_string: 'ligne cent-quarante-neuf' },
+  tool_input: { file_path: statePath, old_string: `ligne ${CAP - 1}`, new_string: 'ligne renommée' },
 }, repo)));
 check('fichier non plafonné → laisse passer', !denies(runHook('se-size-gate.cjs', {
-  tool_name: 'Write', tool_input: { file_path: path.join(repo, 'NOTES.md'), content: lines(500) },
+  tool_name: 'Write', tool_input: { file_path: path.join(repo, 'NOTES.md'), content: lines(CAP + 200) },
 }, repo)));
 
 // --- cleanup + verdict ---
