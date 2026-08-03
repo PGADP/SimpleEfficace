@@ -1,8 +1,12 @@
 // TEMPLATE Playwright pour les projets Next.js du système SIMPLE & EFFICACE.
 // À copier en racine de projet (playwright.config.ts) au 1er besoin de vision/E2E.
 // Principe "moins de scripts" : Playwright = UN outil de vision réutilisé par
-// (1) le détecteur visuel ui-guard, (2) les screenshots de checkpoint VERIFY, (3) l'E2E des parcours critiques.
+// (1) le runner de mesure ui-verify, (2) les screenshots de checkpoint VERIFY, (3) l'E2E des parcours critiques.
 // PAS un .spec.ts par feature.
+//
+// Dépendances : npm i -D @playwright/test @axe-core/playwright
+// (@axe-core/playwright est ce qui rend les verdicts d'accessibilité mesurés plutôt
+//  qu'estimés. Sans lui, ui-verify tourne quand même et les règles WCAG sont SKIPPED.)
 
 import { defineConfig, devices } from '@playwright/test';
 

@@ -110,3 +110,11 @@ Coverage : 85%
 
 ---
 **Code à tester** : $ARGUMENTS
+
+## Où ça se range
+
+**Rien sur disque.** Ce rapport est éphémère : verdict consommé en séance. Tu réponds en chat et tu crées les todos avec `TodoWrite`. Tu n'écris **aucun** fichier `.md`, ni à la racine du repo, ni dans `.planning/`.
+
+Exception unique : l'utilisateur demande explicitement une trace écrite → `.planning/audits/{YYYY-MM-DD}-test-{slug}.md`.
+
+Loi complète : [.planning/CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4. Le hook `placement-guard` alerte si tu déposes un rapport ailleurs.

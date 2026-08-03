@@ -650,9 +650,11 @@ Si config + dépendance présentes : Claude lance le serveur dev lui-même (cf. 
 **Step 2 — Capturer les 3 breakpoints** via le helper réutilisable (PAS un spec par feature). Les routes à capturer = celles modifiées par la phase, **complétées par les étapes des parcours touchés dans `.planning/design/JOURNEYS.md`** (si un écran d'un parcours a changé, on capture aussi l'étape amont et l'étape aval — la friction vit dans les transitions) :
 ```bash
 # Pour chaque route/écran modifié par la phase (+ étapes adjacentes du parcours) :
-SHOT_ROUTE="<route>" SHOT_NAME="<ecran>" SHOT_OUTDIR=".planning/phases/${PADDED}-*/screenshots" \
+SHOT_ROUTE="<route>" SHOT_NAME="<ecran>" SHOT_OUTDIR=".planning/_screenshots/${PADDED}" \
   npx playwright test tests/e2e/checkpoint-shots.ts
-# → desktop / tablet / mobile dans le dossier screenshots/ de la phase
+# → desktop / tablet / mobile dans .planning/_screenshots/{phase}/ (scratch gitignoré,
+#   destination unique des binaires — cf. CONVENTIONS §2. Jamais dans le dossier de phase :
+#   ils ne doivent pas partir à l'archive.)
 ```
 (Helper template : `.planning/design/checkpoint-shots.template.ts` → à copier en `tests/e2e/checkpoint-shots.ts` au 1er usage.)
 
@@ -661,7 +663,7 @@ SHOT_ROUTE="<route>" SHOT_NAME="<ecran>" SHOT_OUTDIR=".planning/phases/${PADDED}
 **Step 4 — Checkpoint humain (GO / NO-GO visuel):**
 ```
 Checkpoint visuel — Phase {N}, écran {nom}
-Captures : desktop / tablet / mobile (voir screenshots/)
+Captures : desktop / tablet / mobile (voir .planning/_screenshots/{phase}/)
 À vérifier : [3-4 points précis — layout, lisibilité, responsive, états]
 
 → Le rendu est bon ? [GO / décrire les problèmes]

@@ -63,6 +63,19 @@ git add -A .planning/
 git commit -m "chore(archive): déplace {N} phases terminées vers _archive/"
 ```
 
+## Étape 6 — Recherches et audits périmés (même confirmation)
+
+Les phases ne sont pas la seule source d'entropie. `research/` et `audits/` gonflent aussi.
+
+Est archivable un fichier dont le milestone d'origine est clos (date antérieure au dernier `complete-milestone`) :
+```bash
+mkdir -p .planning/_archive/research .planning/_archive/audits
+git mv .planning/research/{YYYY-MM-DD}-{slug}.md .planning/_archive/research/
+git mv .planning/audits/{YYYY-MM-DD}-{type}-{slug}.md .planning/_archive/audits/
+```
+Ne JAMAIS archiver une recherche citée par une phase active (grep du slug dans `.planning/phases/`).
+Même règle qu'à l'étape 2 : lister, confirmer, puis déplacer.
+
 ## Milestones
 Pour archiver un milestone entier terminé : déplacer ROADMAP+REQUIREMENTS vers `_archive/milestones/{vX.Y}/` (cf. /gsd:complete-milestone qui le fait déjà — préférer ce skill GSD natif pour les milestones, /se-archive sert surtout aux phases).
 

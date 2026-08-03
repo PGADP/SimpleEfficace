@@ -49,3 +49,11 @@ Fournis la commande ou la séquence de commandes pour commencer le nettoyage de 
 
 ---
 **Demande** : Analyse complète du projet pour code mort et refactoring.
+
+## Où ça se range
+
+**Par défaut : rien sur disque.** La stratégie de refactoring se discute en chat, puis `/se-janitor` ou `/se-dev` l'appliquent.
+
+Si l'utilisateur demande une stratégie globale à garder (audit de dette sur tout le projet, à relire dans plusieurs semaines) → `.planning/audits/{YYYY-MM-DD}-refactor-{slug}.md`.
+
+Jamais à la racine du repo ni à la racine de `.planning/`. Loi : [CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4.

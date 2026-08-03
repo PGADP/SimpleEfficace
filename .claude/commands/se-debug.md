@@ -107,3 +107,16 @@ Utilise `Bash` pour exécuter.
 
 ---
 **Bug à corriger** : $ARGUMENTS
+
+## Où ça se range
+
+**Par défaut : rien sur disque.** Un bug résolu dans la séance vit dans le commit `fix:` et son message, pas dans un rapport.
+
+Deux exceptions :
+
+| Cas | Destination |
+|---|---|
+| Investigation longue à reprendre après un reset de contexte | `.planning/debug/{slug}.md` → déplacé dans `.planning/debug/resolved/` une fois clos |
+| Bug rencontré pendant une phase active | `.planning/phases/{NN}-{slug}/CHECKPOINTS.md` |
+
+Jamais de `DEBUG-xxx.md` à la racine. Loi : [CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4.

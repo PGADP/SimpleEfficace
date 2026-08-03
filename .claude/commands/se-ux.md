@@ -240,3 +240,14 @@ Next : Wireframe + test sur Persona 1 segment.
 ---
 
 **V1** — 2026-06-25 — First version, integrated with PERSONAS.md template.
+
+## Où ça se range
+
+| Mode | Destination |
+|---|---|
+| **build** (concevoir un parcours) | `.planning/design/JOURNEYS.md` — tu es le seul à l'éditer |
+| **audit court** (une feature) | rien sur disque : verdict + frictions en chat, statuts et frictions mis à jour dans `JOURNEYS.md` |
+| **audit complet** (parcours E2E, ou audit demandé comme livrable) | `.planning/audits/{YYYY-MM-DD}-ux-{slug}.md` + mise à jour de `JOURNEYS.md` |
+| **review** (feature vs personas) | rien sur disque, chat |
+
+Jamais de `UX-AUDIT.md` à la racine ni dans `docs/`. Loi : [CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4.

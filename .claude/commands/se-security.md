@@ -58,5 +58,17 @@ Puis le verdict :
 - Pas de faux positifs paresseux : vérifie qu'un finding est atteignable (une injection dans du code mort n'est pas un CRITICAL).
 - Tu ne modifies RIEN — tu audites et tu signales. Les fixes passent par `/se-fix` ou la phase en cours.
 
+## Où ça se range
+
+Deux cas, deux destinations :
+
+| Invocation | Destination |
+|---|---|
+| **Gate SECURITY du cycle** (phase touchant auth/API/DB) | `.planning/phases/{NN}-{slug}/CHECKPOINTS.md` — section `## Gate SECURITY` avec verdict GO/NO-GO. Part à l'archive avec la phase. |
+| **Audit complet manuel** (`/se-security` sur le projet ou un domaine) | `.planning/audits/{YYYY-MM-DD}-security-{slug}.md` |
+| Vérif ponctuelle sur un fichier | rien sur disque, réponse en chat |
+
+Jamais de `SECURITY-AUDIT.md` à la racine. Loi : [CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4.
+
 ---
 **Périmètre** : $ARGUMENTS (défaut : fichiers modifiés depuis le dernier ship — `git diff --name-only main...HEAD` ou la phase courante)

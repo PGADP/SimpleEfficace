@@ -21,8 +21,12 @@ Thumbs.db
 *.swp
 node_modules/
 
-# Captures de checkpoint (générées par projet)
+# Captures de checkpoint — destination unique, jamais commitées (cf. CONVENTIONS §2)
+.planning/_screenshots/
 **/screenshots/
+
+# Mesures UI (captures + ui-report.*.json produits par tests/e2e/ui-verify.spec.ts)
+.planning/_ui/
 
 # Sorties d'outils de la stack (Next.js / Playwright / Vitest)
 .next/
