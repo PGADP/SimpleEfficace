@@ -1,0 +1,4 @@
+# Rapports d'audit transverses PERSISTANTS uniquement.
+# Nommage : {YYYY-MM-DD}-{type}-{slug}.md   type ∈ security · ux · ui · refactor · review · health
+# Un rapport éphémère (verdict consommé en séance) ne s'écrit PAS ici — il reste en chat.
+# Loi : ../CONVENTIONS.md §4

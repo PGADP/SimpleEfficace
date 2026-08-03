@@ -24,10 +24,11 @@ node scripts/install-gsd-patches.cjs   # applique les enrichissements SE au mote
 
 - **Skills** (`.claude/commands/`) : `/se-pilot`, `/se-new-project`, `/se-ui`, `/se-ux`, `/se-research`, `/se-humanizer`, `/se-dev`, `/se-review` (+ modes `lint`/`perf`), `/se-security`, `/se-test`, `/se-gate-simplify`, `/se-gate-janitor`, etc.
 - **Garde-fous** (`.claude/settings.json` → `hooks/`) — actifs au démarrage de session :
-  - advisory (dispatcher `se-guard.cjs`) : `humanizer-guard` (contenu user-facing), `ui-guard` (front), `hardcode-guard`, `hygiene-guard`, `monolith-guard`, `security-guard` (secrets, XSS, eval, Zod manquant)
+  - advisory (dispatcher `se-guard.cjs`) : `humanizer-guard` (contenu user-facing), `ui-guard` (front), `hardcode-guard`, `hygiene-guard`, `monolith-guard`, `security-guard` (secrets, XSS, eval, Zod manquant), `placement-guard` (fichier de suivi rangé hors de sa destination unique)
   - bloquants : `size-gate` (STATE.md > 300 / ROADMAP.md > 300 lignes), `slop-gate` (commit de contenu AI-slop), `secret-gate` (commit de secrets — insensible au `--no-verify`)
 - **Cycle GSD enrichi** (`gsd-patches/` → moteur global) : gates simplify + janitor + **security** + visual-checkpoint, activées via `.planning/config.json`.
-- **Contrats** (`.planning/`) : `design/DESIGN-SYSTEM.md`, `design/JOURNEYS.md` (parcours E2E, maintenu par `/se-ux`), `rules/ui-rules.json`, `CONVENTIONS.md`.
+- **Contrats** (`.planning/`) : `CONVENTIONS.md` (**loi de rangement — source unique de l'arborescence**), `design/DESIGN-SYSTEM.md`, `design/JOURNEYS.md` (parcours E2E, maintenu par `/se-ux`), `rules/ui-rules.json`.
+- **Règle des rapports** : un rapport ne s'écrit sur disque que s'il sera relu. Éphémère (`/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`) → chat, aucun fichier. Lié à une phase → `phases/{NN}-{slug}/CHECKPOINTS.md`. Transverse persistant → `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md`. **Jamais à la racine du repo.**
 - **Rituel UI** (toute création/modif/suppression d'élément visible) : contrat design-system → cohérence parcours (JOURNEYS.md) → `/se-humanizer` sur les textes → vérification visuelle Playwright. Rappelé par le hook `ui-guard`, vérifié au checkpoint visuel.
 
 ## Stack par défaut

@@ -19,9 +19,7 @@
 5. [Strate C — Le cycle de phase](#5-strate-c--le-cycle-de-phase)
 6. [Strate D — Les moteurs partagés](#6-strate-d--les-moteurs-partagés)
 7. [Strate E — Les spécialistes](#7-strate-e--les-spécialistes)
-8. [L'arborescence standardisée](#8-larborescence-standardisée)
-9. [La convention de nommage](#9-la-convention-de-nommage)
-10. [Les fichiers de suivi & l'anti-entropie](#10-les-fichiers-de-suivi--lanti-entropie)
+8-10. [Arborescence, nommage, anti-entropie](#8-9-10-arborescence-nommage-anti-entropie) → source unique : [.planning/CONVENTIONS.md](../.planning/CONVENTIONS.md)
 11. [Les checkpoints humains repensés](#11-les-checkpoints-humains-repensés)
 12. [La stack & les défauts projet](#12-la-stack--les-défauts-projet)
 13. [Inventaire des skills](#13-inventaire-des-skills)
@@ -99,12 +97,13 @@ Un hook = script déclaré dans `settings.json`, lancé par le harness sur un é
 | **hygiene-guard** | `PostToolUse` Edit | code source | scan rapide imports inutilisés / console.log / code mort | non (rappel) |
 | **monolith-guard** | `PostToolUse` Edit/Write | code source | seuils fichier/exports (`monolith-thresholds.json`) — souffle les god services | non (rappel) |
 | **security-guard** | `PostToolUse` Edit/Write | code source | secrets en dur, XSS, eval, route API sans Zod | non (rappel) |
+| **placement-guard** | `PostToolUse` Edit/Write | fichier `.md` de suivi | `.md` à la racine du repo, à la racine de `.planning/`, dans un dossier non déclaré, ou nom de rapport hors destination (`placement-rules.json`) | non (rappel) |
 | **secret-gate** | `PreToolUse` Bash (`git commit`) | secret dans le diff à commiter (`secret-patterns.json`) | refuse le commit (insensible au `--no-verify`) | **oui** |
 | **size-gate** | `PreToolUse` Edit/Write | STATE.md / ROADMAP.md | si dépasse le plafond → refuse + exige archivage | **oui** |
 
 L'archivage des phases shippées n'est pas un hook : c'est le skill **`/se-archive`** (confirmation humaine avant tout déplacement de dossier).
 
-**Note d'implémentation :** les hooks sont des scripts Node `.cjs` (`hooks/`), thin adapters stdin/stdout ; les 6 détecteurs advisory vivent dans `guard-lib.cjs` (testable, dispatché par `se-guard.cjs`), les 3 gates bloquantes sont des scripts dédiés. Peu de scripts : un dispatcher unique pour l'advisory, pas un script par détecteur.
+**Note d'implémentation :** les hooks sont des scripts Node `.cjs` (`hooks/`), thin adapters stdin/stdout ; les 7 détecteurs advisory vivent dans `guard-lib.cjs` (testable, dispatché par `se-guard.cjs`), les 3 gates bloquantes sont des scripts dédiés. Peu de scripts : un dispatcher unique pour l'advisory, pas un script par détecteur.
 
 ---
 
@@ -196,70 +195,24 @@ Cherry-pick : mode `live` d'impeccable (overlay navigateur + variantes), AI-prom
 
 ---
 
-## 8. L'arborescence standardisée
+## 8-9-10. Arborescence, nommage, anti-entropie
 
-```
-.planning/
-├── INDEX.md                  ← carte de TOUT (liens vers chaque artefact). Jamais greppé.
-├── STATE.md                  ← présent only, ≤150 lignes (size-gate)
-├── ROADMAP.md                ← 3 horizons, court détaillé / moyen+long en lignes
-├── STRATEGY.md               ← vision, deadlines business, décisions majeures
-├── PROJECT.md                ← description produit + Key Decisions (log)
-│
-├── phases/                   ← phases ACTIVES uniquement (jamais l'archive)
-│   └── {NN}-{slug}/          ← une phase = un dossier (cf. §9)
-│       ├── CONTEXT.md
-│       ├── RESEARCH.md
-│       ├── PLAN.md
-│       ├── SUMMARY.md
-│       ├── VERIFICATION.md
-│       ├── UI-SPEC.md        (si front)
-│       └── CHECKPOINTS.md    (journal des gates visuels)
-│
-├── research/                 ← recherches transverses ({YYYY-MM-DD}-{slug}.md)
-├── design/                   ← design-system + personas-ux (lus par UI/UX)
-│   ├── DESIGN-SYSTEM.md
-│   └── PERSONAS.md
-├── rules/                    ← banques de règles (ui-rules, slop-rules, code-rules)
-├── todos/                    ← capture zéro-friction (pending/ + done/)
-│
-└── _archive/                 ← TOUT le validé migre ici (archive-hook)
-    ├── milestones/{vX.Y}/
-    └── phases/{NN}-{slug}/   ← phases shippées, hors du chemin de travail
-```
+> **Ces trois chapitres ne sont plus décrits ici.** Leur source unique et faisant autorité est
+> [.planning/CONVENTIONS.md](../.planning/CONVENTIONS.md) — c'est le fichier que lisent les hooks
+> (`placement-guard`, `size-gate`) et les skills.
+>
+> Ce document décrit *pourquoi* le système est ainsi ; CONVENTIONS.md décrit *où* les choses vont.
+> Dupliquer l'arbre ici a déjà produit une divergence (plafonds STATE/ROADMAP annoncés à 150/200
+> alors que la loi et le hook disaient 300/300) : on ne recommence pas.
 
-**Règle d'or :** une seule destination par type d'artefact. Si tu cherches une recherche → `research/`. Une décision → `PROJECT.md`. Un design token → `design/DESIGN-SYSTEM.md`. Jamais d'ambiguïté, jamais de grep.
+**Ce qu'il faut retenir de la conception :**
 
----
-
-## 9. La convention de nommage
-
-**Dossiers de phase :** `{NN}-{slug-kebab-case}/` — NN sur 2-3 chiffres, slug court en anglais.
-- Insertion urgente : décimale (`72.1-`) sans renuméroter.
-- Backlog : `999.x-`.
-
-**Fichiers dans une phase :** noms FIXES et MAJUSCULES (CONTEXT, RESEARCH, PLAN, SUMMARY, VERIFICATION, UI-SPEC, CHECKPOINTS). Pas de variation. Un parser peut les trouver sans grep.
-
-**Recherches transverses :** `research/{YYYY-MM-DD}-{slug}.md`.
-
-**Archive :** miroir exact de la structure active, sous `_archive/`.
-
----
-
-## 10. Les fichiers de suivi & l'anti-entropie
-
-Le problème de Paul : STATE/ROADMAP qui gonflent à 10 000 lignes, 250 phases jamais archivées. Trois mécanismes :
-
-### a) Plafonds DURS (size-gate, bloquant)
-- `STATE.md` ≤ 150 lignes. Ne contient que le présent. Au-delà → le hook refuse l'écriture et exige de pousser le vieux en archive.
-- `ROADMAP.md` : horizon court détaillé, moyen+long en une ligne chacun. Plafond ~200 lignes.
-
-### b) Archivage des phases shippées (skill /se-archive, avec confirmation)
-- Phase `shipped` → son dossier migre en `_archive/phases/` via `/se-archive`. `phases/` ne contient QUE l'actif.
-- `complete-milestone` → ROADMAP+REQUIREMENTS du milestone migrent en `_archive/milestones/{vX.Y}/`, la roadmap active repart propre.
-
-### c) INDEX.md (la carte)
-- Un fichier maître qui liste, avec liens, où se trouve chaque chose (phases actives, archive, recherches, design, règles). Mis à jour par les hooks. C'est lui qu'on lit pour s'orienter, jamais un grep.
+- **Une seule destination par type d'artefact.** Une recherche → `research/`. Un audit transverse → `audits/`. Une décision produit → `PROJECT.md`. Un design token → `design/DESIGN-SYSTEM.md`. Jamais d'ambiguïté, jamais de grep.
+- **Un artefact lié à une phase vit DANS la phase.** Il part à l'archive avec elle : `phases/` reste propre par construction, sans ménage manuel.
+- **Un rapport ne s'écrit que s'il sera relu.** La plupart des verdicts (`/se-deploy`, `/se-review`, `/se-test`) sont consommés en séance et ne laissent aucun fichier. C'est ce qui évite le repo noyé sous les rapports après 200 h d'usage.
+- **Noms de fichiers FIXES en majuscules dans une phase** — un parser les trouve sans grep.
+- **Trois mécanismes d'anti-entropie** : plafonds durs (`size-gate`, bloquant), archivage des phases shippées (`/se-archive`, avec confirmation), et `INDEX.md` maintenu en continu à la clôture de chaque phase.
+- **Un garde-fou d'emplacement** (`placement-guard`, advisory) alerte dès qu'un `.md` atterrit à la racine du repo, à la racine de `.planning/`, dans un dossier non déclaré, ou porte un nom de rapport hors de sa destination.
 
 ---
 
