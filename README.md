@@ -5,7 +5,7 @@
 **Un système de pilotage de développement pour Claude Code.**
 Lourd quand il faut, invisible le reste du temps. Propre par mécanique, pas par vigilance.
 
-`28 skills` · `10 garde-fous` · `84 tests` · `cycle GSD enrichi` · `loi de rangement`
+`28 skills` · `10 garde-fous` · `89 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
 
 </div>
 
@@ -166,10 +166,66 @@ Quatre scripts câblés dans `settings.json`, dont un dispatcher qui porte sept 
 Contrat commun : *jamais casser un tour · exit 0 sauf gate · silent fail*. Un hook qui plante ne bloque jamais ton travail.
 
 ```bash
-node hooks/se-guard.test.cjs     # 32 tests — détecteurs advisory
+node hooks/se-guard.test.cjs     # 37 tests — détecteurs advisory
 node hooks/se-gates.test.cjs     # 17 tests — gates bloquantes
 node scripts/ui-verdict.test.cjs # 35 tests — moteur de verdict UI
 ```
+
+---
+
+## L'UI ne se juge pas à l'œil
+
+Un checkpoint qui prend trois captures d'écran et demande « c'est bon ? » ne vérifie rien. Or les cinq échecs d'accessibilité les plus fréquents (contraste, alt manquant, liens vides, labels de formulaire, `lang` absent) sont tous détectables automatiquement. Le système sépare donc ce qui se mesure de ce qui se juge.
+
+```
+UI_ROUTE=/dashboard UI_NAME=dashboard npx playwright test tests/e2e/ui-verify.spec.ts
+node scripts/ui-verdict.cjs --name dashboard
+```
+
+```
+Verdict UI — dashboard (3 rapports : desktop, tablet, mobile)
+
+  BLOCK 2   FLAG 1   PASS 22   à juger 10   non mesuré 1
+
+BLOCK — à corriger avant livraison
+  [spacing] spacing-touch-target
+    Cible interactive ≥ 44×44px (WCAG 2.5.5 / Apple HIG)
+    mesuré : button « Fermer » — 24×24px
+  [accessibility] a11y-page-lang
+    L'attribut lang est déclaré sur <html>
+    mesuré : false   attendu : isTrue
+
+VERDICT : NO-GO
+```
+
+**Un seul runner** produit tout : violations WCAG 2.2 AA (axe-core), tailles et poids typographiques réellement rendus, espacements hors grille, cibles tactiles, débordements horizontaux, focus visible, pièges au clavier, animations sous `prefers-reduced-motion`, Core Web Vitals, et **tous les textes visibles extraits** — qui partent directement dans `/se-humanizer`, y compris ceux venus de composants tiers qu'une relecture de code rate.
+
+Ce que la machine ne dira jamais, l'humain le tranche : *la direction esthétique est-elle visible, ou seulement déclarée ? Où l'œil se pose-t-il en premier ?*
+
+Deux garde-fous de principe :
+
+- **Une métrique absente donne SKIPPED, jamais BLOCK.** On ne refuse pas une livraison sur ce qu'on n'a pas su mesurer.
+- **Entre breakpoints, le pire cas gagne.** Une UI cassée sur mobile est une UI cassée.
+
+Un BLOCK arrête la livraison (`workflow.ui_gate_blocking`, réglable), sauf exception écrite avec sa raison. Aucune exception ne rétrograde quoi que ce soit sur l'accessibilité, le copywriting ou la provenance des composants.
+
+### Les corpus de design
+
+`vendor/design/` porte un sous-ensemble curaté de trois corpus open-source, aux versions épinglées et **jamais édités à la main**. Les deux moteurs embarqués n'ont aucune dépendance (node natif, python stdlib) : tout fonctionne dès le clone, hors ligne. Licences et attributions dans `NOTICE.md`.
+
+| Corpus | Rôle | Quand |
+|--------|------|-------|
+| **impeccable** | Langage de design (34 playbooks) + détecteur déterministe d'anti-patterns | Écrire, critiquer, polir, juger |
+| **platform-design-skills** | Apple HIG · Material 3 · WCAG 2.2, 8 plateformes | Conformité — seul corpus couvrant le **desktop** |
+| **ui-ux-pro-max** | Bases de direction (styles, palettes, pairings) + moteur BM25 | **Bootstrap seulement** : il génère un design-system, il n'en juge aucun |
+
+Ils sont chargés **à la demande**, une référence par tâche, selon la table de routage de `.planning/design/references/README.md`. Tout charger d'un coup coûterait des dizaines de milliers de tokens et diluerait les instructions.
+
+```bash
+node scripts/sync-design-vendors.cjs --check   # y a-t-il du drift upstream ?
+```
+
+Volontairement manuel : ces dépôts bougent vite, et une mise à jour automatique changerait le comportement des gates sans que personne ne l'ait décidé.
 
 ---
 
@@ -204,7 +260,10 @@ Trois mécanismes d'anti-entropie complètent le dispositif : plafonds durs (`si
 │                        # · ui-verdict (mesure → verdict BLOCK/FLAG/PASS)
 ├── vendor/design/       # corpus de design vendorisés, épinglés, jamais édités à la main
 ├── .planning/           # CONVENTIONS (loi) · design-system · journeys · personas
-│                        # · ui-rules · phases · research · audits · _archive
+│   ├── design/          # contrat UI + references/ (chargées à la demande)
+│   │                    # + templates playwright.config & ui-verify
+│   ├── rules/           # ui-rules.json — 10 piliers, 36 règles, critères mesurables
+│   └── …                # phases · research · audits · _archive
 └── docs/                # conception du système (SYSTEME.md, specs de chantier)
 ```
 
@@ -230,9 +289,10 @@ Ce système est un travail de **cherry-picking** : il assemble et adapte le meil
 | Source | Auteur | Ce qu'on en a tiré |
 |--------|--------|--------------------|
 | [get-shit-done](https://github.com/gsd-build/get-shit-done) | gsd-build | Le moteur GSD : cycle par phases, workflows, sous-agents, checkpoints |
-| [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | nextlevelbuilder | Le format de règles UI externalisées (Do/Don't/Code/Severity), pattern MASTER+overrides |
-| [impeccable](https://github.com/pbakaus/impeccable) | Paul Bakaus | Le pattern détecteur déterministe + LLM croisés, le contrat des hooks, le détecteur visuel |
-| [platform-design-skills](https://github.com/ehmo/platform-design-skills) | ehmo | Les critères de design par plateforme (web, desktop, mobile) |
+| [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | nextlevelbuilder | Le format de règles UI externalisées (Do/Don't/Code/Severity), le pattern MASTER+overrides, et les bases de direction |
+| [impeccable](https://github.com/pbakaus/impeccable) | Paul Bakaus | Le pattern détecteur déterministe × jugement LLM, le contrat des hooks, le langage de design |
+| [platform-design-skills](https://github.com/ehmo/platform-design-skills) | ehmo | Les critères de design par plateforme, web · desktop · mobile |
+| [taste-skill](https://github.com/leonxlnx/taste-skill) | Leonxlnx | Les trois molettes `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY`, adoptées comme réglages de projet |
 | [hyperresearch](https://github.com/jordan-gibbs/hyperresearch) | Jordan Gibbs | L'orchestrateur mince + étapes lazy, les 4 APIs académiques, la méthodo de recherche |
 | [humanizer](https://github.com/blader/humanizer) | Siqi Chen (blader) | La règle des clusters anti-faux-positifs + les patterns AI-slop récents |
 | [claude-code-best-practice](https://github.com/shanraisshan/claude-code-best-practice) | shanraisshan | Les patterns d'orchestration, la token efficiency, la gestion de contexte |
