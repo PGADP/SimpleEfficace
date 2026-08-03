@@ -85,7 +85,38 @@ Une fois PRD + recherches en main, génère la roadmap. Délègue au moteur GSD 
 - Le PRD remplace le questioning bottom-up : les décisions sont déjà prises.
 - Produit `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md` (phases), `STATE.md`, `config.json`.
 
-## Étape 6 — Cadrage des toggles + clôture
+## Étape 6 — Contrat de design (OBLIGATOIRE si le projet a un front)
+
+Sans ce contrat, tout le dispositif UI tourne à vide : le checkpoint visuel mesure du contraste
+générique, mais il n'a aucun référentiel de marque à opposer au code. Et un agent sans direction
+déclarée glisse toujours vers le même défaut par gravité — `Inter` + dégradé violet + cartes
+arrondies. C'est la signature visuelle du contenu généré.
+
+**Skip total si la stack n'a pas d'interface** (CLI, lib, API pure) : dis-le et passe à l'étape 7.
+
+Sinon, remplis `.planning/design/DESIGN-SYSTEM.md` avec l'humain. Trois blocs non négociables :
+
+1. **§0.1 Plateforme cible** — `web` | `macos` | `ios` | `android` | … Elle détermine quel corpus
+   de règles fait foi (`vendor/design/platform-design-skills/`). Un desktop conçu comme une page
+   web est un desktop raté : cette réponse change tout le reste.
+2. **§0.2 Direction esthétique** — nom de la direction, ce qu'elle doit faire ressentir et à qui,
+   anti-référence, registre dominant. Une direction se choisit, elle ne se découvre pas en codant.
+   Sur projet vierge, propose des directions argumentées :
+   ```bash
+   python vendor/design/ui-ux-pro-max/scripts/search.py "<type de produit>" --design-system
+   ```
+   Le choix reste humain. Une direction non déclarée est un BLOCK (`aesthetic-direction-declared`).
+3. **§0.3 Molettes** — `DESIGN_VARIANCE`, `MOTION_INTENSITY`, `VISUAL_DENSITY` (1-10). Les défauts
+   5/4/5 conviennent si l'humain n'a pas d'avis ; explique juste ce qu'elles changent. Elles
+   remplacent les débats de goût : « c'est trop chargé » devient « baisse VISUAL_DENSITY à 4 ».
+
+Les tokens précis (couleurs OKLCH, échelle typo) n'ont pas à être arrêtés maintenant — les tableaux
+du MASTER servent de défaut et la phase fondations les affinera. Ce qu'on verrouille ici, c'est la
+**direction**, parce qu'elle est coûteuse à changer après le premier composant.
+
+Enfin, retire la ligne `Statut : SQUELETTE` en tête du fichier une fois les trois blocs remplis.
+
+## Étape 7 — Cadrage des toggles + clôture
 - Propose d'activer les gates qualité du cycle : "On active simplify-gate / janitor-gate / security-gate pour ce projet ? (recommandé pour un projet où tu connais peu le code)". Si oui, confirme-les dans `.planning/config.json` (`workflow.simplify_gate`, `workflow.janitor_gate`, `workflow.security_gate`). (Le TDD se pilote par tâche via `tdd="true"` au plan, pas par un toggle global.)
 - **Setup Playwright (si stack front + Playwright)** : pose les templates de vision dès maintenant pour que la phase fondations n'ait plus qu'à installer la dépendance :
   - copie `.planning/design/playwright.config.template.ts` → `playwright.config.ts` et `.planning/design/checkpoint-shots.template.ts` → `tests/e2e/checkpoint-shots.ts` ;
@@ -97,7 +128,7 @@ Une fois PRD + recherches en main, génère la roadmap. Délègue au moteur GSD 
 
 ## Règles
 1. Tu ORCHESTRES, tu ne refais pas le travail des skills (brainstorm, research, gsd:new-project font leur job).
-2. Chaque étape skippable si non pertinente (brainstorm, research) — ne force jamais.
+2. Chaque étape skippable si non pertinente (brainstorm, research) — ne force jamais. **Sauf l'étape 6** : sur un projet avec interface, le contrat de design n'est pas optionnel. Sans front, elle est entièrement skippée.
 3. L'humain valide le PRD avant les recherches, et les recherches avant la roadmap.
 4. Posture cofondateur tout du long : challenge, vision, pragmatisme.
 

@@ -67,9 +67,37 @@ function detectSlop({ filePath, content }) {
   }];
 }
 
+// Le contrat de design est-il encore un squelette ? On ne regarde que §0 (plateforme,
+// direction, molettes) : les tokens se raffinent en cours de route, la direction non.
+// Renvoie null quand le fichier est illisible — on ne prétend rien de ce qu'on n'a pas lu.
+function designContractState(projectDir) {
+  if (!projectDir) return null;
+  let ds;
+  try {
+    ds = fs.readFileSync(path.join(projectDir, '.planning', 'design', 'DESIGN-SYSTEM.md'), 'utf8');
+  } catch {
+    return null;
+  }
+  const section0 = ds.split(/^##\s+1\./m)[0];
+  const missing = [];
+  if (/^##\s+0\.1[\s\S]*?à remplir/m.test(section0)) missing.push('§0.1 plateforme cible');
+  if (/^##\s+0\.2[\s\S]*?à remplir/m.test(section0)) missing.push('§0.2 direction esthétique');
+  return { isSkeleton: /Statut\s*:\s*SQUELETTE/i.test(ds) || missing.length > 0, missing };
+}
+
 // 2. ui-guard: touching front without an obvious design-system reference (phase 1: simple reminder).
-function detectUi({ filePath }) {
+function detectUi({ filePath, projectDir }) {
   if (!isFrontFile(filePath)) return [];
+
+  const contract = designContractState(projectDir);
+  if (contract && contract.isSkeleton) {
+    const detail = contract.missing.length ? ` Manque : ${contract.missing.join(', ')}.` : '';
+    return [{
+      id: 'ui-guard',
+      message: `Edition front alors que DESIGN-SYSTEM.md est encore un SQUELETTE.${detail} Sans direction declaree, tout agent glisse vers le meme defaut par gravite (Inter + degrade violet + cartes arrondies) et le checkpoint visuel BLOQUERA. Remplis §0.1/§0.2/§0.3 avec l'humain AVANT de continuer (cf. /se-new-project etape 6).`,
+    }];
+  }
+
   return [{
     id: 'ui-guard',
     message: 'Edition front detectee. Rituel /se-ui : (1) contrat DESIGN-SYSTEM.md — plateforme §0.1, direction §0.2, molettes §0.3 — + ui-rules.json, (2) cycle craft -> CRITIQUE -> polish, la critique n\'est pas optionnelle, (3) coherence parcours JOURNEYS.md, (4) textes UI via /se-humanizer, (5) mesure : ui-verify.spec.ts puis node scripts/ui-verdict.cjs avant livraison.',
@@ -243,5 +271,5 @@ function runAll({ filePath, content, projectDir }) {
 module.exports = {
   runAll,
   detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity, detectPlacement,
-  isSourceFile, isFrontFile, isUserFacingFile, toRepoRelative,
+  isSourceFile, isFrontFile, isUserFacingFile, toRepoRelative, designContractState,
 };

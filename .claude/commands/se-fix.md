@@ -27,6 +27,9 @@ Pour chaque correction :
 
 1. **Marque en cours** : `TodoWrite` status `in_progress`
 2. **Lis le fichier** : `Read` avant toute modification
+   - Fichier front (`.tsx`, `.jsx`, `.css`, composant, page) → lis aussi
+     `.planning/design/DESIGN-SYSTEM.md` §0 et `.planning/rules/ui-rules.json`. Un fix visuel qui
+     ignore le contrat crée une seconde source de vérité.
 3. **Applique le fix** : Modification minimale et ciblée
 4. **Vérifie** : Le problème est résolu sans régression
 5. **Marque terminé** : `TodoWrite` status `completed`

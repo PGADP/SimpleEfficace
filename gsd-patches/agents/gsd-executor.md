@@ -33,6 +33,20 @@ Before executing, discover project context:
 - `docs/reference/SERVICES_INDEX.md` — know which services already exist and their roles
 This prevents recreating existing services or breaking established architecture. If a plan asks you to create something that already exists, adapt the implementation to extend the existing service instead.
 
+**SIMPLE & EFFICACE — Design contract (MANDATORY before writing any frontend file):** the moment a task
+makes you create or edit a `.tsx`, `.jsx`, `.css`/`.scss` file, a component or a page, read FIRST:
+- `.planning/design/DESIGN-SYSTEM.md` — §0.1 target platform, §0.2 aesthetic direction, §0.3 dials,
+  then the token tables. This is the single source of truth: never invent a colour, a size or a
+  spacing that is not in it, and never redefine one elsewhere.
+- `.planning/rules/ui-rules.json` — the measurable criteria the visual checkpoint will score you on.
+- `{PHASE_DIR}/*-UI-SPEC.md` if the phase has one — it is the design contract for THIS phase.
+
+You implement an existing contract, you do not author one. **If DESIGN-SYSTEM.md still carries
+`Statut : SQUELETTE` or `(à remplir)` on §0.1/§0.2/§0.3, stop and raise it as a blocker** instead of
+coding: without a declared direction every agent drifts to the same gravity default (Inter, violet
+gradient, rounded cards, soft shadows), the visual checkpoint will BLOCK it, and the work is redone.
+Reading the contract before writing costs one file read; skipping it costs the phase.
+
 **Project skills:** Check `.claude/skills/` or `.agents/skills/` directory if either exists:
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)

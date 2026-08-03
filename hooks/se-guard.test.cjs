@@ -2,7 +2,7 @@
 // Vérification déterministe de se-guard. On exécute la lib sur des cas propres ET piégés.
 // Lancer: node hooks/se-guard.test.cjs  → affiche PASS/FAIL et sort 0 si tout passe.
 
-const { runAll } = require('./guard-lib.cjs');
+const { runAll, designContractState: designContractStateExport } = require('./guard-lib.cjs');
 
 let pass = 0, fail = 0;
 function check(name, cond) {
@@ -82,6 +82,49 @@ check('route API POST avec Zod → PAS de security-guard',
 check('fichier hooks/ exclu du security-guard',
   !has(runAll({ filePath: 'hooks/guard-lib.cjs', content:
     'const re = /dangerouslySetInnerHTML/;\n' }), 'security-guard'));
+
+// --- CONTRAT DE DESIGN (ui-guard sait distinguer un squelette d'un contrat rempli) ---
+
+{
+  const fsd = require('fs');
+  const osd = require('os');
+  const pathd = require('path');
+
+  function fakeProject(dsContent) {
+    const root = fsd.mkdtempSync(pathd.join(osd.tmpdir(), 'se-ds-'));
+    const dir = pathd.join(root, '.planning', 'design');
+    fsd.mkdirSync(dir, { recursive: true });
+    fsd.writeFileSync(pathd.join(dir, 'DESIGN-SYSTEM.md'), dsContent);
+    return root;
+  }
+  const uiMsg = (root) => runAll({
+    filePath: pathd.join(root, 'src/components/Card.tsx'),
+    content: 'export function Card() { return <div />; }\n',
+    projectDir: root,
+  }).find((f) => f.id === 'ui-guard')?.message || '';
+
+  const REMPLI = `# DESIGN-SYSTEM\n\n## 0.1 Plateforme cible\n| Plateforme principale | web |\n\n## 0.2 Direction esthétique\n| Nom de la direction | éditorial suisse |\n\n## 0.3 Molettes\n| DESIGN_VARIANCE | 4 |\n\n## 1. Tokens\n`;
+  const SQUELETTE = `# DESIGN-SYSTEM\n> Statut : SQUELETTE — à remplir au premier projet réel.\n\n## 0.1 Plateforme cible\n| Plateforme principale | *(à remplir)* |\n\n## 0.2 Direction esthétique\n| Nom de la direction | *(à remplir)* |\n\n## 1. Tokens\n`;
+  const DIRECTION_MANQUANTE = `# DESIGN-SYSTEM\n\n## 0.1 Plateforme cible\n| Plateforme principale | web |\n\n## 0.2 Direction esthétique\n| Nom de la direction | *(à remplir)* |\n\n## 1. Tokens\n`;
+
+  check('DS rempli → ui-guard rappelle le rituel normal',
+    uiMsg(fakeProject(REMPLI)).includes('Rituel /se-ui'));
+
+  check('DS squelette → ui-guard alerte sur le contrat vide',
+    uiMsg(fakeProject(SQUELETTE)).includes('SQUELETTE'));
+
+  check('DS squelette → ui-guard nomme les sections manquantes',
+    uiMsg(fakeProject(SQUELETTE)).includes('§0.1 plateforme cible'));
+
+  check('direction non déclarée seule → ui-guard alerte et cible §0.2',
+    uiMsg(fakeProject(DIRECTION_MANQUANTE)).includes('§0.2 direction esthétique'));
+
+  check('projet sans DESIGN-SYSTEM.md → rituel normal, aucune erreur',
+    uiMsg(fsd.mkdtempSync(pathd.join(osd.tmpdir(), 'se-nods-'))).includes('Rituel /se-ui'));
+
+  check('tokens à remplir mais §0 complet → PAS considéré comme squelette',
+    !designContractStateExport(fakeProject(REMPLI + '| --color-accent | (à remplir) |\n')).isSkeleton);
+}
 
 // --- RANGEMENT (placement-guard) ---
 
