@@ -34,6 +34,16 @@ function isUserFacingFile(filePath) {
   return /\(public\)|\/emails?\/|\/blog\/|\.copy\.|\/landing([\/.-]|page)|\/content\/|\/faq([\/.-]|$)/i.test(p);
 }
 
+// Repo-relative, forward-slashed path. Returns null when the file is outside the project
+// (an absolute path we cannot anchor) — placement is then none of our business.
+function toRepoRelative(filePath, projectDir) {
+  const p = filePath.replace(/\\/g, '/');
+  const base = (projectDir || '').replace(/\\/g, '/').replace(/\/+$/, '');
+  if (base && p.toLowerCase().startsWith(base.toLowerCase() + '/')) return p.slice(base.length + 1);
+  const isAbsolute = /^([A-Za-z]:)?\//.test(p);
+  return isAbsolute ? null : p.replace(/^\.\//, '');
+}
+
 function isExcluded(filePath, excludePatterns) {
   const p = filePath.replace(/\\/g, '/'); // les patterns sont écrits avec des slashs
   return (excludePatterns || []).some((re) => new RegExp(re, 'i').test(p));
@@ -176,18 +186,62 @@ function detectSecurity({ filePath, content }) {
   return [{ id: 'security-guard', message: `Sécurité: ${findings.join(' ; ')}.` }];
 }
 
-const DETECTORS = [detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity];
+// 7. placement-guard: un .md de suivi écrit hors de sa destination unique (cf. CONVENTIONS §2-3-4).
+function detectPlacement({ filePath, projectDir }) {
+  if (!/\.md$/i.test(filePath)) return [];
+  const rel = toRepoRelative(filePath, projectDir);
+  if (!rel) return [];
+  const rules = loadJson('placement-rules.json');
+  if (!rules) return [];
+  // system code (skills, patches, hooks) is not a tracking artifact — never our business
+  if ((rules.skipDirPatterns || []).some((re) => new RegExp(re, 'i').test(rel))) return [];
 
-function runAll({ filePath, content }) {
+  const segments = rel.split('/');
+  const base = segments[segments.length - 1];
+  const findings = [];
+
+  if (segments.length === 1 && !rules.repoRootAllow.includes(base)) {
+    findings.push(`\`${base}\` est à la racine du repo — un .md de suivi n'y a pas sa place (cf. CONVENTIONS §3)`);
+  }
+
+  if (segments[0] === '.planning') {
+    if (segments.length === 2 && !rules.planningRootAllow.includes(base)) {
+      findings.push(`\`${base}\` est à la racine de .planning/ — range-le dans un dossier déclaré (research/, audits/, phases/…)`);
+    }
+    if (segments.length > 2 && !rules.planningDirs.includes(segments[1])) {
+      findings.push(`\`.planning/${segments[1]}/\` n'est pas un dossier déclaré — ajoute-le à CONVENTIONS §2 ET à placement-rules.json, ou range ailleurs`);
+    }
+    // fichiers d'une phase : suffixe invariant en MAJUSCULES (le préfixe GSD {phase}-{plan}- est toléré)
+    if (segments[1] === 'phases' && segments.length >= 3) {
+      const allowed = (rules.phaseFileAllow || []).some((n) => base === n || base.endsWith('-' + n));
+      if (!allowed) {
+        findings.push(`\`${base}\` n'est pas un nom de fichier de phase valide — attendus : ${(rules.phaseFileAllow || []).join(', ')}`);
+      }
+    }
+  }
+
+  const isReport = new RegExp(rules.reportNamePattern, 'i').test(base);
+  const inAllowedDir = (rules.reportAllowDirs || []).some((d) => rel.startsWith(d));
+  if (isReport && !inAllowedDir) {
+    findings.push(`\`${base}\` ressemble à un rapport hors destination — soit il est éphémère (réponds en chat, n'écris rien), soit il va dans .planning/audits/{YYYY-MM-DD}-{type}-{slug}.md (cf. CONVENTIONS §4)`);
+  }
+
+  if (!findings.length) return [];
+  return [{ id: 'placement-guard', message: `Rangement : ${findings.join(' ; ')}.` }];
+}
+
+const DETECTORS = [detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity, detectPlacement];
+
+function runAll({ filePath, content, projectDir }) {
   const out = [];
   for (const d of DETECTORS) {
-    try { out.push(...d({ filePath, content })); } catch { /* advisory: ignore detector errors */ }
+    try { out.push(...d({ filePath, content, projectDir })); } catch { /* advisory: ignore detector errors */ }
   }
   return out;
 }
 
 module.exports = {
   runAll,
-  detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity,
-  isSourceFile, isFrontFile, isUserFacingFile,
+  detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity, detectPlacement,
+  isSourceFile, isFrontFile, isUserFacingFile, toRepoRelative,
 };

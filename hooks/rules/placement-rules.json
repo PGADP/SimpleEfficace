@@ -1,0 +1,67 @@
+{
+  "description": "Banque de règles du placement-guard (advisory). Source de vérité humaine : .planning/CONVENTIONS.md §2-3-4. Tout nouveau dossier de suivi doit être déclaré dans les DEUX fichiers.",
+  "skipDirPatterns": [
+    "^\\.git/",
+    "^\\.claude/",
+    "^node_modules/",
+    "^gsd-patches/",
+    "^hooks/",
+    "^scripts/",
+    "^src/",
+    "^public/"
+  ],
+  "repoRootAllow": [
+    "README.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "LICENSE.md",
+    "CONTRIBUTING.md"
+  ],
+  "planningRootAllow": [
+    "INDEX.md",
+    "STATE.md",
+    "ROADMAP.md",
+    "STRATEGY.md",
+    "STRATEGY-ARCHIVE.md",
+    "PROJECT.md",
+    "PRD.md",
+    "REQUIREMENTS.md",
+    "MILESTONES.md",
+    "RETROSPECTIVE.md",
+    "CONVENTIONS.md"
+  ],
+  "planningDirs": [
+    "phases",
+    "research",
+    "audits",
+    "brainstorming",
+    "design",
+    "rules",
+    "codebase",
+    "debug",
+    "decisions",
+    "todos",
+    "_templates",
+    "_archive",
+    "_screenshots"
+  ],
+  "phaseFileAllow": [
+    "CONTEXT.md",
+    "RESEARCH.md",
+    "PLAN.md",
+    "SUMMARY.md",
+    "VERIFICATION.md",
+    "UI-SPEC.md",
+    "CHECKPOINTS.md",
+    "HUMAN-UAT.md",
+    "UI-REVIEW.md",
+    "REVIEWS.md"
+  ],
+  "reportNamePattern": "(AUDIT|REVIEW|REPORT|RAPPORT|ANALYSE|ANALYSIS|BILAN)",
+  "reportAllowDirs": [
+    ".planning/audits/",
+    ".planning/phases/",
+    ".planning/_archive/"
+  ]
+}

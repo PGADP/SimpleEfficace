@@ -30,7 +30,10 @@ process.stdin.on('end', () => {
     }
     if (!content) process.exit(0);
 
-    const findings = runAll({ filePath, content });
+    // placement-guard needs the repo root to reason about relative paths
+    const projectDir = process.env.CLAUDE_PROJECT_DIR || data.cwd || process.cwd();
+
+    const findings = runAll({ filePath, content, projectDir });
     if (!findings.length) process.exit(0);
 
     const lines = findings.map((f) => `  • [${f.id}] ${f.message}`).join('\n');

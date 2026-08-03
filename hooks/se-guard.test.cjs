@@ -83,5 +83,60 @@ check('fichier hooks/ exclu du security-guard',
   !has(runAll({ filePath: 'hooks/guard-lib.cjs', content:
     'const re = /dangerouslySetInnerHTML/;\n' }), 'security-guard'));
 
+// --- RANGEMENT (placement-guard) ---
+
+const REPO = '/repo';
+function place(rel) {
+  return runAll({ filePath: `${REPO}/${rel}`, content: '# doc\n', projectDir: REPO });
+}
+
+check('rapport à la racine du repo → placement-guard',
+  has(place('RAPPORT-REVIEW-2026-08-03.md'), 'placement-guard'));
+
+check('README.md à la racine → PAS de placement-guard',
+  !has(place('README.md'), 'placement-guard'));
+
+check('.md libre à la racine de .planning/ → placement-guard',
+  has(place('.planning/NOTES-DIVERSES.md'), 'placement-guard'));
+
+check('.planning/STATE.md → PAS de placement-guard',
+  !has(place('.planning/STATE.md'), 'placement-guard'));
+
+check('dossier .planning/ non déclaré → placement-guard',
+  has(place('.planning/rapports/truc.md'), 'placement-guard'));
+
+check('audit rangé dans .planning/audits/ → PAS de placement-guard',
+  !has(place('.planning/audits/2026-08-03-security-auth.md'), 'placement-guard'));
+
+check('recherche datée dans research/ → PAS de placement-guard',
+  !has(place('.planning/research/2026-08-03-mem0-vs-graphiti.md'), 'placement-guard'));
+
+check('fichier de phase au nom fixe → PAS de placement-guard',
+  !has(place('.planning/phases/03-auth/CONTEXT.md'), 'placement-guard'));
+
+check('fichier de phase préfixé GSD → PAS de placement-guard',
+  !has(place('.planning/phases/03-auth/03-01-PLAN.md'), 'placement-guard'));
+
+check('fichier de phase au nom libre → placement-guard',
+  has(place('.planning/phases/03-auth/notes.md'), 'placement-guard'));
+
+check('phase archivée → PAS de placement-guard',
+  !has(place('.planning/_archive/phases/01-fondations/SUMMARY.md'), 'placement-guard'));
+
+check('skill se-review.md (dossier système) → PAS de placement-guard',
+  !has(place('.claude/commands/se-review.md'), 'placement-guard'));
+
+check('doc de conception docs/ → PAS de placement-guard',
+  !has(place('docs/SYSTEME.md'), 'placement-guard'));
+
+check('audit posé dans docs/ → placement-guard',
+  has(place('docs/AUDIT-perf.md'), 'placement-guard'));
+
+check('fichier hors projet (chemin absolu non ancré) → PAS de placement-guard',
+  !has(runAll({ filePath: '/ailleurs/AUDIT.md', content: '# x\n', projectDir: REPO }), 'placement-guard'));
+
+check('fichier source .ts → PAS de placement-guard',
+  !has(runAll({ filePath: `${REPO}/src/lib/x.ts`, content: 'export const a = 1;\n', projectDir: REPO }), 'placement-guard'));
+
 console.log(`\n${pass} pass / ${fail} fail`);
 process.exit(fail === 0 ? 0 : 1);
