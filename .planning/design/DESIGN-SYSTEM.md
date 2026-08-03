@@ -28,6 +28,51 @@ Principe clé : un agent ne doit JAMAIS lire une page .tsx de 69 Ko en entier. I
 
 ---
 
+## 0.1 Plateforme cible
+
+Détermine quel corpus de conventions fait foi. Les agents chargent **un seul** fichier de règles plateforme par session.
+
+| Champ | Valeur |
+|-------|--------|
+| Plateforme principale | *(à remplir : `web` \| `macos` \| `ios` \| `ipados` \| `android` \| `watchos` \| `visionos` \| `tvos`)* |
+| Plateformes secondaires | *(ou `aucune`)* |
+| Règles de référence | `vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md` |
+
+Ce que ça change concrètement :
+
+- **`web`** — responsive 3 breakpoints, WCAG 2.2 AA, Core Web Vitals, améliorations progressives.
+- **`macos` (desktop)** — barre de menus et raccourcis clavier complets, gestion des fenêtres et de leur restauration, densité d'information supérieure au web, undo systématique, curseur plutôt que cible tactile. Un desktop conçu comme une page web est un desktop raté.
+- **`ios` / `android`** — cibles tactiles ≥ 44pt, gestes natifs, navigation propre à la plateforme, HIG (Liquid Glass) ou Material 3 Expressive.
+
+En multi-plateforme, la règle **la plus stricte** l'emporte sur chaque critère ; toute divergence assumée s'inscrit en section 6.
+
+## 0.2 Direction esthétique (à déclarer AVANT le premier composant)
+
+| Champ | Valeur |
+|-------|--------|
+| Nom de la direction | *(à remplir, ex. « éditorial suisse », « brutalisme technique », « organique chaleureux »)* |
+| Pourquoi elle sert ce produit | *(1-2 phrases : ce que la direction doit faire ressentir, à qui)* |
+| Anti-référence | *(ce qu'on refuse explicitement de ressembler)* |
+| Registre dominant | *(`Persuade` \| `Operate` \| `Read` \| `Experience` — cf. `vendor/design/impeccable/SKILL.src.md`)* |
+
+**Le défaut par gravité est banni** : `Inter` + dégradé violet + cartes arrondies + ombres douces. C'est vers là que tout agent glisse en l'absence de direction déclarée, et c'est la signature visuelle du contenu généré. Une direction non déclarée est un BLOCK (`aesthetic-direction-declared`).
+
+Une direction se choisit, elle ne se découvre pas en codant. Sur projet vierge, `python vendor/design/ui-ux-pro-max/scripts/search.py "<type de produit>" --design-system` propose des directions argumentées — le choix reste humain.
+
+## 0.3 Molettes (calibrage du projet, 1-10)
+
+| Molette | Valeur | Effet |
+|---------|--------|-------|
+| `DESIGN_VARIANCE` | *(défaut 5)* | 1-3 : centré, sobre, conventionnel. 8-10 : asymétrique, composition expressive |
+| `MOTION_INTENSITY` | *(défaut 4)* | 1-3 : hover et focus seulement. 8-10 : scroll, parallaxe, transitions orchestrées |
+| `VISUAL_DENSITY` | *(défaut 5)* | 1-3 : aéré, une idée par écran. 8-10 : dense, outil de travail expert |
+
+Ces trois valeurs sont lues par `/se-ui` à chaque conception et passées telles quelles au moteur de direction (`search.py --variance N --motion N --density N`). Elles remplacent les débats de goût par un réglage explicite : « c'est trop chargé » devient « baisse VISUAL_DENSITY à 4 ».
+
+Cohérence attendue : un `MOTION_INTENSITY` ≥ 7 impose une implémentation soignée de `prefers-reduced-motion` (BLOCK `motion-respects-reduced`).
+
+---
+
 ## 1. Tokens couleur (OKLCH, mappés Tailwind)
 
 > Règle d'or impeccable : jamais de noir pur ni de blanc pur. Toujours des tons teintés.
@@ -69,19 +114,27 @@ Exception légitime connue : **44px** touch target (WCAG 2.5.5 / Apple HIG).
 Base : **shadcn/ui officiel**. Tout registre tiers passe le Safety Gate (cf. pilier 6).
 Registre local des composants verrouillés : *(à remplir — Button, Card, Input, etc. + chemin)*
 
-## 5. Les 6 piliers (contrat de qualité)
+## 5. Les 10 piliers (contrat de qualité)
 
-Détail chiffré et exemples Code Good/Bad : voir `.planning/rules/ui-rules.json` (source unique des critères).
+Détail chiffré, exemples Code Good/Bad et critères mesurables : voir `.planning/rules/ui-rules.json` (source unique des critères).
 
-1. **Copywriting** — CTA = verbe + nom spécifique. États vides/erreur avec chemin de solution. Jamais "Submit/OK/Cliquez ici".
-2. **Visuals** — focal point déclaré, hiérarchie visuelle explicite, icônes + labels.
-3. **Color** — accent réservé à une liste explicite (jamais "tous les éléments interactifs"). 60/30/10.
-4. **Typography** — ≤4 tailles, ≤2 poids, échelle hiérarchique claire.
-5. **Spacing** — multiples de 4, exceptions documentées (44px WCAG).
-6. **Registry Safety** — shadcn officiel, ou tiers + Safety Gate "view passed".
+| # | Pilier | Norme | Vérifié par |
+|---|--------|-------|-------------|
+| 1 | **Copywriting** | CTA = verbe + nom spécifique. États vides/erreur avec chemin de solution. Jamais "Submit/OK/Cliquez ici" | `/se-humanizer` sur les textes extraits du rendu |
+| 2 | **Visuals** | Focal point déclaré, hiérarchie explicite, direction esthétique nommée, zéro anti-pattern | détecteur impeccable + jugement |
+| 3 | **Color** | Accent réservé à une liste explicite, 60/30/10, pas de noir/blanc purs | surface d'accent mesurée |
+| 4 | **Typography** | ≤ 4 tailles, ≤ 2 poids, ≤ 2 familles, échelle nette | styles calculés du rendu |
+| 5 | **Spacing** | Multiples de 4, cibles ≥ 44px | styles calculés du rendu |
+| 6 | **Registry Safety** | shadcn officiel, ou tiers + Safety Gate "view passed" | jugement |
+| 7 | **Accessibility** | WCAG 2.2 AA : zéro violation critical/serious, focus visible, clavier, `lang` | axe-core |
+| 8 | **Motion** | `prefers-reduced-motion` respecté, transitions ≤ 400ms | rendu sous media query |
+| 9 | **States** | loading / empty / error / success / disabled existent tous | captures par état |
+| 10 | **Performance** | LCP ≤ 2,5 s · INP ≤ 200 ms · CLS ≤ 0,1 | mesure navigateur |
 
 Mapping Severity → verdict : **BLOCK** (refus), **FLAG** (note non bloquante), **PASS**.
-Règle DOWNGRADE : une exception **documentée avec raison standard** rétrograde BLOCK → FLAG (sauf Copywriting et Registry Safety, non négociables).
+Règle DOWNGRADE : une exception **documentée avec raison standard** rétrograde BLOCK → FLAG, sauf sur les dimensions non négociables (Copywriting, Registry Safety, **Accessibility**).
+
+Une mesure absente ne bloque jamais : la règle est marquée SKIPPED. On refuse de bloquer sur ce qu'on n'a pas su mesurer.
 
 ## 6. Exceptions DS documentées
 

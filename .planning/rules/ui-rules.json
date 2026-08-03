@@ -1,21 +1,38 @@
 {
-  "_comment": "Critères UI externalisés (6 piliers GSD + format ui-ux-pro-max). SOURCE UNIQUE lue par gsd-ui-checker, gsd-ui-auditor, gsd-ui-researcher ET le hook ui-guard. Severity → BLOCK (refus) / FLAG (note) / PASS. Règle DOWNGRADE: exception documentée avec raison standard rétrograde BLOCK→FLAG, SAUF copywriting et registry-safety (non négociables).",
-  "downgradeableDimensions": ["typography", "spacing", "color"],
+  "_comment": "Critères UI externalisés. SOURCE UNIQUE lue par scripts/ui-verdict.cjs, gsd-ui-checker, gsd-ui-auditor, gsd-ui-researcher, /se-ui et le hook ui-guard. Severity → BLOCK (refus) / FLAG (note) / PASS. Règle DOWNGRADE: exception documentée avec raison standard rétrograde BLOCK→FLAG, SAUF les dimensions non négociables. Chaque règle déclare verifiedBy: 'measured' (évaluée automatiquement via check sur ui-report.json), 'llm' (jugement d'agent) ou 'human' (validation au checkpoint visuel).",
+  "_checkFormat": "check = { metric: chemin pointé dans ui-report.json, op: lte|gte|lt|gt|eq|empty|isFalse, value?: number }. op 'empty' exige un tableau vide. Un metric absent du rapport rend la règle SKIPPED, jamais BLOCK — on ne bloque pas sur une mesure manquante.",
+  "downgradeableDimensions": ["typography", "spacing", "color", "motion", "performance"],
+  "nonNegotiableDimensions": ["copywriting", "registry-safety", "accessibility"],
+  "pillars": {
+    "copywriting": "Le texte visible fait avancer l'utilisateur (CTA, états vides, erreurs).",
+    "visuals": "Hiérarchie visuelle, focal point, lisibilité des affordances.",
+    "color": "Accent réservé, répartition 60/30/10, contraste réel.",
+    "typography": "Échelle contenue et hiérarchique.",
+    "spacing": "Grille 4px, cibles tactiles.",
+    "registry-safety": "Provenance vérifiée des composants tiers.",
+    "accessibility": "WCAG 2.2 AA mesuré, pas déclaré.",
+    "motion": "Mouvement intentionnel, respect de prefers-reduced-motion.",
+    "states": "Tous les états d'un écran existent, pas seulement le happy path.",
+    "performance": "Core Web Vitals — une belle UI qui rame n'est pas finie."
+  },
   "rules": [
     {
       "slug": "cta-specific",
       "pillar": "copywriting",
       "severity": "BLOCK",
+      "verifiedBy": "llm",
       "norm": "CTA = verbe + nom spécifique",
       "do": "« Créer un compte », « Envoyer le message »",
       "dont": "« Submit », « OK », « Cliquez ici », « Valider », « Enregistrer »",
       "codeGood": "<Button>Créer un compte</Button>",
-      "codeBad": "<Button>Submit</Button>"
+      "codeBad": "<Button>Submit</Button>",
+      "source": "text.visible du ui-report.json, jugé par /se-humanizer"
     },
     {
       "slug": "empty-state-copy",
       "pillar": "copywriting",
       "severity": "BLOCK",
+      "verifiedBy": "llm",
       "norm": "État vide = message + chemin de solution",
       "do": "« Aucun projet pour l'instant. Créez-en un. » + bouton",
       "dont": "« Aucune donnée », « No results », « Rien ici »"
@@ -24,6 +41,7 @@
       "slug": "error-state-path",
       "pillar": "copywriting",
       "severity": "BLOCK",
+      "verifiedBy": "llm",
       "norm": "État d'erreur = cause + solution, pas un message générique",
       "do": "« Connexion perdue. Réessayez dans quelques secondes. »",
       "dont": "« Une erreur est survenue », « Something went wrong »"
@@ -32,6 +50,7 @@
       "slug": "cta-verb-noun",
       "pillar": "copywriting",
       "severity": "FLAG",
+      "verifiedBy": "llm",
       "norm": "CTA avec nom, pas juste un verbe seul",
       "do": "« Créer un projet »",
       "dont": "« Créer »"
@@ -40,6 +59,7 @@
       "slug": "focal-point",
       "pillar": "visuals",
       "severity": "FLAG",
+      "verifiedBy": "llm",
       "norm": "Focal point déclaré pour l'écran principal",
       "do": "Déclarer l'élément qui accroche l'œil en premier",
       "dont": "Laisser l'executor deviner la priorité visuelle"
@@ -47,15 +67,27 @@
     {
       "slug": "icon-label-fallback",
       "pillar": "visuals",
-      "severity": "FLAG",
-      "norm": "Action icône-seule = label accessible (aria-label/texte)",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "a11y.unlabeledControls", "op": "empty" },
+      "norm": "Action icône-seule = label accessible (aria-label / texte visuellement caché)",
       "do": "<button aria-label=\"Supprimer\"><TrashIcon/></button>",
       "dont": "<button><TrashIcon/></button>"
+    },
+    {
+      "slug": "no-horizontal-overflow",
+      "pillar": "visuals",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "layout.horizontalOverflow", "op": "empty" },
+      "norm": "Aucun débordement horizontal sur les 3 breakpoints",
+      "dont": "Un tableau qui pousse la page et fait scroller le body latéralement"
     },
     {
       "slug": "accent-reserved",
       "pillar": "color",
       "severity": "BLOCK",
+      "verifiedBy": "llm",
       "norm": "Accent réservé à une liste explicite et courte",
       "do": "Accent = CTA primaire + onglet actif + focus ring",
       "dont": "Accent pour « tous les éléments interactifs »",
@@ -63,18 +95,31 @@
       "codeBad": "/* accent: all interactive elements */"
     },
     {
-      "slug": "color-60-30-10",
+      "slug": "accent-usage-ratio",
       "pillar": "color",
       "severity": "FLAG",
-      "norm": "Répartition 60/30/10 déclarée",
-      "do": "Dominant 60% / secondaire 30% / accent 10%",
-      "dont": "Pas de répartition explicite"
+      "verifiedBy": "measured",
+      "check": { "metric": "color.accentAreaRatio", "op": "lte", "value": 0.15 },
+      "norm": "L'accent couvre ≤ 15% de la surface rendue (règle du 10 dans 60/30/10, avec marge)",
+      "dont": "Une page où tout est en couleur d'accent : plus rien ne ressort"
+    },
+    {
+      "slug": "no-pure-black-white",
+      "pillar": "color",
+      "severity": "FLAG",
+      "verifiedBy": "measured",
+      "check": { "metric": "color.pureBlackOrWhite", "op": "empty" },
+      "norm": "Jamais de #000 ni de #fff purs — toujours des tons teintés",
+      "do": "oklch(0.15 0.01 250) pour l'encre",
+      "dont": "color: #000000"
     },
     {
       "slug": "contrast-wcag-aa",
       "pillar": "color",
       "severity": "BLOCK",
-      "norm": "Contraste texte ≥ 4.5:1 (corps), ≥ 3:1 (large ≥18px ou bold ≥14px) — WCAG AA",
+      "verifiedBy": "measured",
+      "check": { "metric": "a11y.contrastViolations", "op": "empty" },
+      "norm": "Contraste texte ≥ 4.5:1 (corps), ≥ 3:1 (large ≥18.66px bold ou ≥24px) — WCAG 2.2 AA, mesuré par axe-core sur le rendu réel",
       "do": "Corps proche de l'ink sur fond clair",
       "dont": "Gris clair « pour l'élégance » sur fond teinté (illisible)"
     },
@@ -82,7 +127,9 @@
       "slug": "type-max-4-sizes",
       "pillar": "typography",
       "severity": "BLOCK",
-      "norm": "≤ 4 tailles de police",
+      "verifiedBy": "measured",
+      "check": { "metric": "typography.sizeCount", "op": "lte", "value": 4 },
+      "norm": "≤ 4 tailles de police effectivement rendues",
       "do": "14 / 16 / 20 / 28px",
       "dont": "14, 15, 16, 18, 20, 24, 28px"
     },
@@ -90,25 +137,42 @@
       "slug": "type-max-2-weights",
       "pillar": "typography",
       "severity": "BLOCK",
-      "norm": "≤ 2 poids de police"
+      "verifiedBy": "measured",
+      "check": { "metric": "typography.weightCount", "op": "lte", "value": 2 },
+      "norm": "≤ 2 poids de police effectivement rendus"
+    },
+    {
+      "slug": "type-max-2-families",
+      "pillar": "typography",
+      "severity": "FLAG",
+      "verifiedBy": "measured",
+      "check": { "metric": "typography.familyCount", "op": "lte", "value": 2 },
+      "norm": "≤ 2 familles typographiques, avec contraste d'axe (serif+sans, ou géométrique+humaniste)",
+      "dont": "Deux sans-serif proches qu'on ne distingue pas"
     },
     {
       "slug": "type-line-height-body",
       "pillar": "typography",
       "severity": "FLAG",
-      "norm": "Line-height déclaré pour le corps (~1.6)"
+      "verifiedBy": "measured",
+      "check": { "metric": "typography.bodyLineHeightRatio", "op": "gte", "value": 1.4 },
+      "norm": "Line-height du corps ≥ 1.4 (cible ~1.6)"
     },
     {
       "slug": "type-scale-distinct",
       "pillar": "typography",
       "severity": "FLAG",
+      "verifiedBy": "measured",
+      "check": { "metric": "typography.adjacentSizesTooClose", "op": "empty" },
       "norm": "Tailles dans une échelle hiérarchique nette (pas 14/15/16 trop proches)"
     },
     {
       "slug": "spacing-multiple-of-4",
       "pillar": "spacing",
       "severity": "BLOCK",
-      "norm": "Toute valeur d'espacement multiple de 4",
+      "verifiedBy": "measured",
+      "check": { "metric": "spacing.offGridValues", "op": "empty" },
+      "norm": "Toute valeur d'espacement multiple de 4 (44px toléré — cible tactile)",
       "do": "padding: 16px, gap: 8px",
       "dont": "padding: 10px, gap: 7px",
       "codeGood": "p-4 gap-2",
@@ -117,19 +181,156 @@
     {
       "slug": "spacing-standard-set",
       "pillar": "spacing",
-      "severity": "BLOCK",
+      "severity": "FLAG",
+      "verifiedBy": "measured",
+      "check": { "metric": "spacing.outsideStandardScale", "op": "empty" },
       "norm": "Valeurs dans l'échelle standard 4/8/16/24/32/48/64"
     },
     {
       "slug": "spacing-touch-target",
       "pillar": "spacing",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "spacing.smallTouchTargets", "op": "empty" },
+      "norm": "Cible interactive ≥ 44×44px (WCAG 2.5.5 / Apple HIG). Une cible sous-dimensionnée triple le taux d'erreur",
+      "dont": "Une icône de fermeture de 24px sur mobile"
+    },
+    {
+      "slug": "a11y-no-critical-violations",
+      "pillar": "accessibility",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "a11y.criticalCount", "op": "eq", "value": 0 },
+      "norm": "Zéro violation axe-core de gravité critical",
+      "source": "axe-core, WCAG 2.2 AA"
+    },
+    {
+      "slug": "a11y-no-serious-violations",
+      "pillar": "accessibility",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "a11y.seriousCount", "op": "eq", "value": 0 },
+      "norm": "Zéro violation axe-core de gravité serious"
+    },
+    {
+      "slug": "a11y-focus-visible",
+      "pillar": "accessibility",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "a11y.missingFocusVisible", "op": "empty" },
+      "norm": "Tout élément focusable a un indicateur de focus visible (WCAG 2.2 : ≥ 2px de périmètre, contraste ≥ 3:1)",
+      "do": ":focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px }",
+      "dont": "outline: none sans remplacement"
+    },
+    {
+      "slug": "a11y-keyboard-reachable",
+      "pillar": "accessibility",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "a11y.keyboardTraps", "op": "empty" },
+      "norm": "Aucun piège au clavier ; tout élément interactif atteignable au Tab",
+      "dont": "Une modale dont on ne peut pas sortir au clavier"
+    },
+    {
+      "slug": "a11y-page-lang",
+      "pillar": "accessibility",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "a11y.hasPageLang", "op": "isTrue" },
+      "norm": "L'attribut lang est déclaré sur <html>",
+      "source": "5e échec WCAG le plus fréquent — 29% des sites"
+    },
+    {
+      "slug": "motion-respects-reduced",
+      "pillar": "motion",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "motion.animatedUnderReducedMotion", "op": "empty" },
+      "norm": "Aucune animation non essentielle ne joue sous prefers-reduced-motion: reduce",
+      "do": "@media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important } }",
+      "dont": "Un carrousel auto-défilant qui tourne quand même"
+    },
+    {
+      "slug": "motion-duration-sane",
+      "pillar": "motion",
       "severity": "FLAG",
-      "norm": "Touch target ≥ 44px (exception légitime au multiple de 4 — WCAG 2.5.5 / Apple HIG)"
+      "verifiedBy": "measured",
+      "check": { "metric": "motion.longTransitions", "op": "empty" },
+      "norm": "Transitions d'interface ≤ 400ms — au-delà, l'interface paraît lente",
+      "do": "transition: 180ms cubic-bezier(0.2, 0, 0, 1)",
+      "dont": "transition: all 1.2s ease"
+    },
+    {
+      "slug": "states-complete",
+      "pillar": "states",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "states.missing", "op": "empty" },
+      "norm": "Tout écran déclaré dans le brief expose ses états : loading, empty, error, success, disabled. Un écran sans ses états est une démo, pas un produit",
+      "source": "états déclarés dans UI-SPEC.md, capturés par tests/e2e/ui-verify.spec.ts"
+    },
+    {
+      "slug": "states-loading-not-blank",
+      "pillar": "states",
+      "severity": "FLAG",
+      "verifiedBy": "llm",
+      "norm": "L'état de chargement montre la forme du contenu à venir (skeleton), pas un écran vide ou un spinner centré nu"
+    },
+    {
+      "slug": "perf-lcp",
+      "pillar": "performance",
+      "severity": "FLAG",
+      "verifiedBy": "measured",
+      "check": { "metric": "perf.lcpMs", "op": "lte", "value": 2500 },
+      "norm": "LCP ≤ 2500ms (seuil Core Web Vitals « bon »)"
+    },
+    {
+      "slug": "perf-cls",
+      "pillar": "performance",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "perf.cls", "op": "lte", "value": 0.1 },
+      "norm": "CLS ≤ 0.1 — un layout qui saute sous le doigt est un défaut de finition, pas une question de goût"
+    },
+    {
+      "slug": "perf-inp",
+      "pillar": "performance",
+      "severity": "FLAG",
+      "verifiedBy": "measured",
+      "check": { "metric": "perf.inpMs", "op": "lte", "value": 200 },
+      "norm": "INP ≤ 200ms sur l'interaction principale"
+    },
+    {
+      "slug": "impeccable-no-antipatterns",
+      "pillar": "visuals",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": { "metric": "impeccable.failureCount", "op": "eq", "value": 0 },
+      "norm": "Zéro anti-pattern non-advisory remonté par le détecteur impeccable",
+      "source": "vendor/design/impeccable/detect.mjs — findings advisory exclus du décompte"
+    },
+    {
+      "slug": "aesthetic-direction-declared",
+      "pillar": "visuals",
+      "severity": "BLOCK",
+      "verifiedBy": "llm",
+      "norm": "Une direction esthétique nommée et argumentée existe dans DESIGN-SYSTEM.md AVANT le premier composant",
+      "do": "« Éditorial suisse : grille stricte, serif de titrage, accent unique brique »",
+      "dont": "Le défaut par gravité : Inter + dégradé violet + cartes arrondies + ombres douces"
+    },
+    {
+      "slug": "critique-pass-done",
+      "pillar": "visuals",
+      "severity": "BLOCK",
+      "verifiedBy": "human",
+      "norm": "La passe critique → polish a eu lieu avant livraison. Un premier jet n'est jamais beau, il est correct",
+      "source": "cycle craft → critique → polish de /se-ui"
     },
     {
       "slug": "registry-safety-gate",
       "pillar": "registry-safety",
       "severity": "BLOCK",
+      "verifiedBy": "llm",
       "norm": "Registre tiers = Safety Gate 'view passed' ou 'developer-approved after view'",
       "do": "shadcn officiel, ou tiers vérifié avec date",
       "dont": "Registre tiers déclaré sans vetting réel (intent only)"
@@ -138,6 +339,7 @@
       "slug": "registry-design-system",
       "pillar": "registry-safety",
       "severity": "FLAG",
+      "verifiedBy": "llm",
       "norm": "shadcn initialisé OU design system manuel déclaré"
     }
   ]
