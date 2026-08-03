@@ -1,9 +1,10 @@
 <div align="center">
 
-# ⚡ Simple & Efficace
+# Simple &amp; Efficace
 
-**Un système de pilotage de développement pour Claude Code.**
-Lourd quand il faut, invisible le reste du temps. Propre par mécanique, pas par vigilance.
+### Va vite sans laisser le projet pourrir derrière toi.
+
+Une configuration complète pour [Claude Code](https://claude.com/claude-code) : des garde-fous qui s'exécutent tout seuls, et des skills qu'on invoque quand on a besoin d'un avis.
 
 `28 skills` · `10 garde-fous` · `95 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
 
@@ -11,96 +12,54 @@ Lourd quand il faut, invisible le reste du temps. Propre par mécanique, pas par
 
 ---
 
-## En 30 secondes
+## Le problème
 
-Tu écris du code. Le système intervient tout seul, au bon moment :
+Sur mon projet précédent, le `STATE.md` avait atteint 10 000 lignes et 250 phases traînaient dans `phases/` sans avoir jamais été archivées. À côté de ça : des rapports d'audit posés à la racine, du copy de landing qui sentait le texte généré, et une interface partie toute seule vers `Inter` + dégradé violet parce que personne n'avait déclaré de direction.
 
-```
-🛡️ se-guard sur RAPPORT-AUDIT.md (advisory, rien n'est bloqué) :
-  • [placement-guard] `RAPPORT-AUDIT.md` est à la racine du repo — un .md de suivi
-    n'y a pas sa place ; soit il est éphémère (réponds en chat, n'écris rien),
-    soit il va dans .planning/audits/{YYYY-MM-DD}-{type}-{slug}.md (CONVENTIONS §4)
-```
+Coder avec un agent va vite. C'est tout le reste qui ne suit pas.
 
-```
-⛔ size-gate : STATE.md ferait 341 lignes (plafond 300).
-   Archive le passé avant d'écrire le présent.
-```
+Rien de ça n'arrive par négligence. Ça arrive parce qu'on a demandé à l'agent de s'en souvenir.
 
-```
-⛔ secret-gate : le diff stagé contient une clé API (OpenAI sk-...).
-   Commit refusé. Ce hook est insensible au --no-verify.
-```
+## L'idée
 
-Ces messages ne viennent pas d'une consigne que Claude *pourrait* suivre. Ce sont des scripts que le harness exécute.
+**Ce qui doit arriver ne dépend jamais de la mémoire de l'agent.**
 
----
-
-## Le principe fondateur
-
-**Ce qui DOIT arriver ne dépend pas de la mémoire de Claude.**
-
-Ce qui est obligatoire — humaniser le contenu user-facing, respecter le design-system, ranger un rapport au bon endroit — devient un **garde-fou mécanique**, un hook qu'on ne peut ni oublier ni contourner. Ce qui relève du jugement — challenger une idée, trancher une archi — reste un **skill riche** qu'on invoque.
-
-La conséquence pratique : après 200 heures d'usage, le repo est encore lisible. Pas parce que quelqu'un a fait le ménage, mais parce que rien n'a jamais pu se poser au mauvais endroit.
-
-> Pensé pour une stack **Next.js 15 · Tailwind · Railway · Postgres/Supabase · Prisma · Vitest · Playwright**, mais le cœur est projet-agnostique.
-
----
-
-## Les 5 strates
-
-```
-┌─ A · GARDE-FOUS (hooks, mécaniques, invisibles) ──────────────────────┐
-│  humanizer · ui · hardcode · hygiène · monolithe · sécurité · placement│
-│  size-gate · slop-gate · secret-gate                        (bloquants)│
-└───────────────────────────────┬───────────────────────────────────────┘
-┌─ B · COFONDATEUR (/se-pilot) ─┴───────────────────────────────────────┐
-│  Sparring, challenge, vision. Routeur mince : la plomberie est lazy.  │
-└───────────────────────────────┬───────────────────────────────────────┘
-┌─ C · CYCLE DE PHASE (GSD enrichi) ────────────────────────────────────┐
-│  scout → discuss → research → plan(+TDD) → execute →                  │
-│  verify → SIMPLIFY → JANITOR → SECURITY → checkpoint visuel → ship    │
-└───────────────────────────────┬───────────────────────────────────────┘
-┌─ D · MOTEURS PARTAGÉS ────────┴───────────────────────────────────────┐
-│  recherche 4 niveaux (code · web · scientifique · projets)            │
-│  banques de règles : ui-rules (10 piliers, 36 règles) · slop · secrets│
-│  · hardcode · monolithe · placement          — toutes en JSON, lisibles│
-└───────────────────────────────┬───────────────────────────────────────┘
-┌─ E · SPÉCIALISTES ────────────┴───────────────────────────────────────┐
-│  UX (personas + parcours E2E) · UI (mesuré, pas jugé à l'œil)         │
-│  Humanizer · skills dev (dev, review, test, debug, deploy…)           │
-└───────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Ce que ça change concrètement
-
-| Tu fais… | Le système fait… |
+| Type de règle | Comment le système la traite |
 |---|---|
-| Tu ouvres `/se-pilot` | Un cofondateur qui te challenge, instantané et léger |
-| Tu démarres `/se-new-project` | pilot → brainstorm → PRD → recherches → roadmap → **contrat de design** |
-| Tu écris un email/landing | Le hook **réclame `/se-humanizer`** ; le commit **refuse** l'AI-slop |
-| Tu touches un composant | Rappel du design-system, du cycle craft → critique → polish, et de la **mesure** avant livraison |
-| Tu hardcodes une valeur | Le hook le signale (no magic values) |
-| Tu hardcodes une clé API | Signalé à l'édition ; le **secret-gate refuse le commit** |
-| Tu codes une route API sans Zod | Le hook `security-guard` te le rappelle |
-| Tu poses un rapport à la racine | Le hook `placement-guard` te dit **où il va vraiment** |
-| Une phase se termine | **simplify + janitor + security + checkpoint visuel** avant le ship |
-| `STATE.md` gonfle | Le **size-gate bloque** à 300 lignes — fini les fichiers de 10 000 lignes |
-| 5 phases sont shippées | `/se-archive` propose de les sortir du chemin de travail |
+| Obligatoire (humaniser un texte visible, respecter le design-system, ranger un rapport) | Un **hook** que le harness exécute. Ni oubliable, ni contournable |
+| Affaire de jugement (challenger une idée, trancher une archi, choisir une direction) | Un **skill** riche, qu'on invoque et avec qui on discute |
 
----
+Ça se voit dans la durée. Au bout de 200 heures d'usage, le dépôt est encore lisible : pas parce que quelqu'un a fait le ménage, mais parce que rien n'a jamais pu se poser au mauvais endroit.
 
-## Installation
+```
+     ┌──────────────────────────────────────────────────┐
+     │                                                  │
+  cadrer ──→ discuter ──→ planifier ──→ construire ──→ vérifier ──→ livrer
+     │           │            │             │              │
+     │           │            │             │              └─ simplify · janitor
+     │           │            │             │                 security · visuel mesuré
+     │           │            │             └─ garde-fous à chaque écriture
+     │           │            └─ recherche + plan relu avant d'écrire
+     │           └─ décisions figées dans un fichier, pas dans le chat
+     └─ PRD · recherches · roadmap · contrat de design
+```
 
-Le repo **est** un projet Claude Code prêt à l'emploi : skills, hooks et contrats sont au niveau projet. Une seule dépendance globale : le moteur [GSD](https://github.com/gsd-build/get-shit-done), installé une fois par machine, que les patches SE enrichissent.
+## « Dix garde-fous, ça a l'air pénible »
+
+Sept d'entre eux se contentent de parler. Ils déposent un rappel que l'agent lit, et le travail continue sans interruption. Trois seulement bloquent, et sur des choses dont on ne discute pas : un secret dans un commit, du contenu généré non relu, un fichier d'état qui explose son plafond.
+
+Les advisory se trompent parfois. `hardcode-guard` m'a signalé un « nombre magique » dans un script jetable de dix lignes, ce qui n'intéressait personne. C'est le prix du déterministe : il ne comprend pas le contexte, il applique. Les seuils vivent dans `hooks/rules/*.json` justement pour qu'on puisse les corriger quand ils crient trop.
+
+Un garde-fou qui plante n'interrompt jamais rien : le contrat commun impose de sortir en silence plutôt que de coûter un tour.
+
+## Démarrer
+
+Le dépôt **est** un projet Claude Code prêt à l'emploi : skills, hooks et contrats vivent au niveau projet. Une seule dépendance globale, installée une fois par machine, le moteur [GSD](https://github.com/gsd-build/get-shit-done), que les patches SE enrichissent.
 
 ```bash
 git clone https://github.com/PGADP/SimpleEfficace.git mon-projet
 cd mon-projet
-node scripts/install-gsd-patches.cjs   # enrichit le moteur GSD global (gates SE)
+node scripts/install-gsd-patches.cjs   # enrichit le moteur GSD global
 claude
 ```
 
@@ -110,84 +69,123 @@ Puis, dans Claude :
 /se-new-project "mon idée de produit"
 ```
 
-C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → research → roadmap → contrat de design) ; les hooks et les gates qualité sont déjà actifs.
+Le skill déroule le cadrage complet : accueil, brainstorming, PRD, recherches, roadmap, contrat de design. Les hooks et les gates qualité tournent déjà.
 
-> Les hooks se chargent au démarrage de la session — lance `claude` après le clone.
+> Les hooks se chargent au démarrage de session — lance `claude` après le clone.
 > Après un `/gsd:update`, relance `node scripts/install-gsd-patches.cjs` (les workflows patchés sont sauvegardés en `*.orig`).
 > Si tu viens de l'ancien système (skills non préfixés dans `~/.claude/commands/`) : `node scripts/prune-legacy-global.cjs --apply` archive les doublons.
 
----
+## Le système au travail
+
+Voilà ce que ça donne pendant une session ordinaire.
+
+Tu poses un rapport d'audit à la racine du dépôt :
+
+```
+🛡️ [placement-guard] `RAPPORT-AUDIT.md` est à la racine du repo — un .md de suivi
+   n'y a pas sa place ; soit il est éphémère (réponds en chat, n'écris rien),
+   soit il va dans .planning/audits/{YYYY-MM-DD}-{type}-{slug}.md (CONVENTIONS §4)
+```
+
+Ton fichier d'état déborde :
+
+```
+⛔ size-gate : STATE.md ferait 341 lignes (plafond 300).
+   Archive le passé avant d'écrire le présent.
+```
+
+Une clé traîne dans le diff que tu t'apprêtes à commiter :
+
+```
+⛔ secret-gate : le diff stagé contient une clé API (OpenAI sk-...).
+   Commit refusé. Ce hook est insensible au --no-verify.
+```
+
+Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut laisser passer.
 
 ## Les skills
 
-| Cadrage & pilotage | |
+<details>
+<summary><b>Cadrage &amp; pilotage</b> — 7 skills</summary>
+
+| Skill | Rôle |
 |---|---|
 | `/se-pilot` | Cofondateur : sparring, challenge, orchestration du cycle |
 | `/se-new-project` | Démarrage complet d'un projet vierge, contrat de design inclus |
-| `/se-planning` | Chef de projet : STATE/ROADMAP, briefings, arbitrages |
-| `/se-research` | Recherche web approfondie (quick/deep), rapport persistant |
-| `/se-brainstorm-light` · `-heavy` | 20 idées en 10 min · 60-80 idées, 61 techniques |
-| `/se-archive` | Anti-entropie : sort les phases shippées du chemin de travail |
+| `/se-planning` | Chef de projet : STATE/ROADMAP, briefings, arbitrages de séquençage |
+| `/se-research` | Recherche web approfondie (quick/deep), rapport persistant et citable |
+| `/se-brainstorm-light` | 20 idées ciblées en 10 minutes |
+| `/se-brainstorm-heavy` | 60-80 idées, 61 techniques créatives, multi-session |
+| `/se-archive` | Sort les phases shippées du chemin de travail, avec confirmation |
 
-| Conception & interface | |
+</details>
+
+<details>
+<summary><b>Conception &amp; interface</b> — 3 skills</summary>
+
+| Skill | Rôle |
 |---|---|
-| `/se-ui` | Design-system, 10 piliers, cycle craft → critique → polish, verdict **mesuré** |
+| `/se-ui` | Design-system, 10 piliers, cycle craft → critique → polish, verdict mesuré |
 | `/se-ux` | Parcours E2E, personas, JTBD, heuristiques de Nielsen |
-| `/se-humanizer` | Anti-AI-slop sur tout contenu visible par un humain |
+| `/se-humanizer` | Anti-AI-slop sur tout contenu qu'un humain verra |
 
-| Développement | |
+</details>
+
+<details>
+<summary><b>Développement</b> — 15 skills</summary>
+
+| Skill | Rôle |
 |---|---|
 | `/se-plan` · `/se-dev` · `/se-fix` | Concevoir · implémenter · corriger |
-| `/se-review` (+ `lint`, `perf`) · `/se-test` · `/se-debug` | Auditer · tester · investiguer |
-| `/se-refactor` · `/se-janitor` · `/se-explain` | Stratégie de dette · code mort · pédagogie |
-| `/se-security` · `/se-deploy` · `/se-health-check` | Audit sécu · gate GO/NO-GO · diagnostic global |
+| `/se-review` (+ `lint`, `perf`) | Audit de code, rapport actionnable |
+| `/se-test` · `/se-debug` | Vitest et Playwright · investigation méthodique d'un bug |
+| `/se-refactor` · `/se-janitor` | Stratégie de dette · suppression du code mort |
+| `/se-explain` | Pédagogie sur un morceau de code |
+| `/se-security` | Audit sécurité, verdict GO/NO-GO |
+| `/se-deploy` · `/se-health-check` | Gate avant push · diagnostic global du projet |
 | `/se-clean-commit` | Découpe le travail en cours en commits atomiques |
 | `/se-gate-simplify` · `/se-gate-janitor` | Gates du cycle : détecteur déterministe × jugement LLM |
 
----
+</details>
 
-## Garde-fous (Strate A)
+## Les garde-fous
 
-Quatre scripts câblés dans `settings.json`, dont un dispatcher qui porte sept détecteurs advisory. Tous les critères vivent dans `hooks/rules/*.json` — source unique, lisible, modifiable sans toucher au code.
+Quatre scripts câblés dans `settings.json`, dont un dispatcher qui porte sept détecteurs. Les critères vivent tous dans `hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
 
-| Hook | Déclencheur | Action | Bloquant |
-|------|-------------|--------|----------|
-| `humanizer-guard` | contenu user-facing | rappel `/se-humanizer` (7 familles de marqueurs) | non |
-| `ui-guard` | édition front | rituel design-system + mesure ; alerte si le contrat est encore vide | non |
-| `hardcode-guard` | code source | valeurs/listes en dur | non |
-| `hygiene-guard` | code source | console.log, code commenté | non |
-| `monolith-guard` | code source | fichier/exports trop gros | non |
-| `security-guard` | code source | secrets, XSS, eval, route API sans Zod | non |
+| Garde-fou | Se déclenche sur | Ce qu'il fait | Bloque |
+|---|---|---|---|
+| `humanizer-guard` | contenu visible par un humain | réclame `/se-humanizer` (7 familles de marqueurs) | non |
+| `ui-guard` | édition front | rappelle le rituel design ; alerte si le contrat est vide | non |
+| `hardcode-guard` | code source | valeurs et listes en dur | non |
+| `hygiene-guard` | code source | `console.log`, blocs de code commentés | non |
+| `monolith-guard` | code source | fichiers et exports trop gros | non |
+| `security-guard` | code source | secrets, XSS, `eval`, route API sans Zod | non |
 | `placement-guard` | `.md` de suivi | fichier rangé hors de sa destination unique | non |
 | `size-gate` | écriture STATE/ROADMAP | refuse au-delà de 300 lignes | **oui** |
-| `slop-gate` | `git commit` | refuse le contenu AI-slop user-facing stagé | **oui** |
-| `secret-gate` | `git commit` | refuse un diff contenant un secret — insensible au `--no-verify` | **oui** |
-
-Contrat commun : *jamais casser un tour · exit 0 sauf gate · silent fail*. Un hook qui plante ne bloque jamais ton travail.
+| `slop-gate` | `git commit` | refuse le contenu généré non relu | **oui** |
+| `secret-gate` | `git commit` | refuse un secret dans le diff, malgré `--no-verify` | **oui** |
 
 ```bash
-node hooks/se-guard.test.cjs     # 43 tests — détecteurs advisory
+node hooks/se-guard.test.cjs     # 43 tests — détecteurs
 node hooks/se-gates.test.cjs     # 17 tests — gates bloquantes
 node scripts/ui-verdict.test.cjs # 35 tests — moteur de verdict UI
 ```
 
----
-
 ## Le contrat de design vient avant le premier composant
 
-Un agent sans direction esthétique déclarée glisse toujours vers le même endroit : `Inter`, dégradé violet, cartes arrondies, ombres douces. C'est le défaut par gravité, et c'est la signature visuelle du contenu généré.
+Un agent sans direction esthétique déclarée glisse toujours au même endroit : `Inter`, dégradé violet, cartes arrondies, ombres douces. C'est le défaut par gravité, et c'est devenu la signature visuelle du contenu généré.
 
-Alors sur un projet avec interface, `/se-new-project` **ne passe pas** l'étape du contrat de design. Trois blocs se remplissent avec toi avant la première ligne de front :
+Alors sur un projet avec interface, `/se-new-project` ne passe pas l'étape du contrat de design. Trois blocs se remplissent avec toi avant la première ligne de front :
 
 | Bloc | Ce que ça verrouille |
 |---|---|
 | **§0.1 Plateforme** | `web` · `macos` · `ios` · `android`… Détermine quel corpus de règles fait foi. Un desktop conçu comme une page web est un desktop raté |
-| **§0.2 Direction** | Nom, ce qu'elle doit faire ressentir et à qui, anti-référence, registre. Une direction se choisit, elle ne se découvre pas en codant |
-| **§0.3 Molettes** | `DESIGN_VARIANCE` · `MOTION_INTENSITY` · `VISUAL_DENSITY` (1-10). « C'est trop chargé » devient « baisse VISUAL_DENSITY à 4 » |
+| **§0.2 Direction** | Son nom, ce qu'elle doit faire ressentir et à qui, l'anti-référence, le registre. Une direction se choisit, elle ne se découvre pas en codant |
+| **§0.3 Molettes** | `DESIGN_VARIANCE` · `MOTION_INTENSITY` · `VISUAL_DENSITY`, de 1 à 10. « C'est trop chargé » devient « baisse VISUAL_DENSITY à 4 » |
 
-Les tokens précis attendent la phase fondations — ils se corrigent sans douleur. La direction, non : elle coûte cher à changer après le premier composant.
+Les tokens précis attendent la phase fondations : ils se corrigent sans douleur. La direction coûte cher à changer une fois le premier composant écrit.
 
-Ensuite, **tout ce qui écrit du code visible lit ce contrat avant d'écrire** : `/se-dev`, `/se-fix`, et `gsd-executor` — l'agent qui produit réellement les composants pendant une phase. Ils implémentent un contrat, ils n'en inventent pas un. Tant qu'il reste vide, chaque édition front le rappelle :
+Ensuite, tout ce qui produit du code visible lit ce contrat avant d'écrire : `/se-dev`, `/se-fix`, et `gsd-executor`, l'agent qui fabrique réellement les composants pendant une phase. Ils appliquent un contrat au lieu d'en inventer un. Tant qu'il reste vide, chaque édition front le rappelle :
 
 ```
 🛡️ [ui-guard] Édition front alors que DESIGN-SYSTEM.md est encore un SQUELETTE.
@@ -195,13 +193,11 @@ Ensuite, **tout ce qui écrit du code visible lit ce contrat avant d'écrire** :
    Sans direction déclarée, le checkpoint visuel BLOQUERA.
 ```
 
-Sur une stack sans interface (CLI, lib, API pure), toute cette étape est purement et simplement sautée.
-
----
+Sur une stack sans interface (CLI, librairie, API pure), toute l'étape est sautée.
 
 ## L'UI ne se juge pas à l'œil
 
-Un checkpoint qui prend trois captures d'écran et demande « c'est bon ? » ne vérifie rien. Or les cinq échecs d'accessibilité les plus fréquents (contraste, alt manquant, liens vides, labels de formulaire, `lang` absent) sont tous détectables automatiquement. Le système sépare donc ce qui se mesure de ce qui se juge.
+Un checkpoint qui affiche trois captures et demande « c'est bon ? » ne vérifie rien. Or les cinq échecs d'accessibilité les plus fréquents — contraste, `alt` manquant, liens vides, labels de formulaire, `lang` absent — se détectent tous automatiquement. Le système sépare donc ce qui se mesure de ce qui se juge.
 
 ```
 UI_ROUTE=/dashboard UI_NAME=dashboard npx playwright test tests/e2e/ui-verify.spec.ts
@@ -224,52 +220,51 @@ BLOCK — à corriger avant livraison
 VERDICT : NO-GO
 ```
 
-**Un seul runner** produit tout : violations WCAG 2.2 AA (axe-core), tailles et poids typographiques réellement rendus, espacements hors grille, cibles tactiles, débordements horizontaux, focus visible, pièges au clavier, animations sous `prefers-reduced-motion`, Core Web Vitals, et **tous les textes visibles extraits** — qui partent directement dans `/se-humanizer`, y compris ceux venus de composants tiers qu'une relecture de code rate.
+Un seul runner produit tout : violations WCAG 2.2 AA via axe-core, tailles et poids typographiques réellement rendus, espacements hors grille, cibles tactiles, débordements horizontaux, focus visible, pièges au clavier, animations sous `prefers-reduced-motion`, Core Web Vitals. Il extrait aussi tous les textes affichés, qui partent directement dans `/se-humanizer`, y compris ceux venus de composants tiers, qu'une relecture de code rate systématiquement.
 
 Ce que la machine ne dira jamais, l'humain le tranche : *la direction esthétique est-elle visible, ou seulement déclarée ? Où l'œil se pose-t-il en premier ?*
 
-Deux garde-fous de principe :
+Deux principes protègent la gate de sa propre rigidité :
 
 - **Une métrique absente donne SKIPPED, jamais BLOCK.** On ne refuse pas une livraison sur ce qu'on n'a pas su mesurer.
 - **Entre breakpoints, le pire cas gagne.** Une UI cassée sur mobile est une UI cassée.
 
 Un BLOCK arrête la livraison (`workflow.ui_gate_blocking`, réglable), sauf exception écrite avec sa raison. Aucune exception ne rétrograde quoi que ce soit sur l'accessibilité, le copywriting ou la provenance des composants.
 
-### Les corpus de design
+<details>
+<summary><b>Les corpus de design vendorisés</b></summary>
 
-`vendor/design/` porte un sous-ensemble curaté de trois corpus open-source, aux versions épinglées et **jamais édités à la main**. Les deux moteurs embarqués n'ont aucune dépendance (node natif, python stdlib) : tout fonctionne dès le clone, hors ligne. Licences et attributions dans `NOTICE.md`.
+`vendor/design/` porte un sous-ensemble curaté de trois corpus open-source, aux versions épinglées et jamais édités à la main. Les deux moteurs embarqués n'ont aucune dépendance (Node natif, Python stdlib) : tout fonctionne dès le clone, hors ligne. Licences et attributions dans `NOTICE.md`.
 
 | Corpus | Rôle | Quand |
-|--------|------|-------|
+|---|---|---|
 | **impeccable** | Langage de design (34 playbooks) + détecteur déterministe d'anti-patterns | Écrire, critiquer, polir, juger |
-| **platform-design-skills** | Apple HIG · Material 3 · WCAG 2.2, 8 plateformes | Conformité — seul corpus couvrant le **desktop** |
-| **ui-ux-pro-max** | Bases de direction (styles, palettes, pairings) + moteur BM25 | **Bootstrap seulement** : il génère un design-system, il n'en juge aucun |
+| **platform-design-skills** | Apple HIG · Material 3 · WCAG 2.2, sur 8 plateformes | Conformité — seul corpus couvrant le desktop |
+| **ui-ux-pro-max** | Bases de direction (styles, palettes, pairings) + moteur BM25 | Bootstrap seulement : il génère un design-system, il n'en juge aucun |
 
-Ils sont chargés **à la demande**, une référence par tâche, selon la table de routage de `.planning/design/references/README.md`. Tout charger d'un coup coûterait des dizaines de milliers de tokens et diluerait les instructions.
+Ils se chargent à la demande, une référence par tâche, selon la table de routage de `.planning/design/references/README.md`. Tout charger d'un coup coûterait des dizaines de milliers de tokens et diluerait les instructions.
 
 ```bash
 node scripts/sync-design-vendors.cjs --check   # y a-t-il du drift upstream ?
 ```
 
-Volontairement manuel : ces dépôts bougent vite, et une mise à jour automatique changerait le comportement des gates sans que personne ne l'ait décidé.
+La synchro reste manuelle par choix : ces dépôts bougent vite, et une mise à jour automatique changerait le comportement des gates sans que personne ne l'ait décidé.
 
----
+</details>
 
 ## La loi de rangement
 
-Un système qui produit des fichiers finit noyé sous ses propres fichiers. [`.planning/CONVENTIONS.md`](.planning/CONVENTIONS.md) est la **source unique** de l'arborescence : une destination par type d'artefact, des noms de fichiers invariants, et `placement-guard` qui alerte dès qu'un fichier dévie.
+Un système qui écrit des fichiers en produit vite plus qu'on n'en range. [`.planning/CONVENTIONS.md`](.planning/CONVENTIONS.md) est la source unique de l'arborescence : une destination par type d'artefact, des noms de fichiers invariants, et `placement-guard` qui alerte dès qu'un fichier dévie.
 
-La règle qui fait le plus de différence à long terme — **un rapport ne s'écrit sur disque que s'il sera relu** :
+La règle qui pèse le plus lourd sur la durée : **un rapport ne s'écrit sur disque que s'il sera relu.**
 
 | Durée de vie | Qui | Où |
 |---|---|---|
-| Éphémère (verdict consommé en séance) | `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`… | **Rien.** Chat + `TodoWrite` |
-| Liée à une phase | gates SIMPLIFY, JANITOR, SECURITY, checkpoint visuel | `phases/{NN}-{slug}/CHECKPOINTS.md` — part à l'archive avec la phase |
-| Transverse persistante | `/se-security` (audit complet), `/se-ux` (audit), `/gsd:ui-review` | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
+| Éphémère — verdict consommé en séance | `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`… | **Rien.** Chat + `TodoWrite` |
+| Liée à une phase | gates SIMPLIFY, JANITOR, SECURITY, checkpoint visuel | `phases/{NN}-{slug}/CHECKPOINTS.md`, qui part à l'archive avec la phase |
+| Transverse et persistante | `/se-security` (audit complet), `/se-ux` (audit), `/gsd:ui-review` | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
-Trois mécanismes d'anti-entropie complètent le dispositif : plafonds durs (`size-gate`), archivage des phases shippées (`/se-archive`, avec confirmation), et `INDEX.md` maintenu en continu à la clôture de chaque phase. On lit `INDEX.md` pour s'orienter, jamais un `grep` à l'aveugle.
-
----
+Trois mécanismes d'anti-entropie complètent le dispositif : les plafonds durs de `size-gate`, l'archivage des phases shippées par `/se-archive`, et `INDEX.md` maintenu en continu à la clôture de chaque phase. On lit `INDEX.md` pour s'orienter, jamais un `grep` à l'aveugle.
 
 ## Anatomie du dépôt
 
@@ -284,52 +279,53 @@ Trois mécanismes d'anti-entropie complètent le dispositif : plafonds durs (`si
 ├── gsd-patches/         # workflows + agents GSD enrichis → appliqués au moteur global
 ├── scripts/             # install-gsd-patches · prune-legacy-global · sync-design-vendors
 │                        # · ui-verdict (mesure → verdict BLOCK/FLAG/PASS)
-├── vendor/design/       # corpus de design vendorisés, épinglés, jamais édités à la main
-├── .planning/           # CONVENTIONS (loi) · design-system · journeys · personas
-│   ├── design/          # contrat UI + references/ (chargées à la demande)
-│   │                    # + templates playwright.config & ui-verify
-│   ├── rules/           # ui-rules.json — 10 piliers, 36 règles, critères mesurables
-│   └── …                # phases · research · audits · _archive
+├── vendor/design/       # corpus de design épinglés, jamais édités à la main
+├── .planning/           # CONVENTIONS (la loi) · phases · research · audits · _archive
+│   ├── design/          # contrat UI, personas, parcours, references/ à la demande
+│   └── rules/           # ui-rules.json — 10 piliers, 36 règles mesurables
 └── docs/                # conception du système (SYSTEME.md, specs de chantier)
 ```
 
----
+## Ce que ce n'est pas
+
+Un plugin qu'on installe à côté d'un projet existant. Le dépôt sert de point de départ : on clone, puis on construit dedans.
+
+Un outil multi-langage. Le cœur (rangement, garde-fous, cycle) fonctionne partout, mais les détecteurs et le dispositif UI visent **Next.js 15 · React 19 · TypeScript · Tailwind**, avec Railway, Postgres ou Supabase, Prisma, Vitest et Playwright autour.
+
+Un produit fini avec une communauté et un support. C'est un système personnel, publié parce qu'il peut servir à d'autres.
 
 ## Philosophie
 
-- **Automatique > consigne.** Un hook garantit ; une instruction espère.
-- **Déterministe + LLM, croisés.** Un script objectif tranche, le modèle nuance, la synthèse signale les faux positifs.
-- **On mesure, on ne juge pas à l'œil.** Le checkpoint visuel produit des métriques croisées avec `ui-rules.json`, pas une impression.
-- **Anti-entropie par défaut.** Plafonds, archivage, loi de rangement. Rien ne gonfle sans limite.
-- **Source unique.** Chaque critère vit dans une donnée lue par celui qui propose ET celui qui vérifie.
+- **Automatique plutôt que consigne.** Un hook garantit ; une instruction espère.
+- **Déterministe et LLM, croisés.** Un script objectif tranche, le modèle nuance, la synthèse signale les faux positifs.
+- **On mesure au lieu de juger à l'œil.** Le checkpoint visuel produit des métriques croisées avec `ui-rules.json`.
+- **Anti-entropie par défaut.** Des plafonds durs et un archivage gaté : rien ne gonfle sans limite.
+- **Source unique.** Chaque critère vit dans une donnée que lisent celui qui propose et celui qui vérifie.
 - **Une métrique absente ne bloque jamais.** On ne refuse pas ce qu'on n'a pas su mesurer.
 
-Détail complet dans [`docs/SYSTEME.md`](docs/SYSTEME.md).
-
----
+La conception détaillée est dans [`docs/SYSTEME.md`](docs/SYSTEME.md).
 
 ## Crédits
 
-Ce système est un travail de **cherry-picking** : il assemble et adapte le meilleur de plusieurs projets open-source remarquables. Rien n'a été réinventé là où l'existant était bon. Merci à leurs auteurs.
+Ce système est un travail de cherry-picking : il assemble et adapte plusieurs projets open-source remarquables. Rien n'a été réinventé là où l'existant était bon. Merci à leurs auteurs.
+
+<details>
+<summary><b>Les huit sources et ce qu'on en a tiré</b></summary>
 
 | Source | Auteur | Ce qu'on en a tiré |
-|--------|--------|--------------------|
+|---|---|---|
 | [get-shit-done](https://github.com/gsd-build/get-shit-done) | gsd-build | Le moteur GSD : cycle par phases, workflows, sous-agents, checkpoints |
-| [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | nextlevelbuilder | Le format de règles UI externalisées (Do/Don't/Code/Severity), le pattern MASTER+overrides, et les bases de direction |
+| [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | nextlevelbuilder | Le format de règles UI externalisées, le pattern MASTER+overrides, les bases de direction |
 | [impeccable](https://github.com/pbakaus/impeccable) | Paul Bakaus | Le pattern détecteur déterministe × jugement LLM, le contrat des hooks, le langage de design |
-| [platform-design-skills](https://github.com/ehmo/platform-design-skills) | ehmo | Les critères de design par plateforme, web · desktop · mobile |
-| [taste-skill](https://github.com/leonxlnx/taste-skill) | Leonxlnx | Les trois molettes `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY`, adoptées comme réglages de projet |
-| [hyperresearch](https://github.com/jordan-gibbs/hyperresearch) | Jordan Gibbs | L'orchestrateur mince + étapes lazy, les 4 APIs académiques, la méthodo de recherche |
-| [humanizer](https://github.com/blader/humanizer) | Siqi Chen (blader) | La règle des clusters anti-faux-positifs + les patterns AI-slop récents |
+| [platform-design-skills](https://github.com/ehmo/platform-design-skills) | ehmo | Les critères de design par plateforme : web, desktop, mobile |
+| [taste-skill](https://github.com/leonxlnx/taste-skill) | Leonxlnx | Les trois molettes `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY` |
+| [hyperresearch](https://github.com/jordan-gibbs/hyperresearch) | Jordan Gibbs | L'orchestrateur mince à étapes lazy, les 4 APIs académiques, la méthodo de recherche |
+| [humanizer](https://github.com/blader/humanizer) | Siqi Chen (blader) | La règle des clusters anti-faux-positifs et les patterns AI-slop récents |
 | [claude-code-best-practice](https://github.com/shanraisshan/claude-code-best-practice) | shanraisshan | Les patterns d'orchestration, la token efficiency, la gestion de contexte |
 
 Corpus vendorisés dans `vendor/design/` : versions épinglées dans `VERSIONS.json`, licences et attributions dans `NOTICE.md`.
 Méthodologie humanizer basée sur [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) (WikiProject AI Cleanup).
 
+</details>
+
 Construit avec [Claude Code](https://claude.com/claude-code).
-
----
-
-<div align="center">
-<sub>Simple & Efficace — parce qu'un bon système se voit à ce qu'il garantit, pas à ce qu'il promet.</sub>
-</div>
