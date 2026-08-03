@@ -152,7 +152,7 @@ Coverage matrix anti-rétrécissement · `required_section_headings` · pré-fet
 
 ### Banques de règles externalisées (source unique, modèle ui-ux-pro-max)
 - `design-system` — LE fichier lu par TOUS les skills UI (tokens, couleurs, typo, espacement, composants). Cf. §12.
-- `ui-rules` — 6 piliers + 18 règles chiffrées sourcées, Severity → BLOCK/FLAG/PASS.
+- `ui-rules` — 10 piliers (copywriting, visuals, color, typography, spacing, registry-safety, accessibility, motion, states, performance), Severity → BLOCK/FLAG/PASS. Chaque règle déclare `verifiedBy` (`measured` / `llm` / `human`) et, quand elle est mesurable, un `check` évalué sur `ui-report.json`.
 - `slop-rules` — marqueurs AI-slop FR (lus par Humanizer ET slop-gate).
 - `code-rules` — patterns code mort / hardcode / anti-patterns (lus par janitor ET hygiene/hardcode-guard).
 - `personas-ux` — personas clients/utilisateurs (lus par l'expert UX).
@@ -162,36 +162,49 @@ Coverage matrix anti-rétrécissement · `required_section_headings` · pré-fet
 ## 7. Strate E — Les spécialistes
 
 - **Cofondateur-sparring** — cf. Strate B.
-- **Expert UX** (🆕) — relit les features à l'aune des `personas-ux` (utilisateurs potentiels). Pose la question « est-ce que [persona] comprend / réussit / a envie ? ». Distinct de l'UI (qui fait le visuel) : l'UX challenge le *parcours* et la *valeur perçue*.
-- **UI** — branché sur `design-system` + `ui-rules`. Auto-trigger optimisé.
+- **Expert UX** — relit les features à l'aune des `personas-ux`. Pose la question « est-ce que [persona] comprend / réussit / a envie ? ». Distinct de l'UI (qui fait le visuel) : l'UX challenge le *parcours* et la *valeur perçue*. Outillé par la grille des 10 heuristiques de Nielsen (gravité 0-4), les lois d'interaction (Fitts, Hick, Jakob, Miller, crête-fin) et les conventions par plateforme — dont le desktop, qui ne s'audite pas avec des critères web.
+- **UI** — branché sur `design-system` + `ui-rules`. Cycle **craft → critique → polish** obligatoire : un premier jet n'est jamais beau, il est correct. Verrou de direction esthétique en amont (aucun composant sans direction nommée), verdict mesuré en aval.
 - **Humanizer v2** — boucle audit→re-rewrite, section anti-faux-positifs, réinjection de voix gatée par type de contenu.
 - **Skills projet My Mozaica** — inchangés.
 
 ---
 
-## 7bis. Maquettage UI/UX & Playwright (la vision)
+## 7bis. Maquettage UI/UX & Playwright (réalisé)
 
-Demande de Paul : un skill maquette + Playwright configuré d'office et intégré aux tests et vérifications UI/UX.
+**Principe : le système doit VOIR et MESURER, pas seulement lire le code.** Source : tip n°1 Boris (« donner à Claude un moyen de vérifier = ×2-3 qualité ») + détecteur déterministe d'impeccable.
 
-**Principe : le système doit VOIR, pas seulement lire le code.** Source : tip n°1 Boris (« donner à Claude un moyen de vérifier = ×2-3 qualité ») + détecteur visuel d'impeccable (screenshot + contraste réel).
+Le point qui fait la différence : un checkpoint qui capture trois PNG que Claude *regarde* ne vérifie rien. Or les cinq échecs WCAG les plus fréquents en 2026 — contraste, alt, liens vides, labels de formulaire, `lang` — sont tous détectables automatiquement. Ce qui est mesurable doit être mesuré ; le jugement humain se réserve à ce qu'aucune mesure ne dit.
 
 ### Maquettage — 3 niveaux (pas un skill isolé, un mode du flux UI/UX, AVANT le code)
 
 | Niveau | Outil | Quand | Sortie |
 |--------|-------|-------|--------|
 | Texte/ASCII | skill UX | exploration layout rapide | wireframe ASCII inline |
-| Visuel statique | `/generate-image` + design-system | valider direction visuelle | PNG d'écran |
-| Live (code jetable) | Next.js + Playwright screenshot | valider l'interaction réelle | page preview + capture |
+| Direction esthétique | `search.py --design-system` d'ui-ux-pro-max | projet vierge, avant tout composant | 2-3 directions argumentées, choix humain, inscrit en §0.2 |
+| Live | Next.js + `ui-verify.spec.ts` | valider le rendu réel | captures 3 breakpoints + `ui-report.json` |
 
-Cherry-pick : mode `live` d'impeccable (overlay navigateur + variantes), AI-prompt-keywords d'ui-ux-pro-max, `/generate-image` existant.
+### Playwright — configuré une fois, 4 points d'ancrage
 
-### Playwright — configuré une fois, 3 points d'ancrage
+1. **Garde-fou `ui-guard` (Strate A)** : à chaque édition front, rappel du rituel + détecteur impeccable sur le fichier. Advisory, jamais bloquant.
+2. **Runner de mesure** : `tests/e2e/ui-verify.spec.ts` produit un `ui-report.json` par breakpoint — axe-core WCAG 2.2 AA, typographie et espacements réellement rendus, cibles < 44px, débordements, focus visible, pièges clavier, `prefers-reduced-motion`, Core Web Vitals, et tous les textes visibles extraits.
+3. **Gate visuelle (Strate C)** : `scripts/ui-verdict.cjs` croise le rapport avec `ui-rules.json` → BLOCK / FLAG / PASS. Les BLOCK arrêtent la livraison (`workflow.ui_gate_blocking`), sauf exception écrite dans `ui-exceptions.json`. Puis Claude présente les captures et ne demande à l'humain que le jugement : la direction est-elle visible, où se pose l'œil.
+4. **Tests (cycle)** : Playwright reste le moteur E2E des parcours critiques (Vitest pour l'unitaire).
 
-1. **Garde-fou `ui-guard` (Strate A)** : screenshot la page via Playwright + détecteur visuel (contraste réel, débordements, layout cassé). Niveau impeccable.
-2. **Gate VERIFY + checkpoints (Strate C)** : avant chaque checkpoint visuel, Claude lance le serveur et capture les 3 breakpoints (desktop/tablet/mobile). Paul valide sur images, pas sur une URL à ouvrir.
-3. **Tests (cycle)** : Playwright = moteur E2E/visuel par défaut (Vitest reste pour l'unitaire). Config posée dans les fondations.
+Deux garde-fous de principe : une métrique absente donne SKIPPED, jamais BLOCK — on ne bloque pas sur ce qu'on n'a pas su mesurer ; et entre breakpoints, on retient toujours le pire cas — une UI cassée sur mobile est une UI cassée.
 
-**« Moins de scripts » respecté** : Playwright n'est pas un script par feature. C'est UN outil de vision configuré une fois, réutilisé par garde-fou + checkpoints + tests. Il renforce le test manuel intelligent (Claude montre déjà la capture, Paul tranche plus vite).
+**« Moins de scripts » respecté** : UN runner pour toutes les dimensions, pas un script par métrique ni un spec par feature.
+
+### Corpus de design vendorisés
+
+`vendor/design/` porte un sous-ensemble curaté de trois corpus open-source, versions épinglées, jamais édités à la main (`scripts/sync-design-vendors.cjs`) :
+
+| Corpus | Rôle | Quand |
+|--------|------|-------|
+| [impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0) | Langage de design (34 playbooks) + détecteur déterministe | Écrire, critiquer, polir, juger |
+| [platform-design-skills](https://github.com/ehmo/platform-design-skills) (MIT) | Apple HIG / Material 3 / WCAG 2.2, 8 plateformes | Conformité plateforme — seul corpus couvrant le desktop |
+| [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (MIT) | Bases de direction + moteur BM25 | **Bootstrap uniquement** — il génère un design-system, il n'en juge aucun |
+
+La contrainte qui les rend utilisables : ils sont chargés **à la demande**, une référence par tâche, selon la table de routage de `.planning/design/references/README.md`. Tout charger coûterait des dizaines de milliers de tokens et diluerait les instructions.
 
 ---
 
