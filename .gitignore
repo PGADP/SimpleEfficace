@@ -8,7 +8,6 @@
 
 # Runtime / état local (généré par projet, pas par le système)
 .planning/_playwright-results.json
-.planning/_screenshots/
 .planning/ARCHIVE.log
 **/scheduled_tasks.lock
 
