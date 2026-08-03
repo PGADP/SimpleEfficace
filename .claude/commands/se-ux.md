@@ -28,10 +28,10 @@ Une friction n'existe que si elle coûte quelque chose à une persona identifié
 1. `.planning/design/PERSONAS.md` — si vide : **stop**, « need personas first ».
 2. `.planning/design/DESIGN-SYSTEM.md` §0.1 — la **plateforme cible** change les critères (voir plus bas).
 3. Le **brief court** de la phase / feature.
-4. `.planning/design/references/heuristics.md` — la grille (10 heuristiques, lois, conventions par plateforme, format de friction).
+4. `~/.claude/se/references/design/heuristics.md` — la grille (10 heuristiques, lois, conventions par plateforme, format de friction).
 5. Wireframe / user story / prototype textuel si dispo (facultatif).
 
-Pour un audit de conformité plateforme poussé : `vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md` — **une seule** plateforme par session.
+Pour un audit de conformité plateforme poussé : `~/.claude/se/vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md` — **une seule** plateforme par session.
 
 ## Fichier de suivi : `.planning/design/JOURNEYS.md` (source unique)
 
@@ -79,14 +79,14 @@ Extraire le JTBD complet, tracer le flow proposé, marquer où chaque étape du 
 
 ### Étape 2 — Grille des 10 heuristiques
 
-Charger `references/heuristics.md` et passer les 10 questions sur chaque écran. Noter chaque violation avec sa **gravité 0-4** et l'étape concernée. Les 4 axes de lecture rapide :
+Charger `~/.claude/se/references/design/heuristics.md` et passer les 10 questions sur chaque écran. Noter chaque violation avec sa **gravité 0-4** et l'étape concernée. Les 4 axes de lecture rapide :
 
 - **Clarté** — la personne sait-elle quoi faire, explicitement ?
 - **Confiance** — comprend-elle pourquoi cette étape ? Rassure-t-elle ou crée-t-elle du doute ?
 - **Efficacité** — combien de clics, champs, décisions ? Où est le poids mort ?
 - **Sortie de secours** — que se passe-t-il en cas d'erreur ? Undo, contexte restauré, brouillon ?
 
-Format de friction : voir `references/heuristics.md` (gravité, heuristique, persona, pain, symptôme, reco, effort).
+Format de friction : voir `~/.claude/se/references/design/heuristics.md` (gravité, heuristique, persona, pain, symptôme, reco, effort).
 
 ### Étape 3 — Onboarding (si first-time user flow)
 

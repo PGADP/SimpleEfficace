@@ -209,10 +209,10 @@ Mission (suivre la section "Mode UI-SPEC" de ton prompt) :
 3. Ancrer la spec dans la PLATEFORME declaree en §0.1 — les conventions ne sont pas les memes
    (desktop : barre de menus, raccourcis clavier, undo global, densite elevee, restauration de
    fenetre ; mobile : cibles 44pt, gestes). Reference :
-   vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md
+   ~/.claude/se/vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md
 4. Verifier que la DIRECTION esthetique (§0.2) est declaree. Si elle est vide et que le projet
    n'a encore aucun DS rempli, proposer 2-3 directions argumentees via
-   `python vendor/design/ui-ux-pro-max/scripts/search.py "<type de produit>" --design-system
+   `python "$HOME/.claude/se/vendor/design/ui-ux-pro-max/scripts/search.py" "<type de produit>" --design-system
     --variance <§0.3> --motion <§0.3> --density <§0.3>` — le choix reste humain, il s'inscrit en §0.2.
    Si un DS existe deja : NE PAS invoquer ce moteur, il creerait une seconde source de verite.
 5. Declarer les ETATS de chaque ecran (loading, empty, error, success, disabled) dans la spec, et

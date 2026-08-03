@@ -1,5 +1,5 @@
 {
-  "_comment": "Critères UI externalisés. SOURCE UNIQUE lue par scripts/ui-verdict.cjs, gsd-ui-checker, gsd-ui-auditor, gsd-ui-researcher, /se-ui et le hook ui-guard. Severity → BLOCK (refus) / FLAG (note) / PASS. Règle DOWNGRADE: exception documentée avec raison standard rétrograde BLOCK→FLAG, SAUF les dimensions non négociables. Chaque règle déclare verifiedBy: 'measured' (évaluée automatiquement via check sur ui-report.json), 'llm' (jugement d'agent) ou 'human' (validation au checkpoint visuel).",
+  "_comment": "Critères UI externalisés. SOURCE UNIQUE lue par ~/.claude/se/scripts/ui-verdict.cjs, gsd-ui-checker, gsd-ui-auditor, gsd-ui-researcher, /se-ui et le hook ui-guard. Severity → BLOCK (refus) / FLAG (note) / PASS. Règle DOWNGRADE: exception documentée avec raison standard rétrograde BLOCK→FLAG, SAUF les dimensions non négociables. Chaque règle déclare verifiedBy: 'measured' (évaluée automatiquement via check sur ui-report.json), 'llm' (jugement d'agent) ou 'human' (validation au checkpoint visuel).",
   "_checkFormat": "check = { metric: chemin pointé dans ui-report.json, op: lte|gte|lt|gt|eq|empty|isFalse, value?: number }. op 'empty' exige un tableau vide. Un metric absent du rapport rend la règle SKIPPED, jamais BLOCK — on ne bloque pas sur une mesure manquante.",
   "downgradeableDimensions": ["typography", "spacing", "color", "motion", "performance"],
   "nonNegotiableDimensions": ["copywriting", "registry-safety", "accessibility"],
@@ -307,7 +307,7 @@
       "verifiedBy": "measured",
       "check": { "metric": "impeccable.failureCount", "op": "eq", "value": 0 },
       "norm": "Zéro anti-pattern non-advisory remonté par le détecteur impeccable",
-      "source": "vendor/design/impeccable/detect.mjs — findings advisory exclus du décompte"
+      "source": "~/.claude/se/vendor/design/impeccable/detect.mjs — findings advisory exclus du décompte"
     },
     {
       "slug": "aesthetic-direction-declared",

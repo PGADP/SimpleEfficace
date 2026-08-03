@@ -49,7 +49,7 @@ node -e "const r=require('./.planning/_ui/ui-report.<écran>.desktop.json');cons
 
 Pourquoi passer par là plutôt que de relire le code : on traite ce que l'utilisateur voit vraiment, y compris les textes venus de composants tiers, de props par défaut ou de messages d'erreur générés — précisément ceux qu'une relecture de source rate.
 
-Priorités de passage sur ce corpus : CTA d'abord (règles `cta-specific`, `cta-verb-noun`), puis messages d'erreur (`error-state-path`), puis états vides (`empty-state-copy`). Ces trois-là sont des BLOCK dans `.planning/rules/ui-rules.json`.
+Priorités de passage sur ce corpus : CTA d'abord (règles `cta-specific`, `cta-verb-noun`), puis messages d'erreur (`error-state-path`), puis états vides (`empty-state-copy`). Ces trois-là sont des BLOCK dans `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json`.
 
 ## Spécificités de contexte FR
 

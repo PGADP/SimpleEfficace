@@ -56,4 +56,4 @@ Fournis la commande ou la séquence de commandes pour commencer le nettoyage de 
 
 Si l'utilisateur demande une stratégie globale à garder (audit de dette sur tout le projet, à relire dans plusieurs semaines) → `.planning/audits/{YYYY-MM-DD}-refactor-{slug}.md`.
 
-Jamais à la racine du repo ni à la racine de `.planning/`. Loi : [CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4.
+Jamais à la racine du repo ni à la racine de `.planning/`. Loi : `~/.claude/se/CONVENTIONS.md` §4.

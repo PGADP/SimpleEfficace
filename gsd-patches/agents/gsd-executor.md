@@ -38,7 +38,7 @@ makes you create or edit a `.tsx`, `.jsx`, `.css`/`.scss` file, a component or a
 - `.planning/design/DESIGN-SYSTEM.md` — §0.1 target platform, §0.2 aesthetic direction, §0.3 dials,
   then the token tables. This is the single source of truth: never invent a colour, a size or a
   spacing that is not in it, and never redefine one elsewhere.
-- `.planning/rules/ui-rules.json` — the measurable criteria the visual checkpoint will score you on.
+- `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json` — the measurable criteria the visual checkpoint will score you on.
 - `{PHASE_DIR}/*-UI-SPEC.md` if the phase has one — it is the design contract for THIS phase.
 
 You implement an existing contract, you do not author one. **If DESIGN-SYSTEM.md still carries

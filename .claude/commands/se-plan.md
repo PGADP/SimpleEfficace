@@ -90,4 +90,4 @@ git checkout HEAD~1 -- <fichiers>
 
 Exception unique : l'utilisateur demande explicitement une trace écrite → `.planning/audits/{YYYY-MM-DD}-plan-{slug}.md`.
 
-Loi complète : [.planning/CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4. Le hook `placement-guard` alerte si tu déposes un rapport ailleurs.
+Loi complète : `~/.claude/se/CONVENTIONS.md` §4. Le hook `placement-guard` alerte si tu déposes un rapport ailleurs.

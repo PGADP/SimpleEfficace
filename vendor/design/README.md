@@ -4,11 +4,11 @@ Trois corpus open-source vendorisés en **sous-ensemble curaté** : seuls les pa
 que les skills SE lisent réellement. Les installeurs, extensions navigateur, serveurs
 d'édition live, démos et suites de tests restent chez l'upstream.
 
-Généré par `node scripts/sync-design-vendors.cjs`. Versions épinglées dans
+Généré par `node "$HOME/.claude/se/scripts/sync-design-vendors.cjs"`. Versions épinglées dans
 [VERSIONS.json](VERSIONS.json), licences et attributions dans [NOTICE.md](NOTICE.md).
 
 **Ne jamais éditer un fichier de ce dossier** : la prochaine synchro l'écrasera. Les
-adaptations Simple & Efficace vivent dans `.planning/design/references/`.
+adaptations Simple & Efficace vivent dans `~/.claude/se/references/design/`.
 
 ---
 
@@ -25,8 +25,8 @@ adaptations Simple & Efficace vivent dans `.planning/design/references/`.
 Le détecteur scanne **des fichiers ou une URL live** :
 
 ```bash
-node vendor/design/impeccable/detect.mjs --json src/
-node vendor/design/impeccable/detect.mjs --json --viewport 390x844 http://localhost:3000
+node "$HOME/.claude/se/vendor/design/impeccable/detect.mjs" --json src/
+node "$HOME/.claude/se/vendor/design/impeccable/detect.mjs" --json --viewport 390x844 http://localhost:3000
 ```
 
 C'est le seul des trois corpus à produire un verdict mesurable — d'où sa place dans
@@ -50,8 +50,8 @@ Consommé par `/se-ui` et `/se-ux` selon la **plateforme cible déclarée** dans
 motion, icônes, charts) + `scripts/search.py`, un moteur BM25 en stdlib Python.
 
 ```bash
-python vendor/design/ui-ux-pro-max/scripts/search.py "dashboard finance" --domain style --json
-python vendor/design/ui-ux-pro-max/scripts/search.py "saas b2b" --design-system \
+python "$HOME/.claude/se/vendor/design/ui-ux-pro-max/scripts/search.py" "dashboard finance" --domain style --json
+python "$HOME/.claude/se/vendor/design/ui-ux-pro-max/scripts/search.py" "saas b2b" --design-system \
   --variance 6 --motion 4 --density 7
 ```
 
@@ -73,13 +73,13 @@ trois molettes déclarées dans `DESIGN-SYSTEM.md`.
 | Choisir une direction esthétique (projet vierge) | ui-ux-pro-max |
 | Écrire / critiquer / polir une interface | impeccable |
 | Respecter les conventions d'une plateforme | platform-design-skills |
-| Rendre un verdict mesurable | impeccable `detector/` + `scripts/ui-verdict.cjs` |
+| Rendre un verdict mesurable | impeccable `detector/` + `~/.claude/se/scripts/ui-verdict.cjs` |
 
 ## Mise à jour
 
 ```bash
-node scripts/sync-design-vendors.cjs --check   # y a-t-il du drift upstream ?
-node scripts/sync-design-vendors.cjs           # resynchroniser
+node "$HOME/.claude/se/scripts/sync-design-vendors.cjs" --check   # y a-t-il du drift upstream ?
+node "$HOME/.claude/se/scripts/sync-design-vendors.cjs"           # resynchroniser
 ```
 
 Volontairement manuel. Ces repos bougent vite et une mise à jour automatique

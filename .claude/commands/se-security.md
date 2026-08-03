@@ -68,7 +68,7 @@ Deux cas, deux destinations :
 | **Audit complet manuel** (`/se-security` sur le projet ou un domaine) | `.planning/audits/{YYYY-MM-DD}-security-{slug}.md` |
 | Vérif ponctuelle sur un fichier | rien sur disque, réponse en chat |
 
-Jamais de `SECURITY-AUDIT.md` à la racine. Loi : [CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4.
+Jamais de `SECURITY-AUDIT.md` à la racine. Loi : `~/.claude/se/CONVENTIONS.md` §4.
 
 ---
 **Périmètre** : $ARGUMENTS (défaut : fichiers modifiés depuis le dernier ship — `git diff --name-only main...HEAD` ou la phase courante)

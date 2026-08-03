@@ -36,7 +36,7 @@ Détermine quel corpus de conventions fait foi. Les agents chargent **un seul** 
 |-------|--------|
 | Plateforme principale | *(à remplir : `web` \| `macos` \| `ios` \| `ipados` \| `android` \| `watchos` \| `visionos` \| `tvos`)* |
 | Plateformes secondaires | *(ou `aucune`)* |
-| Règles de référence | `vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md` |
+| Règles de référence | `~/.claude/se/vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md` |
 
 Ce que ça change concrètement :
 
@@ -53,11 +53,11 @@ En multi-plateforme, la règle **la plus stricte** l'emporte sur chaque critère
 | Nom de la direction | *(à remplir, ex. « éditorial suisse », « brutalisme technique », « organique chaleureux »)* |
 | Pourquoi elle sert ce produit | *(1-2 phrases : ce que la direction doit faire ressentir, à qui)* |
 | Anti-référence | *(ce qu'on refuse explicitement de ressembler)* |
-| Registre dominant | *(`Persuade` \| `Operate` \| `Read` \| `Experience` — cf. `vendor/design/impeccable/SKILL.src.md`)* |
+| Registre dominant | *(`Persuade` \| `Operate` \| `Read` \| `Experience` — cf. `~/.claude/se/vendor/design/impeccable/SKILL.src.md`)* |
 
 **Le défaut par gravité est banni** : `Inter` + dégradé violet + cartes arrondies + ombres douces. C'est vers là que tout agent glisse en l'absence de direction déclarée, et c'est la signature visuelle du contenu généré. Une direction non déclarée est un BLOCK (`aesthetic-direction-declared`).
 
-Une direction se choisit, elle ne se découvre pas en codant. Sur projet vierge, `python vendor/design/ui-ux-pro-max/scripts/search.py "<type de produit>" --design-system` propose des directions argumentées — le choix reste humain.
+Une direction se choisit, elle ne se découvre pas en codant. Sur projet vierge, `python "$HOME/.claude/se/vendor/design/ui-ux-pro-max/scripts/search.py" "<type de produit>" --design-system` propose des directions argumentées — le choix reste humain.
 
 ## 0.3 Molettes (calibrage du projet, 1-10)
 
@@ -116,7 +116,7 @@ Registre local des composants verrouillés : *(à remplir — Button, Card, Inpu
 
 ## 5. Les 10 piliers (contrat de qualité)
 
-Détail chiffré, exemples Code Good/Bad et critères mesurables : voir `.planning/rules/ui-rules.json` (source unique des critères).
+Détail chiffré, exemples Code Good/Bad et critères mesurables : voir `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json` (source unique des critères).
 
 | # | Pilier | Norme | Vérifié par |
 |---|--------|-------|-------------|
@@ -147,6 +147,6 @@ Une mesure absente ne bloque jamais : la règle est marquée SKIPPED. On refuse 
 1. Lis CE fichier (MASTER) en premier : règles, philosophie, pointeurs vers les autres couches.
 2. Si `design/design-tokens.json` existe, lis-le AVANT les tableaux de tokens ci-dessous. Préfère ses valeurs pour l'exactitude.
 3. Si la tâche cible une route précise, vérifie `design/pages/{route}.md` - s'il existe, ses valeurs **surchargent** le MASTER pour cette page.
-4. Pour les critères de validation détaillés (Do/Don't/Code), lis `rules/ui-rules.json`.
+4. Pour les critères de validation détaillés (Do/Don't/Code), lis les règles UI : `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json`.
 5. Pour le parcours/valeur utilisateur, lis `design/PERSONAS.md` (skill /se-ux).
 6. Si une page vitrine est déclarée en section 0 : ne la lis pas en entier. Utilise-la comme cible de capture Playwright au checkpoint visuel pour validation visuelle réelle.

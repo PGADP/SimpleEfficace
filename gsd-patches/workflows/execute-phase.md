@@ -645,8 +645,8 @@ HAS_RUNNER=$([ -f "tests/e2e/ui-verify.spec.ts" ] && echo 1 || echo 0)
 HAS_DEP=$([ -d "node_modules/@playwright/test" ] && echo 1 || echo 0)
 HAS_AXE=$([ -d "node_modules/@axe-core/playwright" ] && echo 1 || echo 0)
 ```
-- `HAS_CONFIG=0` → proposer de copier `.planning/design/playwright.config.template.ts` → `playwright.config.ts`
-- `HAS_RUNNER=0` → proposer de copier `.planning/design/ui-verify.template.ts` → `tests/e2e/ui-verify.spec.ts`
+- `HAS_CONFIG=0` → proposer de copier `$HOME/.claude/se/templates/playwright.config.template.ts` → `playwright.config.ts`
+- `HAS_RUNNER=0` → proposer de copier `$HOME/.claude/se/templates/ui-verify.template.ts` → `tests/e2e/ui-verify.spec.ts`
 - `HAS_DEP=0` → proposer `npm i -D @playwright/test`
 - `HAS_AXE=0` → proposer `npm i -D @axe-core/playwright` (sans lui, les règles WCAG passent SKIPPED : la gate tourne mais mesure moins)
 
@@ -658,19 +658,19 @@ Claude lance le serveur dev lui-même. Si l'humain décline une installation, la
 UI_ROUTE="<route>" UI_NAME="<ecran>" npx playwright test tests/e2e/ui-verify.spec.ts
 # → .planning/_ui/ui-report.<ecran>.{desktop,tablet,mobile}.json + les captures
 #   (.planning/_ui/ est gitignoré : jamais dans le dossier de phase, ils ne doivent
-#    pas partir à l'archive — cf. CONVENTIONS §2)
+#    pas partir à l'archive — cf. ~/.claude/se/CONVENTIONS.md §2)
 ```
 Si la phase a déclaré des états dans son UI-SPEC (loading, empty, error, success, disabled), écrire `.planning/design/states.<ecran>.json` **avant** de lancer, pour que les états soient capturés et que `states.missing` soit calculable. Sans ce fichier, la règle `states-complete` reste SKIPPED.
 
 **Step 3 — Verdict mesuré:**
 ```bash
-node scripts/ui-verdict.cjs --name "<ecran>"          # BLOCK / FLAG / PASS, sortie 1 sur BLOCK
+node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name "<ecran>"          # BLOCK / FLAG / PASS, sortie 1 sur BLOCK
 
 # Anti-patterns déterministes — scanner l'URL LIVE, pas les fichiers : le moteur
 # navigateur voit le contraste réel, les occlusions de texte, les paddings serrés et
 # les longueurs de ligne, qu'un scan de source ne peut pas déduire.
-node vendor/design/impeccable/detect.mjs --json "http://localhost:3000<route>"
-node vendor/design/impeccable/detect.mjs --json --viewport 390x844 "http://localhost:3000<route>"
+node "$HOME/.claude/se/vendor/design/impeccable/detect.mjs" --json "http://localhost:3000<route>"
+node "$HOME/.claude/se/vendor/design/impeccable/detect.mjs" --json --viewport 390x844 "http://localhost:3000<route>"
 ```
 
 **Step 4 — Humanizer sur les textes réellement affichés.** Le rapport contient `text.visible` : tous les textes du rendu, y compris ceux venus de composants tiers ou de props par défaut, que la relecture de source rate.
@@ -686,7 +686,7 @@ Après correction, relancer Step 2 et 3. Une seule boucle de correction, puis on
 **Step 6 — Checkpoint humain (ce que la mesure ne dit pas):**
 ```
 Checkpoint visuel — Phase {N}, écran {nom}
-Mesure  : BLOCK {n} · FLAG {n} · PASS {n}   (détail : node scripts/ui-verdict.cjs --name {nom})
+Mesure  : BLOCK {n} · FLAG {n} · PASS {n}   (détail : node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name {nom})
 Captures: desktop / tablet / mobile — .planning/_ui/
 
 À juger (aucune mesure ne le dit) :

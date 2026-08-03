@@ -10,7 +10,7 @@ Tu orchestres le lancement d'un nouveau projet. Tu n'exécutes pas tout toi-mêm
 
 ## Pré-vol
 1. Vérifie qu'on est bien sur un projet vierge (pas de `.planning/PROJECT.md` existant). Si un projet existe déjà → "Un projet est déjà initialisé ici. Tu veux un nouveau milestone (`/gsd:new-milestone`) plutôt qu'un /se-new-project ?"
-2. Crée l'arborescence `.planning/` si absente (cf. .planning/CONVENTIONS.md).
+2. Crée l'arborescence `.planning/` si absente (cf. `~/.claude/se/CONVENTIONS.md`).
 
 ## Étape 1 — Accueil cofondateur (pilot)
 Endosse la posture du pilot. En 3-5 questions max, cerne l'essentiel :
@@ -97,13 +97,13 @@ arrondies. C'est la signature visuelle du contenu généré.
 Sinon, remplis `.planning/design/DESIGN-SYSTEM.md` avec l'humain. Trois blocs non négociables :
 
 1. **§0.1 Plateforme cible** — `web` | `macos` | `ios` | `android` | … Elle détermine quel corpus
-   de règles fait foi (`vendor/design/platform-design-skills/`). Un desktop conçu comme une page
+   de règles fait foi (`~/.claude/se/vendor/design/platform-design-skills/`). Un desktop conçu comme une page
    web est un desktop raté : cette réponse change tout le reste.
 2. **§0.2 Direction esthétique** — nom de la direction, ce qu'elle doit faire ressentir et à qui,
    anti-référence, registre dominant. Une direction se choisit, elle ne se découvre pas en codant.
    Sur projet vierge, propose des directions argumentées :
    ```bash
-   python vendor/design/ui-ux-pro-max/scripts/search.py "<type de produit>" --design-system
+   python "$HOME/.claude/se/vendor/design/ui-ux-pro-max/scripts/search.py" "<type de produit>" --design-system
    ```
    Le choix reste humain. Une direction non déclarée est un BLOCK (`aesthetic-direction-declared`).
 3. **§0.3 Molettes** — `DESIGN_VARIANCE`, `MOTION_INTENSITY`, `VISUAL_DENSITY` (1-10). Les défauts
@@ -119,7 +119,7 @@ Enfin, retire la ligne `Statut : SQUELETTE` en tête du fichier une fois les tro
 ## Étape 7 — Cadrage des toggles + clôture
 - Propose d'activer les gates qualité du cycle : "On active simplify-gate / janitor-gate / security-gate pour ce projet ? (recommandé pour un projet où tu connais peu le code)". Si oui, confirme-les dans `.planning/config.json` (`workflow.simplify_gate`, `workflow.janitor_gate`, `workflow.security_gate`). (Le TDD se pilote par tâche via `tdd="true"` au plan, pas par un toggle global.)
 - **Setup Playwright (si stack front + Playwright)** : pose les templates de vision dès maintenant pour que la phase fondations n'ait plus qu'à installer la dépendance :
-  - copie `.planning/design/playwright.config.template.ts` → `playwright.config.ts` et `.planning/design/checkpoint-shots.template.ts` → `tests/e2e/checkpoint-shots.ts` ;
+  - copie `$HOME/.claude/se/templates/playwright.config.template.ts` → `playwright.config.ts` et `$HOME/.claude/se/templates/checkpoint-shots.template.ts` → `tests/e2e/checkpoint-shots.ts` ;
   - inscris dans la phase fondations de la roadmap la tâche `npm i -D @playwright/test` (la dépendance ne peut s'installer qu'une fois le `package.json` créé au scaffolding) ;
   - laisse `workflow.visual_checkpoint` et `workflow.ui_front_pass` à `true` (défaut). Le checkpoint visuel du cycle prend le relais automatiquement dès qu'une phase touche du front.
   - Si la stack n'a pas de front (CLI, lib, API pure) → **SKIP**, ne pose pas Playwright.

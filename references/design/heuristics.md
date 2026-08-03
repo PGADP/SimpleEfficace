@@ -56,7 +56,7 @@ Un audit heuristique ne remplace pas ces 5 personnes — il prépare ce qu'on ir
 
 ## Conventions d'interaction par plateforme
 
-Le corpus détaillé est dans `vendor/design/platform-design-skills/skills/<plateforme>/`.
+Le corpus détaillé est dans `~/.claude/se/vendor/design/platform-design-skills/skills/<plateforme>/`.
 Ce tableau sert à **choisir quoi charger** et à repérer un contresens de plateforme.
 
 | Dimension | Web | Desktop (macOS / Windows) | Mobile (iOS / Android) |

@@ -5,12 +5,12 @@
 // performance, textes visibles. Pas un script par dimension.
 //
 // Produit, par breakpoint, un `ui-report.<breakpoint>.json` que
-// `scripts/ui-verdict.cjs` croise avec `.planning/rules/ui-rules.json` pour rendre
+// `$HOME/.claude/se/scripts/ui-verdict.cjs` croise avec les règles UI (`.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json`) pour rendre
 // un verdict BLOCK / FLAG / PASS mesuré. Une métrique absente ne bloque jamais.
 //
 // Lancement (Claude, jamais l'humain) :
 //   UI_ROUTE=/dashboard UI_NAME=dashboard npx playwright test tests/e2e/ui-verify.spec.ts
-//   node scripts/ui-verdict.cjs --name dashboard
+//   node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name dashboard
 //
 // Variables d'environnement (Playwright ne transmet pas de flags custom) :
 //   UI_ROUTE        route à vérifier (défaut '/')
@@ -506,6 +506,6 @@ test(`ui-verify: ${NAME}`, async ({ page }, testInfo) => {
 
   fs.writeFileSync(path.join(outDir, `ui-report.${NAME}.${breakpoint}.json`), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 
-  // The runner never fails the suite: judgement belongs to scripts/ui-verdict.cjs.
+  // The runner never fails the suite: judgement belongs to $HOME/.claude/se/scripts/ui-verdict.cjs.
   expect(report.meta).toBeTruthy();
 });

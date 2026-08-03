@@ -178,7 +178,7 @@ function renderNotice(versions) {
   lines.push('---');
   lines.push('');
   lines.push('Aucune modification n\'est apportée aux fichiers vendorisés. Les adaptations');
-  lines.push('Simple & Efficace vivent dans `.planning/design/references/`, qui cite ces sources.');
+  lines.push('Simple & Efficace vivent dans `references/design/`, qui cite ces sources.');
   lines.push('');
   return lines.join('\n');
 }

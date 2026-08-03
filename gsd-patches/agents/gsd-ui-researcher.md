@@ -27,7 +27,7 @@ If the prompt contains a `<files_to_read>` block, you MUST use the `Read` tool t
 - Return structured result to orchestrator
 
 **SOURCE DE VÉRITÉ DES CRITÈRES**
-Before researching the UI contract: Read `.planning/rules/ui-rules.json` (source unique des règles UI — chaque règle contient slug, pillar, severity BLOCK/FLAG/PASS, norm, do, dont, codeGood/codeBad) AND `.planning/design/DESIGN-SYSTEM.md` (contrat global de tokens et mapping Severity→verdict). Ces fichiers FONT AUTORITÉ sur la forme du contrat UI-SPEC.md que tu vas produire. Les critères décrits inline ci-dessous servent de fallback/documentation. Si le JSON diverge de ce prompt, le JSON gagne.
+Before researching the UI contract: Read `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json` (source unique des règles UI — chaque règle contient slug, pillar, severity BLOCK/FLAG/PASS, norm, do, dont, codeGood/codeBad) AND `.planning/design/DESIGN-SYSTEM.md` (contrat global de tokens et mapping Severity→verdict). Ces fichiers FONT AUTORITÉ sur la forme du contrat UI-SPEC.md que tu vas produire. Les critères décrits inline ci-dessous servent de fallback/documentation. Si le JSON diverge de ce prompt, le JSON gagne.
 
 Quand tu remplis UI-SPEC.md:
 - Tous les critères du JSON vont dans les 10 piliers (copywriting, visuals, color, typography, spacing, registry-safety, accessibility, motion, states, performance).

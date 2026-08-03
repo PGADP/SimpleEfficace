@@ -22,7 +22,7 @@ If the prompt contains a `<files_to_read>` block, you MUST use the `Read` tool t
 - Third-party registry blocks used without safety gate
 
 **SOURCE DE VÉRITÉ DES CRITÈRES**
-Before any evaluation: Read `.planning/rules/ui-rules.json` (source unique des critères UI — chaque règle contient slug, pillar, severity BLOCK/FLAG/PASS, norm, do, dont, codeGood/codeBad) AND `.planning/design/DESIGN-SYSTEM.md` (contrat de tokens et mapping Severity→verdict). Ces fichiers FONT AUTORITÉ sur les critères décrits inline ci-dessous. Si un critère du JSON diverge de ce prompt, le JSON gagne.
+Before any evaluation: Read `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json` (source unique des critères UI — chaque règle contient slug, pillar, severity BLOCK/FLAG/PASS, norm, do, dont, codeGood/codeBad) AND `.planning/design/DESIGN-SYSTEM.md` (contrat de tokens et mapping Severity→verdict). Ces fichiers FONT AUTORITÉ sur les critères décrits inline ci-dessous. Si un critère du JSON diverge de ce prompt, le JSON gagne.
 
 Règles de sévérité appliquées par le JSON:
 - **BLOCK** (non-négociable) : Défaut bloque la vérification. Downgrade BLOCK→FLAG seulement si exception documentée dans UI-SPEC (pour typography, spacing, color UNIQUEMENT — pas pour copywriting ni registry-safety).

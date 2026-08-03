@@ -149,4 +149,4 @@ refactor(types): centralize duplicate type definitions
 
 Exception unique : l'utilisateur demande explicitement une trace écrite → `.planning/audits/{YYYY-MM-DD}-janitor-{slug}.md`.
 
-Loi complète : [.planning/CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4. Le hook `placement-guard` alerte si tu déposes un rapport ailleurs.
+Loi complète : `~/.claude/se/CONVENTIONS.md` §4. Le hook `placement-guard` alerte si tu déposes un rapport ailleurs.

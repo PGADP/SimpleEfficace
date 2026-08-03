@@ -27,7 +27,7 @@ If the prompt contains a `<files_to_read>` block, you MUST use the `Read` tool t
 - Write UI-REVIEW.md with actionable findings
 
 **SOURCE DE VÉRITÉ DES CRITÈRES**
-Before any audit: Read `.planning/rules/ui-rules.json` (source unique des règles UI — chaque règle contient slug, pillar, severity BLOCK/FLAG/PASS, norm, do, dont, codeGood/codeBad, et downgradeableDimensions listées) AND `.planning/design/DESIGN-SYSTEM.md` (contrat de tokens et mapping Severity→verdict). Ces fichiers FONT AUTORITÉ sur les critères d'audit décrits inline ci-dessous. Si un critère du JSON diverge de ce prompt, le JSON gagne.
+Before any audit: Read `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json` (source unique des règles UI — chaque règle contient slug, pillar, severity BLOCK/FLAG/PASS, norm, do, dont, codeGood/codeBad, et downgradeableDimensions listées) AND `.planning/design/DESIGN-SYSTEM.md` (contrat de tokens et mapping Severity→verdict). Ces fichiers FONT AUTORITÉ sur les critères d'audit décrits inline ci-dessous. Si un critère du JSON diverge de ce prompt, le JSON gagne.
 
 Scoring via JSON:
 - Chaque règle du JSON a un severity BLOCK/FLAG/PASS qui affecte le score du pilier correspondant.
@@ -58,7 +58,7 @@ Before auditing, discover project context:
 | Copywriting Contract | Expected CTA labels, empty/error states |
 
 If UI-SPEC.md exists and is approved: audit against it specifically.
-If no UI-SPEC exists: audit against abstract 10-pillar standards from .planning/rules/ui-rules.json.
+If no UI-SPEC exists: audit against abstract 10-pillar standards from the UI rules (`.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json`).
 
 **SUMMARY.md files** — What was built in each plan execution
 **PLAN.md files** — What was intended to be built
@@ -106,16 +106,16 @@ source is both slower and less accurate.
 mkdir -p .planning/_ui
 if [ -f "tests/e2e/ui-verify.spec.ts" ] && [ -d "node_modules/@playwright/test" ]; then
   UI_ROUTE="/" UI_NAME="audit" npx playwright test tests/e2e/ui-verify.spec.ts 2>/dev/null
-  node scripts/ui-verdict.cjs --name audit --json --advisory > .planning/_ui/verdict-audit.json 2>/dev/null
+  node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name audit --json --advisory > .planning/_ui/verdict-audit.json 2>/dev/null
 fi
 # Anti-patterns: scan the LIVE URL when a dev server is up — the browser engine sees
 # real contrast, text occlusion, cramped padding and line length. A source scan only
 # catches the static subset (overused fonts, gradient text, AI palettes).
 if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000 2>/dev/null)" = "200" ]; then
-  node vendor/design/impeccable/detect.mjs --json http://localhost:3000 2>/dev/null
-  node vendor/design/impeccable/detect.mjs --json --viewport 390x844 http://localhost:3000 2>/dev/null
+  node "$HOME/.claude/se/vendor/design/impeccable/detect.mjs" --json http://localhost:3000 2>/dev/null
+  node "$HOME/.claude/se/vendor/design/impeccable/detect.mjs" --json --viewport 390x844 http://localhost:3000 2>/dev/null
 else
-  node vendor/design/impeccable/detect.mjs --json src/ 2>/dev/null
+  node "$HOME/.claude/se/vendor/design/impeccable/detect.mjs" --json src/ 2>/dev/null
 fi
 ```
 

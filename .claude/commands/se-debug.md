@@ -119,4 +119,4 @@ Deux exceptions :
 | Investigation longue à reprendre après un reset de contexte | `.planning/debug/{slug}.md` → déplacé dans `.planning/debug/resolved/` une fois clos |
 | Bug rencontré pendant une phase active | `.planning/phases/{NN}-{slug}/CHECKPOINTS.md` |
 
-Jamais de `DEBUG-xxx.md` à la racine. Loi : [CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4.
+Jamais de `DEBUG-xxx.md` à la racine. Loi : `~/.claude/se/CONVENTIONS.md` §4.

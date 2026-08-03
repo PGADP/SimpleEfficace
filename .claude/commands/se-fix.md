@@ -28,7 +28,7 @@ Pour chaque correction :
 1. **Marque en cours** : `TodoWrite` status `in_progress`
 2. **Lis le fichier** : `Read` avant toute modification
    - Fichier front (`.tsx`, `.jsx`, `.css`, composant, page) → lis aussi
-     `.planning/design/DESIGN-SYSTEM.md` §0 et `.planning/rules/ui-rules.json`. Un fix visuel qui
+     `.planning/design/DESIGN-SYSTEM.md` §0 et `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json`. Un fix visuel qui
      ignore le contrat crée une seconde source de vérité.
 3. **Applique le fix** : Modification minimale et ciblée
 4. **Vérifie** : Le problème est résolu sans régression
@@ -95,4 +95,4 @@ Utilise `Bash` pour exécuter ces commandes.
 
 Exception unique : l'utilisateur demande explicitement une trace écrite → `.planning/audits/{YYYY-MM-DD}-fix-{slug}.md`.
 
-Loi complète : [.planning/CONVENTIONS.md](../../.planning/CONVENTIONS.md) §4. Le hook `placement-guard` alerte si tu déposes un rapport ailleurs.
+Loi complète : `~/.claude/se/CONVENTIONS.md` §4. Le hook `placement-guard` alerte si tu déposes un rapport ailleurs.
