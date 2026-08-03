@@ -5,7 +5,7 @@
 **Un système de pilotage de développement pour Claude Code.**
 Lourd quand il faut, invisible le reste du temps. Propre par mécanique, pas par vigilance.
 
-`28 skills` · `10 garde-fous` · `89 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
+`28 skills` · `10 garde-fous` · `95 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
 
 </div>
 
@@ -80,7 +80,7 @@ La conséquence pratique : après 200 heures d'usage, le repo est encore lisible
 | Tu fais… | Le système fait… |
 |---|---|
 | Tu ouvres `/se-pilot` | Un cofondateur qui te challenge, instantané et léger |
-| Tu démarres `/se-new-project` | pilot → brainstorm → PRD → recherches → roadmap |
+| Tu démarres `/se-new-project` | pilot → brainstorm → PRD → recherches → roadmap → **contrat de design** |
 | Tu écris un email/landing | Le hook **réclame `/se-humanizer`** ; le commit **refuse** l'AI-slop |
 | Tu touches un composant | Rappel du design-system, du cycle craft → critique → polish, et de la **mesure** avant livraison |
 | Tu hardcodes une valeur | Le hook le signale (no magic values) |
@@ -110,7 +110,7 @@ Puis, dans Claude :
 /se-new-project "mon idée de produit"
 ```
 
-C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → research → roadmap) ; les hooks et les gates qualité sont déjà actifs.
+C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → research → roadmap → contrat de design) ; les hooks et les gates qualité sont déjà actifs.
 
 > Les hooks se chargent au démarrage de la session — lance `claude` après le clone.
 > Après un `/gsd:update`, relance `node scripts/install-gsd-patches.cjs` (les workflows patchés sont sauvegardés en `*.orig`).
@@ -123,7 +123,7 @@ C'est tout. `/se-new-project` cadre le projet (pilot → brainstorm → PRD → 
 | Cadrage & pilotage | |
 |---|---|
 | `/se-pilot` | Cofondateur : sparring, challenge, orchestration du cycle |
-| `/se-new-project` | Démarrage complet d'un projet vierge |
+| `/se-new-project` | Démarrage complet d'un projet vierge, contrat de design inclus |
 | `/se-planning` | Chef de projet : STATE/ROADMAP, briefings, arbitrages |
 | `/se-research` | Recherche web approfondie (quick/deep), rapport persistant |
 | `/se-brainstorm-light` · `-heavy` | 20 idées en 10 min · 60-80 idées, 61 techniques |
@@ -153,7 +153,7 @@ Quatre scripts câblés dans `settings.json`, dont un dispatcher qui porte sept 
 | Hook | Déclencheur | Action | Bloquant |
 |------|-------------|--------|----------|
 | `humanizer-guard` | contenu user-facing | rappel `/se-humanizer` (7 familles de marqueurs) | non |
-| `ui-guard` | édition front | rituel design-system + mesure avant livraison | non |
+| `ui-guard` | édition front | rituel design-system + mesure ; alerte si le contrat est encore vide | non |
 | `hardcode-guard` | code source | valeurs/listes en dur | non |
 | `hygiene-guard` | code source | console.log, code commenté | non |
 | `monolith-guard` | code source | fichier/exports trop gros | non |
@@ -166,10 +166,36 @@ Quatre scripts câblés dans `settings.json`, dont un dispatcher qui porte sept 
 Contrat commun : *jamais casser un tour · exit 0 sauf gate · silent fail*. Un hook qui plante ne bloque jamais ton travail.
 
 ```bash
-node hooks/se-guard.test.cjs     # 37 tests — détecteurs advisory
+node hooks/se-guard.test.cjs     # 43 tests — détecteurs advisory
 node hooks/se-gates.test.cjs     # 17 tests — gates bloquantes
 node scripts/ui-verdict.test.cjs # 35 tests — moteur de verdict UI
 ```
+
+---
+
+## Le contrat de design vient avant le premier composant
+
+Un agent sans direction esthétique déclarée glisse toujours vers le même endroit : `Inter`, dégradé violet, cartes arrondies, ombres douces. C'est le défaut par gravité, et c'est la signature visuelle du contenu généré.
+
+Alors sur un projet avec interface, `/se-new-project` **ne passe pas** l'étape du contrat de design. Trois blocs se remplissent avec toi avant la première ligne de front :
+
+| Bloc | Ce que ça verrouille |
+|---|---|
+| **§0.1 Plateforme** | `web` · `macos` · `ios` · `android`… Détermine quel corpus de règles fait foi. Un desktop conçu comme une page web est un desktop raté |
+| **§0.2 Direction** | Nom, ce qu'elle doit faire ressentir et à qui, anti-référence, registre. Une direction se choisit, elle ne se découvre pas en codant |
+| **§0.3 Molettes** | `DESIGN_VARIANCE` · `MOTION_INTENSITY` · `VISUAL_DENSITY` (1-10). « C'est trop chargé » devient « baisse VISUAL_DENSITY à 4 » |
+
+Les tokens précis attendent la phase fondations — ils se corrigent sans douleur. La direction, non : elle coûte cher à changer après le premier composant.
+
+Ensuite, **tout ce qui écrit du code visible lit ce contrat avant d'écrire** : `/se-dev`, `/se-fix`, et `gsd-executor` — l'agent qui produit réellement les composants pendant une phase. Ils implémentent un contrat, ils n'en inventent pas un. Tant qu'il reste vide, chaque édition front le rappelle :
+
+```
+🛡️ [ui-guard] Édition front alors que DESIGN-SYSTEM.md est encore un SQUELETTE.
+   Manque : §0.1 plateforme cible, §0.2 direction esthétique.
+   Sans direction déclarée, le checkpoint visuel BLOQUERA.
+```
+
+Sur une stack sans interface (CLI, lib, API pure), toute cette étape est purement et simplement sautée.
 
 ---
 
