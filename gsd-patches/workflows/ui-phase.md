@@ -198,6 +198,7 @@ Contexte : la UI-SPEC vient d'etre produite par gsd-ui-researcher (generique). A
 Lis obligatoirement :
 - {phase_dir}/{padded_phase}-UI-SPEC.md (spec a enrichir)
 - {phase_dir}/{padded_phase}-CONTEXT.md (decisions utilisateur — IMMUABLES, ne pas remettre en cause)
+- .planning/design/DESIGN-SYSTEM.md §0.1 (plateforme cible), §0.2 (direction esthetique), §0.3 (molettes)
 - tailwind.config.ts ou equivalent (tokens DS reels)
 - src/components/ui/ + src/components/{domaine}/ (composants existants)
 - docs/reference/design_system.md (si present)
@@ -205,9 +206,22 @@ Lis obligatoirement :
 Mission (suivre la section "Mode UI-SPEC" de ton prompt) :
 1. Audit croise tokens Tailwind cites vs tokens reels
 2. Verifier existence des composants references
-3. Enrichir les sections manquantes (Brand Alignment, Composants reutiliser vs creer, Mobile-first, A11y WCAG AA, Edge Cases, Code examples Tailwind, Exceptions DS)
-4. Corriger FLAGs checker si presents
-5. Re-ecrire le fichier UI-SPEC.md en entier
+3. Ancrer la spec dans la PLATEFORME declaree en §0.1 — les conventions ne sont pas les memes
+   (desktop : barre de menus, raccourcis clavier, undo global, densite elevee, restauration de
+   fenetre ; mobile : cibles 44pt, gestes). Reference :
+   vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md
+4. Verifier que la DIRECTION esthetique (§0.2) est declaree. Si elle est vide et que le projet
+   n'a encore aucun DS rempli, proposer 2-3 directions argumentees via
+   `python vendor/design/ui-ux-pro-max/scripts/search.py "<type de produit>" --design-system
+    --variance <§0.3> --motion <§0.3> --density <§0.3>` — le choix reste humain, il s'inscrit en §0.2.
+   Si un DS existe deja : NE PAS invoquer ce moteur, il creerait une seconde source de verite.
+5. Declarer les ETATS de chaque ecran (loading, empty, error, success, disabled) dans la spec, et
+   ecrire .planning/design/states.<ecran>.json pour qu'ils soient captures au checkpoint visuel.
+   Un ecran sans ses etats est une demo, pas un produit (regle states-complete, BLOCK).
+6. Enrichir les sections manquantes (Brand Alignment, Composants reutiliser vs creer, Mobile-first,
+   A11y WCAG 2.2 AA, Motion + prefers-reduced-motion, Edge Cases, Code examples Tailwind, Exceptions DS)
+7. Corriger FLAGs checker si presents
+8. Re-ecrire le fichier UI-SPEC.md en entier
 
 Contraintes : respecte les decisions CONTEXT.md, accents francais user-facing, pas de nouvelle dep, pas de composant deja existant.
 ```

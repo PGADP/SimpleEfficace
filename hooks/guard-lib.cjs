@@ -72,7 +72,7 @@ function detectUi({ filePath }) {
   if (!isFrontFile(filePath)) return [];
   return [{
     id: 'ui-guard',
-    message: 'Edition front detectee. Rituel /se-ui : (1) contrat .planning/design/DESIGN-SYSTEM.md + ui-rules.json, (2) coherence parcours .planning/design/JOURNEYS.md, (3) textes UI via /se-humanizer, (4) verification visuelle Playwright avant livraison.',
+    message: 'Edition front detectee. Rituel /se-ui : (1) contrat DESIGN-SYSTEM.md — plateforme §0.1, direction §0.2, molettes §0.3 — + ui-rules.json, (2) cycle craft -> CRITIQUE -> polish, la critique n\'est pas optionnelle, (3) coherence parcours JOURNEYS.md, (4) textes UI via /se-humanizer, (5) mesure : ui-verify.spec.ts puis node scripts/ui-verdict.cjs avant livraison.',
   }];
 }
 

@@ -138,5 +138,40 @@ check('fichier hors projet (chemin absolu non ancré) → PAS de placement-guard
 check('fichier source .ts → PAS de placement-guard',
   !has(runAll({ filePath: `${REPO}/src/lib/x.ts`, content: 'export const a = 1;\n', projectDir: REPO }), 'placement-guard'));
 
+// --- détecteur impeccable vendorisé (I/O réelle, donc testé à part de guard-lib) ---
+const fsx = require('fs');
+const osx = require('os');
+const pathx = require('path');
+const { detectAntipatterns } = require('./se-guard.cjs');
+
+// REPO ci-dessus est un chemin fictif pour les détecteurs purs. Ici on a besoin du
+// vrai dépôt : le détecteur est un vrai binaire à spawner.
+const PROJECT_ROOT = pathx.resolve(__dirname, '..');
+const hasVendoredDetector = fsx.existsSync(pathx.join(PROJECT_ROOT, 'vendor', 'design', 'impeccable', 'detect.mjs'));
+
+check('fichier non-front → détecteur non lancé',
+  detectAntipatterns(`${PROJECT_ROOT}/scripts/x.cjs`, PROJECT_ROOT).length === 0);
+
+check('projet sans vendor/ → aucun finding, aucune erreur',
+  detectAntipatterns(`${PROJECT_ROOT}/a.css`, osx.tmpdir()).length === 0);
+
+if (hasVendoredDetector) {
+  const probe = pathx.join(osx.tmpdir(), `se-guard-probe-${process.pid}.css`);
+  fsx.writeFileSync(probe, 'body { font-family: Inter, sans-serif; }\n');
+  const found = detectAntipatterns(probe, PROJECT_ROOT);
+  // Le détecteur sort en code 2 quand il TROUVE quelque chose : on parse stdout
+  // quel que soit le status, sinon on jette silencieusement tous les findings.
+  check('anti-pattern réel remonté malgré le code de sortie non nul',
+    found.length > 0 && found[0].id.startsWith('impeccable:'));
+  check('le message porte la règle et le contexte',
+    found.length > 0 && /ligne 1/.test(found[0].message));
+
+  fsx.writeFileSync(probe, 'body { font-family: Charter, Georgia, serif; }\n');
+  check('fichier sain → aucun finding', detectAntipatterns(probe, PROJECT_ROOT).length === 0);
+  fsx.rmSync(probe, { force: true });
+} else {
+  console.log('  SKIP  détecteur impeccable non vendorisé (node scripts/sync-design-vendors.cjs)');
+}
+
 console.log(`\n${pass} pass / ${fail} fail`);
 process.exit(fail === 0 ? 0 : 1);

@@ -93,7 +93,7 @@ Tu connais TOUS les skills et tu n'hesites JAMAIS a les utiliser :
 - `/se-explain` — Explication pedagogique d'un code
 
 **UI / UX :**
-- `/se-ui` — Concevoir, auditer ou ameliorer une interface (design system, 6 piliers)
+- `/se-ui` — Concevoir, critiquer, polir ou auditer une interface (design system, 10 piliers, cycle craft/critique/polish)
 - `/se-ux` — Parcours client end-to-end (build/audit/review, maintient JOURNEYS.md)
 
 **Maintenance et qualite :**

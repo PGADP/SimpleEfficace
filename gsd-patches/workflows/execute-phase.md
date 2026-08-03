@@ -622,55 +622,83 @@ Regardless of gate results, ALWAYS proceed to visual_checkpoint_gate.
 </step>
 
 <step name="visual_checkpoint_gate">
-**SIMPLE & EFFICACE — checkpoint visuel (Playwright).** Pour les phases qui touchent du frontend, capture le rendu réel sur 3 breakpoints et présente-le à l'humain pour un GO/NO-GO VISUEL — au bon moment (ici, sur le code fini), pas en bloc à la fin. L'humain juge avec ses yeux ; il ne lance jamais de commande lui-même.
+**SIMPLE & EFFICACE — checkpoint visuel MESURÉ (Playwright).** Pour les phases qui touchent du frontend : mesurer le rendu réel, rendre un verdict chiffré, puis présenter les captures à l'humain — au bon moment (ici, sur le code fini), pas en bloc à la fin. L'humain juge ce qu'aucune mesure ne dit ; il ne lance jamais de commande lui-même.
+
+Ce que la machine tranche : WCAG 2.2 AA, tailles et poids typographiques réellement rendus, espacements hors grille, cibles < 44px, débordements, focus visible, pièges clavier, `prefers-reduced-motion`, Core Web Vitals, anti-patterns. Ce que l'humain tranche : est-ce que c'est beau, est-ce que la direction se voit.
 
 **Config gate:**
 ```bash
 VISUAL_ENABLED=$(gsd-sdk query config-get workflow.visual_checkpoint 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.visual_checkpoint 2>/dev/null || echo "false")
+UI_GATE_BLOCKING=$(gsd-sdk query config-get workflow.ui_gate_blocking 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.ui_gate_blocking 2>/dev/null || echo "true")
 ```
-Default `"false"` — opt-in via `.planning/config.json` (`workflow.visual_checkpoint`). Enable for frontend-heavy projects.
+`workflow.visual_checkpoint` active la gate. `workflow.ui_gate_blocking` (défaut `true`) décide si un BLOCK arrête la livraison ou reste consultatif. Le passer à `false` si la gate devient trop rigide au quotidien.
 
 **Skip conditions:** if VISUAL_ENABLED is "false", OR the phase modified no frontend files (`*.tsx`, `*.jsx`, `*.css`, components, pages/routes) → display "Visual checkpoint skipped" and proceed to verify_phase_goal.
 
 **Step 1 — Préparer Playwright (Claude le fait, pas l'humain):**
 ```bash
-# Deux conditions pour capturer : la config ET la dépendance installée.
+# Trois conditions : la config, le runner, et les dépendances.
 # (se-new-project pose souvent la config avant que le package.json existe →
 #  vérifier la seule présence du .ts ne suffit pas, npx échouerait.)
 HAS_CONFIG=$([ -f "playwright.config.ts" ] || [ -f "playwright.config.js" ] && echo 1 || echo 0)
+HAS_RUNNER=$([ -f "tests/e2e/ui-verify.spec.ts" ] && echo 1 || echo 0)
 HAS_DEP=$([ -d "node_modules/@playwright/test" ] && echo 1 || echo 0)
-if [ "$HAS_CONFIG" = "0" ]; then
-  echo "Playwright non configuré. Copier .planning/design/playwright.config.template.ts → playwright.config.ts + le helper ?"
-elif [ "$HAS_DEP" = "0" ]; then
-  echo "Config Playwright présente mais dépendance absente. Installer : npm i -D @playwright/test ?"
-fi
+HAS_AXE=$([ -d "node_modules/@axe-core/playwright" ] && echo 1 || echo 0)
 ```
-Si config + dépendance présentes : Claude lance le serveur dev lui-même (cf. checkpoints — l'humain ne lance jamais de commande). Sinon, il propose l'action manquante une fois, puis — si l'humain décline — passe le checkpoint en non-bloquant (cf. Error handling).
+- `HAS_CONFIG=0` → proposer de copier `.planning/design/playwright.config.template.ts` → `playwright.config.ts`
+- `HAS_RUNNER=0` → proposer de copier `.planning/design/ui-verify.template.ts` → `tests/e2e/ui-verify.spec.ts`
+- `HAS_DEP=0` → proposer `npm i -D @playwright/test`
+- `HAS_AXE=0` → proposer `npm i -D @axe-core/playwright` (sans lui, les règles WCAG passent SKIPPED : la gate tourne mais mesure moins)
 
-**Step 2 — Capturer les 3 breakpoints** via le helper réutilisable (PAS un spec par feature). Les routes à capturer = celles modifiées par la phase, **complétées par les étapes des parcours touchés dans `.planning/design/JOURNEYS.md`** (si un écran d'un parcours a changé, on capture aussi l'étape amont et l'étape aval — la friction vit dans les transitions) :
+Claude lance le serveur dev lui-même. Si l'humain décline une installation, la gate passe en non-bloquant (cf. Error handling) — on ne bloque jamais sur un outil absent.
+
+**Step 2 — Mesurer.** Les écrans à vérifier = ceux modifiés par la phase, **complétés par les étapes des parcours touchés dans `.planning/design/JOURNEYS.md`** (si un écran d'un parcours a changé, prendre aussi l'étape amont et l'étape aval — la friction vit dans les transitions) :
 ```bash
-# Pour chaque route/écran modifié par la phase (+ étapes adjacentes du parcours) :
-SHOT_ROUTE="<route>" SHOT_NAME="<ecran>" SHOT_OUTDIR=".planning/_screenshots/${PADDED}" \
-  npx playwright test tests/e2e/checkpoint-shots.ts
-# → desktop / tablet / mobile dans .planning/_screenshots/{phase}/ (scratch gitignoré,
-#   destination unique des binaires — cf. CONVENTIONS §2. Jamais dans le dossier de phase :
-#   ils ne doivent pas partir à l'archive.)
+# Pour chaque route/écran (+ étapes adjacentes du parcours) :
+UI_ROUTE="<route>" UI_NAME="<ecran>" npx playwright test tests/e2e/ui-verify.spec.ts
+# → .planning/_ui/ui-report.<ecran>.{desktop,tablet,mobile}.json + les captures
+#   (.planning/_ui/ est gitignoré : jamais dans le dossier de phase, ils ne doivent
+#    pas partir à l'archive — cf. CONVENTIONS §2)
 ```
-(Helper template : `.planning/design/checkpoint-shots.template.ts` → à copier en `tests/e2e/checkpoint-shots.ts` au 1er usage.)
+Si la phase a déclaré des états dans son UI-SPEC (loading, empty, error, success, disabled), écrire `.planning/design/states.<ecran>.json` **avant** de lancer, pour que les états soient capturés et que `states.missing` soit calculable. Sans ce fichier, la règle `states-complete` reste SKIPPED.
 
-**Step 3 — Lancer le détecteur visuel** (contraste réel, débordements) sur les captures, et croiser avec `ui-rules.json` (les critères chiffrés des 6 piliers). Vérifier aussi que les textes UI visibles sur les captures sont passés par `/se-humanizer` (labels, CTA, erreurs, états vides).
+**Step 3 — Verdict mesuré:**
+```bash
+node scripts/ui-verdict.cjs --name "<ecran>"          # BLOCK / FLAG / PASS, sortie 1 sur BLOCK
 
-**Step 4 — Checkpoint humain (GO / NO-GO visuel):**
+# Anti-patterns déterministes — scanner l'URL LIVE, pas les fichiers : le moteur
+# navigateur voit le contraste réel, les occlusions de texte, les paddings serrés et
+# les longueurs de ligne, qu'un scan de source ne peut pas déduire.
+node vendor/design/impeccable/detect.mjs --json "http://localhost:3000<route>"
+node vendor/design/impeccable/detect.mjs --json --viewport 390x844 "http://localhost:3000<route>"
+```
+
+**Step 4 — Humanizer sur les textes réellement affichés.** Le rapport contient `text.visible` : tous les textes du rendu, y compris ceux venus de composants tiers ou de props par défaut, que la relecture de source rate.
+```
+Skill(skill="se-humanizer", args="textes visibles de l'écran <ecran> — voir text.visible dans .planning/_ui/ui-report.<ecran>.desktop.json")
+```
+Priorité aux CTA, messages d'erreur et états vides : ce sont des BLOCK dans `ui-rules.json`.
+
+**Step 5 — Traitement des BLOCK.** Si `ui-verdict.cjs` sort en 1 et `UI_GATE_BLOCKING` est `"true"` : les BLOCK doivent être **corrigés**, ou explicitement acceptés par l'humain avec une raison écrite, inscrite dans `.planning/design/ui-exceptions.json` (`{"<slug>": "<raison citant un standard ou une contrainte réelle>"}`) et en §6 de `DESIGN-SYSTEM.md`. Une exception ne rétrograde rien sur Copywriting, Registry Safety et Accessibility.
+
+Après correction, relancer Step 2 et 3. Une seule boucle de correction, puis on présente ce qui reste à l'humain — pas d'auto-QA sans fin.
+
+**Step 6 — Checkpoint humain (ce que la mesure ne dit pas):**
 ```
 Checkpoint visuel — Phase {N}, écran {nom}
-Captures : desktop / tablet / mobile (voir .planning/_screenshots/{phase}/)
-À vérifier : [3-4 points précis — layout, lisibilité, responsive, états]
+Mesure  : BLOCK {n} · FLAG {n} · PASS {n}   (détail : node scripts/ui-verdict.cjs --name {nom})
+Captures: desktop / tablet / mobile — .planning/_ui/
+
+À juger (aucune mesure ne le dit) :
+- La direction esthétique déclarée en §0.2 est-elle VISIBLE, ou seulement écrite ?
+- Où l'œil se pose-t-il en premier ? Est-ce voulu ?
+- Qu'est-ce qui trahit une origine générique ici ?
 
 → Le rendu est bon ? [GO / décrire les problèmes]
 ```
-Consigner verdict + chemins des captures dans `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`. Sur GO : passer les étapes de parcours concernées à `vérifié` dans `.planning/design/JOURNEYS.md` (+ date du checkpoint).
+Consigner verdict mesuré + verdict humain + chemins des captures dans `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`. Sur GO : passer les étapes de parcours concernées à `vérifié` dans `.planning/design/JOURNEYS.md` (+ date du checkpoint).
 
-**Error handling:** si Playwright échoue (serveur, timeout), display "Checkpoint visuel non disponible (non-bloquant): {error}" et proceed. Ne JAMAIS bloquer le flow sur un échec de capture.
+**Error handling:** si Playwright échoue (serveur, timeout, outil absent), display "Checkpoint visuel non disponible (non-bloquant): {error}" et proceed. Un échec de MESURE ne bloque jamais — seul un BLOCK mesuré bloque. On ne refuse pas une livraison sur ce qu'on n'a pas su vérifier.
 
 Regardless of result, ALWAYS proceed to verify_phase_goal.
 </step>
