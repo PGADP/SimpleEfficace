@@ -50,7 +50,7 @@ Rien de ça n'arrive par négligence. Ça arrive parce qu'on a demandé à l'age
 
 Sept d'entre eux se contentent de parler. Ils déposent un rappel que l'agent lit, et le travail continue sans interruption. Trois seulement bloquent, et sur des choses dont on ne discute pas : un secret dans un commit, du contenu généré non relu, un fichier d'état qui explose son plafond.
 
-Les advisory se trompent parfois. `hardcode-guard` m'a signalé un « nombre magique » dans un script jetable de dix lignes, ce qui n'intéressait personne. C'est le prix du déterministe : il ne comprend pas le contexte, il applique. Les seuils vivent dans `hooks/rules/*.json` justement pour qu'on puisse les corriger quand ils crient trop.
+Les advisory se trompent parfois. `hardcode-guard` m'a signalé un « nombre magique » dans un script jetable de dix lignes, ce qui n'intéressait personne. C'est le prix du déterministe : il ne comprend pas le contexte, il applique. Les seuils vivent dans `~/.claude/se/hooks/rules/*.json` justement pour qu'on puisse les corriger quand ils crient trop.
 
 Un garde-fou qui plante n'interrompt jamais rien : le contrat commun impose de sortir en silence plutôt que de coûter un tour.
 
@@ -171,7 +171,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 
 ## Les garde-fous
 
-Quatre scripts câblés dans `settings.json`, dont un dispatcher qui porte sept détecteurs. Les critères vivent tous dans `hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
+Quatre scripts que `se install` câble dans ton `settings.json` global, dont un dispatcher qui porte sept détecteurs. Ils ne s'activent que dans les projets SE (présence de `.planning/`) et les critères vivent tous dans `~/.claude/se/hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
 
 | Garde-fou | Se déclenche sur | Ce qu'il fait | Bloque |
 |---|---|---|---|
@@ -187,6 +187,7 @@ Quatre scripts câblés dans `settings.json`, dont un dispatcher qui porte sept 
 | `secret-gate` | `git commit` | refuse un secret dans le diff, malgré `--no-verify` | **oui** |
 
 ```bash
+cd ~/.claude/se
 node hooks/se-guard.test.cjs     # 49 tests — détecteurs + activation hors projet SE
 node hooks/se-gates.test.cjs     # 23 tests — gates bloquantes
 node scripts/ui-verdict.test.cjs # 39 tests — moteur de verdict UI + cascade
@@ -223,7 +224,7 @@ Un checkpoint qui affiche trois captures et demande « c'est bon ? » ne vérifi
 
 ```
 UI_ROUTE=/dashboard UI_NAME=dashboard npx playwright test tests/e2e/ui-verify.spec.ts
-node scripts/ui-verdict.cjs --name dashboard
+node ~/.claude/se/scripts/ui-verdict.cjs --name dashboard
 ```
 
 ```
@@ -264,10 +265,10 @@ Un BLOCK arrête la livraison (`workflow.ui_gate_blocking`, réglable), sauf exc
 | **platform-design-skills** | Apple HIG · Material 3 · WCAG 2.2, sur 8 plateformes | Conformité — seul corpus couvrant le desktop |
 | **ui-ux-pro-max** | Bases de direction (styles, palettes, pairings) + moteur BM25 | Bootstrap seulement : il génère un design-system, il n'en juge aucun |
 
-Ils se chargent à la demande, une référence par tâche, selon la table de routage de `.planning/design/references/README.md`. Tout charger d'un coup coûterait des dizaines de milliers de tokens et diluerait les instructions.
+Ils se chargent à la demande, une référence par tâche, selon la table de routage de `~/.claude/se/references/design/README.md`. Tout charger d'un coup coûterait des dizaines de milliers de tokens et diluerait les instructions.
 
 ```bash
-node scripts/sync-design-vendors.cjs --check   # y a-t-il du drift upstream ?
+node ~/.claude/se/scripts/sync-design-vendors.cjs --check   # y a-t-il du drift upstream ?
 ```
 
 La synchro reste manuelle par choix : ces dépôts bougent vite, et une mise à jour automatique changerait le comportement des gates sans que personne ne l'ait décidé.
@@ -276,7 +277,7 @@ La synchro reste manuelle par choix : ces dépôts bougent vite, et une mise à 
 
 ## La loi de rangement
 
-Un système qui écrit des fichiers en produit vite plus qu'on n'en range. [`.planning/CONVENTIONS.md`](.planning/CONVENTIONS.md) est la source unique de l'arborescence : une destination par type d'artefact, des noms de fichiers invariants, et `placement-guard` qui alerte dès qu'un fichier dévie.
+Un système qui écrit des fichiers en produit vite plus qu'on n'en range. [`CONVENTIONS.md`](CONVENTIONS.md) — livré avec le système, surchargeable par projet — est la source unique de l'arborescence : une destination par type d'artefact, des noms de fichiers invariants, et `placement-guard` qui alerte dès qu'un fichier dévie.
 
 La règle qui pèse le plus lourd sur la durée : **un rapport ne s'écrit sur disque que s'il sera relu.**
 
