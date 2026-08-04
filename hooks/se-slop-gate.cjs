@@ -13,7 +13,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { isUserFacingFile } = require('./guard-lib.cjs'); // source unique de l'heuristique user-facing
+const { isUserFacingFile, isSeProject } = require('./guard-lib.cjs'); // source unique de l'heuristique user-facing
 
 const RULES = path.join(__dirname, 'rules', 'slop-rules.json');
 
@@ -45,6 +45,10 @@ process.stdin.on('end', () => {
   clearTimeout(stdinTimeout);
   try {
     const data = JSON.parse(input);
+
+    // Hook câblé globalement : hors d'un projet SE (pas de .planning/), laisse passer.
+    if (!isSeProject(process.env.CLAUDE_PROJECT_DIR || data.cwd || process.cwd())) process.exit(0);
+
     if (data.tool_name !== 'Bash') process.exit(0);
     const cmd = data.tool_input?.command || '';
     // ne réagit qu'aux vrais commits (pas git status/diff/log)

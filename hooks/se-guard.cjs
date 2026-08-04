@@ -9,11 +9,15 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const { runAll, isFrontFile } = require('./guard-lib.cjs');
+const { runAll, isFrontFile, isSeProject } = require('./guard-lib.cjs');
 
 const DETECTOR_TIMEOUT_MS = 4000;
 const MAX_DETECTOR_FINDINGS = 3;
 const STDIN_TIMEOUT_MS = 3000;
+
+// The vendored detector ships WITH the system (this repo, installed in ~/.claude/se/),
+// not with the audited project — resolve it relative to the hook, never to projectDir.
+const SYSTEM_DETECTOR = path.join(__dirname, '..', 'vendor', 'design', 'impeccable', 'detect.mjs');
 
 /**
  * Run the vendored impeccable detector on the edited file. Static-file scanning only
@@ -23,12 +27,13 @@ const STDIN_TIMEOUT_MS = 3000;
  *
  * Stays advisory and silent on any failure: a guard must never cost a turn.
  */
-function detectAntipatterns(filePath, projectDir) {
+function detectAntipatterns(filePath, projectDir, detectorPath = SYSTEM_DETECTOR) {
   if (!isFrontFile(filePath)) return [];
-  const detector = path.join(projectDir, 'vendor', 'design', 'impeccable', 'detect.mjs');
-  if (!fs.existsSync(detector)) return [];
+  if (!fs.existsSync(detectorPath)) return [];
 
-  const result = spawnSync(process.execPath, [detector, '--json', '--no-advisory', filePath], {
+  // projectDir is still the spawn cwd: the detector picks up a project-level
+  // .impeccable/ config from there when one exists.
+  const result = spawnSync(process.execPath, [detectorPath, '--json', '--no-advisory', filePath], {
     encoding: 'utf8',
     timeout: DETECTOR_TIMEOUT_MS,
     cwd: projectDir,
@@ -58,6 +63,11 @@ function readHookInput() {
     clearTimeout(stdinTimeout);
     try {
       const data = JSON.parse(input);
+
+      // Globally-wired hook: stay silent outside SE-managed projects (no .planning/).
+      const projectDir = process.env.CLAUDE_PROJECT_DIR || data.cwd || process.cwd();
+      if (!isSeProject(projectDir)) process.exit(0);
+
       const toolName = data.tool_name;
       if (toolName !== 'Edit' && toolName !== 'Write' && toolName !== 'MultiEdit') process.exit(0);
 
@@ -70,9 +80,6 @@ function readHookInput() {
         content = data.tool_input.edits.map((e) => e.new_string || '').join('\n');
       }
       if (!content) process.exit(0);
-
-      // placement-guard needs the repo root to reason about relative paths
-      const projectDir = process.env.CLAUDE_PROJECT_DIR || data.cwd || process.cwd();
 
       const findings = [...runAll({ filePath, content, projectDir }), ...detectAntipatterns(filePath, projectDir)];
       if (!findings.length) process.exit(0);

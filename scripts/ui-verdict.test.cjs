@@ -119,5 +119,49 @@ check('rapport conforme : sortie 0 et GO', cli.status === 0 && /VERDICT : GO/.te
 
 fs.rmSync(tmp, { recursive: true, force: true });
 
+console.log('\n== CLI : cascade des critères (copie projet > défaut système, --rules absolu) ==');
+// Le script tourne depuis n'importe quel projet : sans --rules il prend la copie
+// projet <cwd>/.planning/rules/ui-rules.json si elle existe, sinon le défaut
+// système rules/ui-rules.json du repo SE (résolu depuis scripts/).
+const SYSTEM_RULES_FILE = path.join(__dirname, '..', 'rules', 'ui-rules.json');
+
+const cascadeTmp = fs.mkdtempSync(path.join(os.tmpdir(), 'se-uicascade-'));
+const cascadeReports = path.join(cascadeTmp, '_ui');
+fs.mkdirSync(cascadeReports, { recursive: true });
+fs.writeFileSync(path.join(cascadeReports, 'ui-report.ecran.desktop.json'), JSON.stringify({ meta: { breakpoint: 'desktop' } }));
+
+const runCliFrom = (cwd, extra = []) => spawnSync(process.execPath, [
+  path.join(__dirname, 'ui-verdict.cjs'), '--name', 'ecran', '--report-dir', cascadeReports, '--json', ...extra,
+], { encoding: 'utf8', cwd });
+const slugsOf = (cli) => JSON.parse(cli.stdout).findings.map((f) => f.slug);
+
+// 1. projet sans copie → cascade vers le vrai défaut système du repo
+const systemSlugs = JSON.parse(fs.readFileSync(SYSTEM_RULES_FILE, 'utf8')).rules.map((r) => r.slug);
+let cascadeCli = runCliFrom(cascadeTmp);
+check('sans copie projet : cascade vers rules/ui-rules.json du système',
+  cascadeCli.status === 0 && slugsOf(cascadeCli).length > 0 && slugsOf(cascadeCli).every((s) => systemSlugs.includes(s)));
+
+// 2. copie projet présente → elle gagne sur le défaut système
+const projectRules = { rules: [{ slug: 'regle-projet-uniquement', pillar: 'typography', severity: 'FLAG', verifiedBy: 'measured', norm: 'x', check: { metric: 'typography.sizeCount', op: 'lte', value: 4 } }] };
+fs.mkdirSync(path.join(cascadeTmp, '.planning', 'rules'), { recursive: true });
+fs.writeFileSync(path.join(cascadeTmp, '.planning', 'rules', 'ui-rules.json'), JSON.stringify(projectRules));
+cascadeCli = runCliFrom(cascadeTmp);
+check('copie projet présente : elle est prioritaire sur le défaut système',
+  JSON.stringify(slugsOf(cascadeCli)) === '["regle-projet-uniquement"]');
+
+// 3. --rules garde priorité absolue, même face à une copie projet
+const cliRules = path.join(cascadeTmp, 'autres-regles.json');
+fs.writeFileSync(cliRules, JSON.stringify({ rules: [{ ...projectRules.rules[0], slug: 'regle-cli' }] }));
+cascadeCli = runCliFrom(cascadeTmp, ['--rules', cliRules]);
+check('--rules explicite : priorité absolue sur la copie projet',
+  JSON.stringify(slugsOf(cascadeCli)) === '["regle-cli"]');
+
+// 4. rien nulle part + --rules cassé → erreur qui cite le chemin ; sans --rules, les deux chemins
+cascadeCli = runCliFrom(cascadeTmp, ['--rules', path.join(cascadeTmp, 'absent.json')]);
+check('--rules introuvable : erreur citant le chemin explicite',
+  cascadeCli.status === 1 && /Critères introuvables/.test(cascadeCli.stderr) && /absent\.json/.test(cascadeCli.stderr));
+
+fs.rmSync(cascadeTmp, { recursive: true, force: true });
+
 console.log(`\n${pass} PASS, ${fail} FAIL\n`);
 process.exit(fail > 0 ? 1 : 0);

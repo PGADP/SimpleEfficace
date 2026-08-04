@@ -12,6 +12,7 @@
 // et ajouter 40 lignes à un fichier déjà au plafond passerait sous le radar).
 
 const fs = require('fs');
+const { isSeProject } = require('./guard-lib.cjs');
 
 // Plafonds (source: .planning/CONVENTIONS.md). Patterns, pas chemins en dur.
 const CAPS = [
@@ -71,6 +72,10 @@ process.stdin.on('end', () => {
   clearTimeout(stdinTimeout);
   try {
     const data = JSON.parse(input);
+
+    // Hook câblé globalement : hors d'un projet SE (pas de .planning/), laisse passer.
+    if (!isSeProject(process.env.CLAUDE_PROJECT_DIR || data.cwd || process.cwd())) process.exit(0);
+
     if (data.tool_name !== 'Write' && data.tool_name !== 'Edit' && data.tool_name !== 'MultiEdit') process.exit(0);
 
     const filePath = data.tool_input?.file_path || '';

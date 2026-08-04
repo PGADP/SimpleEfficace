@@ -12,6 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { isSeProject } = require('./guard-lib.cjs');
 
 const RULES = path.join(__dirname, 'rules', 'secret-patterns.json');
 
@@ -74,6 +75,10 @@ process.stdin.on('end', () => {
   clearTimeout(stdinTimeout);
   try {
     const data = JSON.parse(input);
+
+    // Hook câblé globalement : hors d'un projet SE (pas de .planning/), laisse passer.
+    if (!isSeProject(process.env.CLAUDE_PROJECT_DIR || data.cwd || process.cwd())) process.exit(0);
+
     if (data.tool_name !== 'Bash') process.exit(0);
     const cmd = data.tool_input?.command || '';
     if (!/\bgit\s+commit\b/.test(cmd)) process.exit(0);

@@ -24,7 +24,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = process.cwd();
-const DEFAULT_RULES = path.join(ROOT, '.planning', 'rules', 'ui-rules.json');
+// Cascade des critères (sauf --rules, qui garde priorité absolue) :
+//   1. la copie du projet courant, si elle existe,
+//   2. sinon le défaut système livré avec l'installation SE (ce repo).
+const PROJECT_RULES = path.join(ROOT, '.planning', 'rules', 'ui-rules.json');
+const SYSTEM_RULES = path.join(__dirname, '..', 'rules', 'ui-rules.json');
 const DEFAULT_REPORT_DIR = path.join(ROOT, '.planning', '_ui');
 const DEFAULT_EXCEPTIONS = path.join(ROOT, '.planning', 'design', 'ui-exceptions.json');
 
@@ -32,7 +36,7 @@ const VERDICT = { BLOCK: 'BLOCK', FLAG: 'FLAG', PASS: 'PASS', SKIPPED: 'SKIPPED'
 const MAX_DETAIL_ITEMS = 5;
 
 function parseArgs(argv) {
-  const args = { name: null, json: false, advisory: false, reportDir: DEFAULT_REPORT_DIR, rulesFile: DEFAULT_RULES };
+  const args = { name: null, json: false, advisory: false, reportDir: DEFAULT_REPORT_DIR, rulesFile: null };
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     if (flag === '--name') args.name = argv[++i];
@@ -249,8 +253,15 @@ function render(findings, reports, name) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
 
+  const explicitRules = args.rulesFile !== null;
+  if (!explicitRules) {
+    args.rulesFile = fs.existsSync(PROJECT_RULES) ? PROJECT_RULES : SYSTEM_RULES;
+  }
+
   if (!fs.existsSync(args.rulesFile)) {
-    process.stderr.write(`Critères introuvables: ${args.rulesFile}\n`);
+    process.stderr.write(explicitRules
+      ? `Critères introuvables: ${args.rulesFile}\n`
+      : `Critères introuvables: ni ${PROJECT_RULES} (copie projet) ni ${SYSTEM_RULES} (défaut système)\n`);
     process.exit(args.advisory ? 0 : 1);
   }
 

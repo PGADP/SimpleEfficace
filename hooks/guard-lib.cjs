@@ -15,6 +15,20 @@ function loadJson(name) {
   }
 }
 
+// ---- SE project detection ----
+
+// Hooks are wired in the GLOBAL ~/.claude/settings.json, so they fire in every repo
+// the user opens. A project is SE-managed iff it carries a .planning/ directory —
+// anywhere else, every hook must stay silent (advisory) or allow (gates).
+function isSeProject(projectDir) {
+  if (!projectDir) return false;
+  try {
+    return fs.statSync(path.join(projectDir, '.planning')).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
 // ---- file-type heuristics (patterns, not hardcoded lists) ----
 
 function isSourceFile(filePath) {
@@ -269,7 +283,7 @@ function runAll({ filePath, content, projectDir }) {
 }
 
 module.exports = {
-  runAll,
+  runAll, isSeProject,
   detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity, detectPlacement,
   isSourceFile, isFrontFile, isUserFacingFile, toRepoRelative, designContractState,
 };

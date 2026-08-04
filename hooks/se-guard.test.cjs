@@ -2,7 +2,7 @@
 // Vérification déterministe de se-guard. On exécute la lib sur des cas propres ET piégés.
 // Lancer: node hooks/se-guard.test.cjs  → affiche PASS/FAIL et sort 0 si tout passe.
 
-const { runAll, designContractState: designContractStateExport } = require('./guard-lib.cjs');
+const { runAll, isSeProject, designContractState: designContractStateExport } = require('./guard-lib.cjs');
 
 let pass = 0, fail = 0;
 function check(name, cond) {
@@ -126,6 +126,30 @@ check('fichier hooks/ exclu du security-guard',
     !designContractStateExport(fakeProject(REMPLI + '| --color-accent | (à remplir) |\n')).isSkeleton);
 }
 
+// --- DÉTECTION PROJET SE (isSeProject) ---
+
+{
+  const fsp = require('fs');
+  const osp = require('os');
+  const pathp = require('path');
+
+  const seRoot = fsp.mkdtempSync(pathp.join(osp.tmpdir(), 'se-proj-'));
+  fsp.mkdirSync(pathp.join(seRoot, '.planning'));
+  check('dossier avec .planning/ → projet SE', isSeProject(seRoot) === true);
+
+  const bareRoot = fsp.mkdtempSync(pathp.join(osp.tmpdir(), 'se-noproj-'));
+  check('dossier sans .planning/ → pas un projet SE', isSeProject(bareRoot) === false);
+
+  const fileRoot = fsp.mkdtempSync(pathp.join(osp.tmpdir(), 'se-fileproj-'));
+  fsp.writeFileSync(pathp.join(fileRoot, '.planning'), 'pas un dossier');
+  check('.planning fichier (pas dossier) → pas un projet SE', isSeProject(fileRoot) === false);
+
+  check('projectDir vide → pas un projet SE', isSeProject('') === false);
+  check('projectDir null → pas un projet SE', isSeProject(null) === false);
+  check('projectDir inexistant → pas un projet SE, aucune erreur',
+    isSeProject(pathp.join(bareRoot, 'nulle-part')) === false);
+}
+
 // --- RANGEMENT (placement-guard) ---
 
 const REPO = '/repo';
@@ -195,13 +219,18 @@ const hasVendoredDetector = fsx.existsSync(pathx.join(PROJECT_ROOT, 'vendor', 'd
 check('fichier non-front → détecteur non lancé',
   detectAntipatterns(`${PROJECT_ROOT}/scripts/x.cjs`, PROJECT_ROOT).length === 0);
 
-check('projet sans vendor/ → aucun finding, aucune erreur',
-  detectAntipatterns(`${PROJECT_ROOT}/a.css`, osx.tmpdir()).length === 0);
+// Le détecteur vient TOUJOURS du système désormais (path résolu depuis hooks/, pas
+// depuis le projet). Le cas « projet sans vendor/ » n'existe plus ; on teste à la
+// place « système sans vendor » via l'override de chemin prévu pour ça.
+check('système sans vendor → aucun finding, aucune erreur',
+  detectAntipatterns(`${PROJECT_ROOT}/a.css`, osx.tmpdir(), pathx.join(osx.tmpdir(), 'detect-absent.mjs')).length === 0);
 
 if (hasVendoredDetector) {
   const probe = pathx.join(osx.tmpdir(), `se-guard-probe-${process.pid}.css`);
   fsx.writeFileSync(probe, 'body { font-family: Inter, sans-serif; }\n');
-  const found = detectAntipatterns(probe, PROJECT_ROOT);
+  // projectDir ne sert plus qu'au cwd du spawn : un tmpdir sans vendor/ doit suffire,
+  // le détecteur étant résolu côté système.
+  const found = detectAntipatterns(probe, osx.tmpdir());
   // Le détecteur sort en code 2 quand il TROUVE quelque chose : on parse stdout
   // quel que soit le status, sinon on jette silencieusement tous les findings.
   check('anti-pattern réel remonté malgré le code de sortie non nul',

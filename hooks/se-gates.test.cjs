@@ -16,10 +16,17 @@ function check(name, ok) {
   else { fail++; console.log(`  FAIL  ${name}`); }
 }
 
-function runHook(hookFile, input, cwd) {
-  const r = spawnSync(process.execPath, [path.join(__dirname, hookFile)], {
+// CLAUDE_PROJECT_DIR est neutralisé : quand la suite tourne DANS le repo SE via
+// Claude Code, cette variable pointerait vers le repo SE (qui a un .planning/) et
+// court-circuiterait la résolution data.cwd/process.cwd() des fixtures.
+function runHookRaw(hookFile, input, cwd) {
+  return spawnSync(process.execPath, [path.join(__dirname, hookFile)], {
     input: JSON.stringify(input), encoding: 'utf8', cwd, timeout: 15000,
+    env: { ...process.env, CLAUDE_PROJECT_DIR: '' },
   });
+}
+function runHook(hookFile, input, cwd) {
+  const r = runHookRaw(hookFile, input, cwd);
   try { return JSON.parse(r.stdout).hookSpecificOutput || null; } catch { return null; }
 }
 const denies = (out) => !!out && out.permissionDecision === 'deny';
@@ -32,6 +39,8 @@ git('init -q');
 git('config user.email test@test.local');
 git('config user.name test');
 git('config commit.gpgsign false');
+// Les hooks ne s'activent que dans un projet SE : la fixture doit en être un.
+fs.mkdirSync(path.join(repo, '.planning'));
 
 function write(rel, content) {
   const p = path.join(repo, rel);
@@ -139,6 +148,48 @@ check('Edit neutre sur STATE.md sous plafond → laisse passer', !denies(runHook
 check('fichier non plafonné → laisse passer', !denies(runHook('se-size-gate.cjs', {
   tool_name: 'Write', tool_input: { file_path: path.join(repo, 'NOTES.md'), content: lines(CAP + 200) },
 }, repo)));
+
+// ---------- hors projet SE (pas de .planning/) : les 4 hooks se taisent ----------
+console.log('hors projet SE:');
+
+// repo git jetable SANS .planning/ — les hooks câblés globalement doivent l'ignorer
+const alien = fs.mkdtempSync(path.join(os.tmpdir(), 'se-alien-'));
+const agit = (args) => execSync(`git ${args}`, { cwd: alien, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+agit('init -q');
+agit('config user.email test@test.local');
+agit('config user.name test');
+agit('config commit.gpgsign false');
+fs.writeFileSync(path.join(alien, 'a.ts'), `const key = "${FAKE_SECRET}";\n`);
+fs.mkdirSync(path.join(alien, 'content'));
+fs.writeFileSync(path.join(alien, 'content', 'hero.md'), SLOP);
+agit('add .');
+
+check('secret-gate: repo sans .planning → laisse passer malgré un secret stagé',
+  !denies(runHook('se-secret-gate.cjs', bash('git commit -m "x"'), alien)));
+check('slop-gate: repo sans .planning → laisse passer malgré du slop stagé',
+  !denies(runHook('se-slop-gate.cjs', bash('git commit -m "x"'), alien)));
+check('size-gate: repo sans .planning → laisse passer un STATE.md hors plafond',
+  !denies(runHook('se-size-gate.cjs', {
+    tool_name: 'Write', tool_input: { file_path: path.join(alien, 'STATE.md'), content: lines(CAP + 100) },
+  }, alien)));
+
+// se-guard (advisory) : silence total hors projet SE, actif dans la fixture SE
+const guardInput = (dir) => ({
+  tool_name: 'Write',
+  tool_input: { file_path: path.join(dir, 'src', 'x.ts'), content: 'export function f() { console.log("d"); return 1; }\n' },
+});
+const guardOut = runHookRaw('se-guard.cjs', guardInput(alien), alien);
+check('se-guard: repo sans .planning → aucune sortie, exit 0',
+  guardOut.status === 0 && guardOut.stdout === '');
+const guardOutSe = runHookRaw('se-guard.cjs', guardInput(repo), repo);
+check('se-guard: projet SE → findings toujours émis',
+  guardOutSe.status === 0 && /hygiene-guard/.test(guardOutSe.stdout));
+
+// la résolution du projet passe aussi par data.cwd quand le JSON le porte
+check('secret-gate: data.cwd sans .planning → laisse passer',
+  !denies(runHook('se-secret-gate.cjs', { ...bash('git commit -m "x"'), cwd: alien }, alien)));
+
+fs.rmSync(alien, { recursive: true, force: true });
 
 // --- cleanup + verdict ---
 fs.rmSync(repo, { recursive: true, force: true });
