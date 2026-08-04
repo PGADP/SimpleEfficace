@@ -4,9 +4,11 @@
 
 ### Va vite sans laisser le projet pourrir derrière toi.
 
-Une configuration complète pour [Claude Code](https://claude.com/claude-code) : des garde-fous qui s'exécutent tout seuls, et des skills qu'on invoque quand on a besoin d'un avis.
+Un système complet pour [Claude Code](https://claude.com/claude-code) : des garde-fous qui s'exécutent tout seuls, et des skills qu'on invoque quand on a besoin d'un avis. Installé une fois par machine, partagé par tous les projets.
 
-`28 skills` · `10 garde-fous` · `95 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
+[![CI](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml/badge.svg)](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml)
+
+`29 skills` · `10 garde-fous` · `153 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
 
 </div>
 
@@ -52,14 +54,22 @@ Les advisory se trompent parfois. `hardcode-guard` m'a signalé un « nombre mag
 
 Un garde-fou qui plante n'interrompt jamais rien : le contrat commun impose de sortir en silence plutôt que de coûter un tour.
 
-## Démarrer
+## Installer (une fois par machine)
 
-Le dépôt **est** un projet Claude Code prêt à l'emploi : skills, hooks et contrats vivent au niveau projet. Une seule dépendance globale, installée une fois par machine, le moteur [GSD](https://github.com/gsd-build/get-shit-done), que les patches SE enrichissent.
+Le système vit dans `~/.claude/se/` et se partage entre tous les projets de la machine. Les projets, eux, ne contiennent que leurs données (`.planning/` + `CLAUDE.md`). Prérequis : le moteur [GSD](https://github.com/gsd-build/get-shit-done), que les patches SE enrichissent à l'installation.
 
 ```bash
-git clone https://github.com/PGADP/SimpleEfficace.git mon-projet
+git clone https://github.com/PGADP/SimpleEfficace.git ~/.claude/se
+node ~/.claude/se/se.cjs install
+```
+
+`install` copie les skills et agents dans `~/.claude/`, fusionne le câblage des hooks dans ton `settings.json` **sans toucher à ce qui s'y trouve** (backup horodaté automatique), applique les patches GSD, puis affiche un diagnostic. Relançable à volonté.
+
+## Démarrer un projet
+
+```bash
+node ~/.claude/se/se.cjs init mon-projet
 cd mon-projet
-node scripts/install-gsd-patches.cjs   # enrichit le moteur GSD global
 claude
 ```
 
@@ -69,11 +79,21 @@ Puis, dans Claude :
 /se-new-project "mon idée de produit"
 ```
 
-Le skill déroule le cadrage complet : accueil, brainstorming, PRD, recherches, roadmap, contrat de design. Les hooks et les gates qualité tournent déjà.
+Le skill déroule le cadrage complet : accueil, brainstorming, PRD, recherches, roadmap, contrat de design. Les hooks et les gates qualité tournent déjà — et **seulement dans les projets SE** : dans n'importe quel autre dépôt de la machine, ils se taisent (la règle est simple : pas de `.planning/`, pas de garde-fou).
 
-> Les hooks se chargent au démarrage de session — lance `claude` après le clone.
-> Après un `/gsd:update`, relance `node scripts/install-gsd-patches.cjs` (les workflows patchés sont sauvegardés en `*.orig`).
-> Si tu viens de l'ancien système (skills non préfixés dans `~/.claude/commands/`) : `node scripts/prune-legacy-global.cjs --apply` archive les doublons.
+## Mettre à jour (une commande, tous les projets suivent)
+
+```bash
+node ~/.claude/se/se.cjs update
+```
+
+`update` tire la dernière version, réinstalle, rejoue les migrations de structure en attente et affiche les nouveautés du changelog entre ta version et la nouvelle. Il n'y a **rien à faire dans les projets** : ils utilisent le système global, ils sont à jour dès la commande terminée. Sur une autre machine, la même commande.
+
+```bash
+node ~/.claude/se/se.cjs doctor    # quelque chose cloche ? diagnostic complet, exit 1 si problème
+```
+
+> **Projet issu de l'ancien modèle** (le système cloné dans le repo) : ouvre-le dans Claude et lance `/se-migrate`. Inventaire, plan affiché, accord explicite, puis archivage — tout ce qui est retiré part dans `.planning/_archive/migration-{date}/`, tes skills à toi ne sont jamais touchés, et un seul commit revert-able porte l'opération.
 
 ## Le système au travail
 
@@ -106,7 +126,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 ## Les skills
 
 <details>
-<summary><b>Cadrage &amp; pilotage</b> — 7 skills</summary>
+<summary><b>Cadrage &amp; pilotage</b> — 8 skills</summary>
 
 | Skill | Rôle |
 |---|---|
@@ -117,6 +137,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 | `/se-brainstorm-light` | 20 idées ciblées en 10 minutes |
 | `/se-brainstorm-heavy` | 60-80 idées, 61 techniques créatives, multi-session |
 | `/se-archive` | Sort les phases shippées du chemin de travail, avec confirmation |
+| `/se-migrate` | Migre un projet de l'ancien modèle (système cloné) vers l'installation globale — dry-run, zéro perte |
 
 </details>
 
@@ -166,9 +187,10 @@ Quatre scripts câblés dans `settings.json`, dont un dispatcher qui porte sept 
 | `secret-gate` | `git commit` | refuse un secret dans le diff, malgré `--no-verify` | **oui** |
 
 ```bash
-node hooks/se-guard.test.cjs     # 43 tests — détecteurs
-node hooks/se-gates.test.cjs     # 17 tests — gates bloquantes
-node scripts/ui-verdict.test.cjs # 35 tests — moteur de verdict UI
+node hooks/se-guard.test.cjs     # 49 tests — détecteurs + activation hors projet SE
+node hooks/se-gates.test.cjs     # 23 tests — gates bloquantes
+node scripts/ui-verdict.test.cjs # 39 tests — moteur de verdict UI + cascade
+node scripts/se.test.cjs         # 42 tests — CLI install/init/doctor/merge
 ```
 
 ## Le contrat de design vient avant le premier composant
@@ -266,29 +288,35 @@ La règle qui pèse le plus lourd sur la durée : **un rapport ne s'écrit sur d
 
 Trois mécanismes d'anti-entropie complètent le dispositif : les plafonds durs de `size-gate`, l'archivage des phases shippées par `/se-archive`, et `INDEX.md` maintenu en continu à la clôture de chaque phase. On lit `INDEX.md` pour s'orienter, jamais un `grep` à l'aveugle.
 
-## Anatomie du dépôt
+## Anatomie
+
+Le dépôt (installé dans `~/.claude/se/`) porte le **système** ; chaque projet ne porte que ses **données**. La frontière est le cœur du modèle : ce qui est identique partout vit en un seul exemplaire et se met à jour d'un `se update` ; ce qui appartient au projet n'est jamais touché par une mise à jour.
 
 ```
-.
-├── CLAUDE.md            # comment ce projet est piloté (lu par Claude au démarrage)
-├── .claude/
-│   ├── commands/        # 25 skills /se-* (+ pilot/ : sous-skills lazy)
-│   ├── agents/          # sous-agent researcher
-│   └── settings.json    # câblage des hooks (niveau projet)
-├── hooks/               # garde-fous .cjs + rules/*.json (source unique des critères)
-├── gsd-patches/         # workflows + agents GSD enrichis → appliqués au moteur global
-├── scripts/             # install-gsd-patches · prune-legacy-global · sync-design-vendors
-│                        # · ui-verdict (mesure → verdict BLOCK/FLAG/PASS)
-├── vendor/design/       # corpus de design épinglés, jamais édités à la main
-├── .planning/           # CONVENTIONS (la loi) · phases · research · audits · _archive
-│   ├── design/          # contrat UI, personas, parcours, references/ à la demande
-│   └── rules/           # ui-rules.json — 10 piliers, 36 règles mesurables
-└── docs/                # conception du système (SYSTEME.md, specs de chantier)
+~/.claude/se/               LE SYSTÈME — un exemplaire par machine
+├── se.cjs                  # CLI : install · update · init · doctor
+├── VERSION · CHANGELOG.md  # semver + nouveautés affichées par update
+├── migrations/             # scripts rejoués par update entre deux versions
+├── hooks/                  # garde-fous .cjs + rules/*.json (critères en données)
+├── scripts/                # ui-verdict · sync-design-vendors · install-gsd-patches
+├── gsd-patches/            # workflows + agents GSD enrichis
+├── vendor/design/          # corpus de design épinglés, jamais édités à la main
+├── rules/ui-rules.json     # 10 piliers, 36 règles — défaut système, surchargeable
+├── references/ templates/  # savoir design + gabarits Playwright, à la demande
+├── CONVENTIONS.md          # la loi de rangement
+├── scaffold/               # la semence : ce que `se init` pose dans un projet
+└── .claude/commands/       # 29 skills /se-* → copiés dans ~/.claude/commands/
+
+mon-projet/                 UN PROJET — ses données, rien d'autre
+├── CLAUDE.md
+├── .planning/              # contrat de design rempli, personas, parcours,
+│                           # phases, state, audits, surcharges éventuelles
+└── src/ …
 ```
+
+Un projet peut surcharger un défaut système (ses seuils `ui-rules.json`, par exemple) en créant sa copie dans `.planning/rules/` : la copie projet gagne toujours, et un projet qui ne surcharge rien profite de chaque mise à jour sans lever le petit doigt.
 
 ## Ce que ce n'est pas
-
-Un plugin qu'on installe à côté d'un projet existant. Le dépôt sert de point de départ : on clone, puis on construit dedans.
 
 Un outil multi-langage. Le cœur (rangement, garde-fous, cycle) fonctionne partout, mais les détecteurs et le dispositif UI visent **Next.js 15 · React 19 · TypeScript · Tailwind**, avec Railway, Postgres ou Supabase, Prisma, Vitest et Playwright autour.
 

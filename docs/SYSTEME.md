@@ -3,8 +3,10 @@
 > Système de pilotage de développement personnel, conçu pour **Paul** (Next.js / Tailwind / Railway / Postgres / Prisma / Vitest, auth Supabase ou BetterAuth).
 > Successeur du système GSD + Pilot de My Mozaica. Objectif : **lourd quand il faut, invisible le reste du temps. Propre par mécanique, pas par vigilance.**
 >
-> Statut : CONSTRUIT (v1.0). Le système décrit ici est implémenté (hooks, gates, skills, patches GSD) ; ce fichier reste la référence du design et est maintenu aligné sur le réel.
-> Dernière mise à jour : 2026-07-07.
+> Statut : CONSTRUIT (v1.0.0). Le système décrit ici est implémenté (hooks, gates, skills, patches GSD) ; ce fichier reste la référence du design et est maintenu aligné sur le réel.
+> Dernière mise à jour : 2026-08-04.
+>
+> **Modèle de distribution (v1.0.0)** : le repo n'est plus un template qu'on clone par projet — il s'installe **une fois par machine** dans `~/.claude/se/` (`node se.cjs install`) et tous les projets le partagent. Un projet ne contient que ses données (`.planning/` + `CLAUDE.md`), semées par `se init` depuis `scaffold/`. Mise à jour : `se update` (git pull + réinstall + migrations + changelog) — rien à faire dans les projets. Les hooks sont câblés globalement et ne s'activent que dans les projets porteurs d'un `.planning/` ; les défauts système (`rules/ui-rules.json`, `CONVENTIONS.md`) sont surchargeables par copie projet, la copie projet gagnant toujours. Migration d'un projet de l'ancien modèle : `/se-migrate` (dry-run, archivage, zéro perte).
 >
 > **Méthode imposée par Paul : CHERRY-PICKING, pas from-scratch.** On relit l'existant (GSD, ui-ux-pro-max, impeccable, hyperresearch, skills perso), on l'adapte à la nouvelle structure, on vérifie que l'ensemble tient. On ne recrée RIEN de zéro. Sources clonées dans `_sources/`.
 
