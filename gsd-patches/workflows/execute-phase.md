@@ -609,11 +609,41 @@ Detector + LLM cross-check classify DEAD / VIOLATION / SUSPECT. SUSPECT is never
 If JANITOR_ENABLED is "false": display "Gate JANITOR skipped (workflow.janitor_gate=false)" and proceed.
 
 **Step 3 — SECURITY gate (if SECURITY_ENABLED is "true"):**
-Only when the phase touched sensitive surface — any modified file matching: `/api/`, `route.(ts|js)`, `middleware.*`, `auth`, `login`, `session`, `*.sql`, `migrations/`, `prisma/schema.prisma`, `next.config.*`, or code calling Supabase/DB clients. Otherwise display "Gate SECURITY skipped (surface non sensible)" and proceed.
+Triggered when the phase touched sensitive surface — any modified file matching: `/api/`, `route.(ts|js)`, `middleware.*`, `auth`, `login`, `session`, `*.sql`, `migrations/`, `prisma/schema.prisma`, `next.config.*`, or code calling Supabase/DB clients — **or dependencies**:
+```bash
+# Deps touched during this phase? Same mechanism as service detection: the phase's commits.
+DEPS_CHANGED=$(git log --name-only --grep="${PHASE_NUMBER}" --pretty="" | grep -E '^(package\.json|package-lock\.json|pnpm-lock\.yaml|bun\.lock)$' | sort -u)
+```
+If neither sensitive surface nor `DEPS_CHANGED`: display "Gate SECURITY skipped (surface non sensible)" and proceed.
 ```
 Skill(skill="se-security", args="phase ${PHASE_NUMBER} — fichiers sensibles modifies de la phase")
 ```
 The audit classifies findings CRITICAL/HIGH/MEDIUM/LOW and presents a GO/NO-GO checkpoint. CRITICAL findings must be fixed (or explicitly accepted by the human with a written reason) before ship; findings and verdict are logged to `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`.
+
+**Step 3b — supply-chain (only if DEPS_CHANGED is non-empty):**
+Waiting for `/se-deploy` to catch a bad dependency means it ships to the push. Check it now, in the phase:
+1. List added/changed dependencies from the phase's package.json diff:
+```bash
+git log -p --grep="${PHASE_NUMBER}" --pretty="" -- package.json | grep -E '^\+\s*"[^"]+"\s*:\s*"' || true
+```
+2. Audit — pick the command matching the lockfile found in DEPS_CHANGED (`package-lock.json` → npm, `pnpm-lock.yaml` → pnpm, `bun.lock` → bun):
+```bash
+npm audit --json --omit=dev 2>/dev/null || pnpm audit --json 2>/dev/null || bun audit 2>/dev/null
+```
+CRITICAL = same rule as the rest of the gate: fix it, or explicit human acceptance with a written reason.
+3. For each NEW dependency, inspect its install scripts:
+```bash
+node -e "console.log(JSON.stringify(require('./node_modules/PKG/package.json').scripts||{}))"
+```
+An unexpected `preinstall`/`postinstall`/`install` script is SIGNALED to the human — no automatic verdict, it is sometimes legitimate (esbuild compiles its binary this way). "Signaler" = montrer le script et demander.
+4. Version declared in package.json: exact pin or reasonable `^` range = OK ; `*` or `latest` = FLAG.
+
+Best-effort like the rest of the gate: if npm (or the detected package manager) is unavailable, note "supply-chain non vérifiable (npm absent)" in the report and proceed — never block on a missing tool.
+
+Reminder — if this phase exposes the project's first public route and `next.config.*` declares no `headers()`: signal "Headers de sécurité absents — template prêt à copier : `.planning/_templates/security-headers.md`".
+
+Log the supply-chain verdict in the same `## Gate SECURITY` section of `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`, same format as the rest: what was checked, with what, verdict, accepted exceptions with written reason.
+
 If SECURITY_ENABLED is "false": display "Gate SECURITY skipped (workflow.security_gate=false)" and proceed.
 
 **Error handling:** If either Skill invocation fails or throws, catch the error, display "Gate {name} encountered an error (non-blocking): {error}" and proceed. Gate failures must NEVER block execution.

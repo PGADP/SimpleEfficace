@@ -30,7 +30,13 @@ Tu es un auditeur sécurité pragmatique pour un développeur en apprentissage. 
 
 **4. Dépendances & config**
 - `npm audit --omit=dev` : CRITICAL = bloquant.
-- Headers Next.js (`next.config.*`) : recommander CSP, HSTS, `X-Content-Type-Options` si absents.
+- Headers Next.js (`next.config.*`) : CSP, HSTS, `X-Content-Type-Options` absents sur un projet web avec route publique = MEDIUM. Bloc prêt à copier : `.planning/_templates/security-headers.md`.
+
+**5. Supply-chain** (quand `package.json` ou un lockfile a bougé, ou en audit complet)
+- Audit des vulnérabilités : `npm audit --json --omit=dev` (ou `pnpm audit` / `bun audit` selon le lockfile). CRITICAL = bloquant, même règle que le reste.
+- Scripts d'installation des NOUVELLES deps : lire `scripts` dans `node_modules/<pkg>/package.json`. Un `preinstall`/`postinstall`/`install` inattendu se **signale** à l'humain avec le contenu du script — pas de verdict automatique, c'est parfois légitime (esbuild compile son binaire ainsi).
+- Épinglage : version exacte ou range `^` raisonnable = OK ; `*` ou `latest` = MEDIUM.
+- Provenance : le champ `repository` pointe vers un repo qui existe et correspond au package publié ; nom très proche d'un package populaire (typosquatting) = à juger au cas par cas, sur le contexte (âge du package, téléchargements, mainteneur) — pas de liste en dur.
 
 ## Format de sortie
 
