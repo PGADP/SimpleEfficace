@@ -1,0 +1,65 @@
+# Badge pour le README :
+# [![CI](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml/badge.svg)](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml)
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Les suites de tests créent des repos git jetables : une identité git est requise.
+      - name: Configurer l'identité git pour les tests
+        run: |
+          git config --global user.email "ci@simple-efficace.invalid"
+          git config --global user.name "CI Simple & Efficace"
+
+      - name: Tests des guards (hooks/se-guard.test.cjs)
+        run: node hooks/se-guard.test.cjs
+
+      - name: Tests des gates (hooks/se-gates.test.cjs)
+        run: node hooks/se-gates.test.cjs
+
+      - name: Tests du verdict UI (scripts/ui-verdict.test.cjs)
+        run: node scripts/ui-verdict.test.cjs
+
+      - name: Tests du CLI (scripts/se.test.cjs, si présent)
+        shell: bash
+        run: |
+          if [ -f scripts/se.test.cjs ]; then
+            node scripts/se.test.cjs
+          else
+            echo "scripts/se.test.cjs absent — étape sautée"
+          fi
+
+      - name: Vérification syntaxique de tous les .cjs
+        shell: bash
+        run: |
+          status=0
+          for f in hooks/*.cjs scripts/*.cjs *.cjs; do
+            [ -f "$f" ] || continue
+            node --check "$f" || status=1
+          done
+          exit $status
+
+      - name: Intégrité du repo (node se.cjs doctor --repo, si présent)
+        shell: bash
+        run: |
+          if [ -f se.cjs ]; then
+            node se.cjs doctor --repo
+          else
+            echo "se.cjs absent — étape sautée"
+          fi
