@@ -15,6 +15,30 @@ function loadJson(name) {
   }
 }
 
+// Per-project extension of the placement rules. A project may declare extra
+// allowed dirs/files in .planning/rules/placement-overrides.json (additive only:
+// arrays are concatenated with the global bank, nothing can be removed).
+const PLACEMENT_OVERRIDE_KEYS = ['repoRootAllow', 'planningRootAllow', 'planningDirs', 'phaseFileAllow', 'reportAllowDirs'];
+
+function loadPlacementRules(projectDir) {
+  const rules = loadJson('placement-rules.json');
+  if (!rules || !projectDir) return rules;
+  let overrides = null;
+  try {
+    overrides = JSON.parse(fs.readFileSync(path.join(projectDir, '.planning', 'rules', 'placement-overrides.json'), 'utf8'));
+  } catch {
+    return rules;
+  }
+  if (!overrides || typeof overrides !== 'object') return rules;
+  const merged = { ...rules };
+  for (const key of PLACEMENT_OVERRIDE_KEYS) {
+    if (Array.isArray(overrides[key])) {
+      merged[key] = [...(rules[key] || []), ...overrides[key].filter((v) => typeof v === 'string')];
+    }
+  }
+  return merged;
+}
+
 // ---- SE project detection ----
 
 // Hooks are wired in the GLOBAL ~/.claude/settings.json, so they fire in every repo
@@ -233,7 +257,7 @@ function detectPlacement({ filePath, projectDir }) {
   if (!/\.md$/i.test(filePath)) return [];
   const rel = toRepoRelative(filePath, projectDir);
   if (!rel) return [];
-  const rules = loadJson('placement-rules.json');
+  const rules = loadPlacementRules(projectDir);
   if (!rules) return [];
   // system code (skills, patches, hooks) is not a tracking artifact — never our business
   if ((rules.skipDirPatterns || []).some((re) => new RegExp(re, 'i').test(rel))) return [];

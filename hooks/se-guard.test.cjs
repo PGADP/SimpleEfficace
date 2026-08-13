@@ -178,6 +178,32 @@ check('audit rangé dans .planning/audits/ → PAS de placement-guard',
 check('recherche datée dans research/ → PAS de placement-guard',
   !has(place('.planning/research/2026-08-03-mem0-vs-graphiti.md'), 'placement-guard'));
 
+// --- surcharge projet (placement-overrides.json) ---
+{
+  const fsp = require('fs');
+  const osp = require('os');
+  const pathp = require('path');
+  const ovRoot = fsp.mkdtempSync(pathp.join(osp.tmpdir(), 'se-override-'));
+  fsp.mkdirSync(pathp.join(ovRoot, '.planning', 'rules'), { recursive: true });
+  const placeIn = (root, rel) => runAll({ filePath: pathp.join(root, rel), content: '# doc\n', projectDir: root });
+
+  check('dossier non déclaré sans override → placement-guard',
+    has(placeIn(ovRoot, pathp.join('.planning', 'issues', 'truc.md')), 'placement-guard'));
+
+  fsp.writeFileSync(
+    pathp.join(ovRoot, '.planning', 'rules', 'placement-overrides.json'),
+    JSON.stringify({ planningDirs: ['issues'] }),
+  );
+  check('dossier déclaré via placement-overrides.json → PAS de placement-guard',
+    !has(placeIn(ovRoot, pathp.join('.planning', 'issues', 'truc.md')), 'placement-guard'));
+  check('override n\'affecte pas les autres dossiers non déclarés',
+    has(placeIn(ovRoot, pathp.join('.planning', 'rapports', 'truc.md')), 'placement-guard'));
+
+  fsp.writeFileSync(pathp.join(ovRoot, '.planning', 'rules', 'placement-overrides.json'), '{invalid json');
+  check('override JSON invalide → ignoré sans erreur, règles globales seules',
+    has(placeIn(ovRoot, pathp.join('.planning', 'issues', 'truc.md')), 'placement-guard'));
+}
+
 check('fichier de phase au nom fixe → PAS de placement-guard',
   !has(place('.planning/phases/03-auth/CONTEXT.md'), 'placement-guard'));
 

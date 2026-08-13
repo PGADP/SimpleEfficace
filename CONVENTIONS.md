@@ -48,6 +48,8 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 
 **Rien à la racine de `.planning/` hors de la liste ci-dessus.** Tout nouveau dossier doit d'abord être déclaré ici (et dans `hooks/rules/placement-rules.json`), sinon `placement-guard` alerte.
 
+**Surcharge par projet** : un projet peut déclarer ses dossiers légitimes supplémentaires dans `.planning/rules/placement-overrides.json` (fusion additive avec la banque globale, mêmes clés que `placement-rules.json`). À réserver aux dossiers vivants propres au projet ; documenter chaque entrée dans le `CONVENTIONS.md` du projet.
+
 ## 3. Une destination unique par type d'artefact
 
 | Tu cherches… | C'est ici, et nulle part ailleurs |
