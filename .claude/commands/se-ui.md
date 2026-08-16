@@ -106,13 +106,30 @@ Si Playwright n'est pas configuré : copier `$HOME/.claude/se/templates/playwrig
 
 Ce que la mesure ne dit pas, tu dois le juger : direction visible, focal point, qualité de la critique. Les règles `verifiedBy: llm|human` de `ui-rules.json` listent exactement lesquelles.
 
-## 5. Rituel de livraison — 5 réflexes, dans l'ordre
+## 5. Rituel de livraison — 6 réflexes, dans l'ordre
 
 1. **Contrat** — DESIGN-SYSTEM lu, direction §0.2 déclarée, molettes §0.3 respectées.
 2. **Cycle** — craft → **critique** → polish effectué. Sauter la critique est un BLOCK (`critique-pass-done`).
 3. **Parcours** — si l'élément appartient à un parcours de `JOURNEYS.md`, l'étape reste cohérente. Une suppression qui casse une étape = BLOCK, remonter à `/se-ux`.
 4. **Humanizer** — les textes visibles extraits du rapport passent par `/se-humanizer`.
 5. **Mesure** — `ui-verify` + `ui-verdict` verts, ou écarts assumés et documentés en §6 de DESIGN-SYSTEM.md.
+6. **Checkpoint humain + passe enregistrée** — obligatoire pour toute création ou modification front, et **le commit est refusé sans elle** (hook `ui-gate`) :
+   - lancer le serveur dev toi-même (jamais demander à l'humain de lancer une commande) ;
+   - donner à l'humain l'**URL exacte** de la page à regarder, avec un message de validation explicite :
+     ```
+     Checkpoint visuel — <écran>
+     URL : http://localhost:3000/<route>
+     Mesure : BLOCK 0 · FLAG n · PASS n
+     À juger (aucune mesure ne le dit) : la direction §0.2 est-elle visible ? où l'œil se pose-t-il ?
+     → Le rendu est bon ? [GO / décrire les problèmes]
+     ```
+   - attendre sa réponse. Sur GO, enregistrer la passe :
+     ```bash
+     node "$HOME/.claude/se/scripts/ui-pass.cjs" record <fichiers front modifiés> --url <url> --go "<réponse humaine>"
+     ```
+     Le script relance le détecteur : il refuse d'enregistrer s'il reste des anti-patterns. Inclure `.planning/design/ui-passes.json` dans le commit.
+   - **tuer le serveur dev** lancé pour le checkpoint, tout de suite après l'enregistrement. Un serveur lancé = un serveur tué ; les orphelins s'accumulent sinon.
+   - toute re-modification d'un fichier invalide sa passe (hash) : re-checkpoint avant le prochain commit.
 
 Une exception documentée rétrograde BLOCK → FLAG, sauf sur Copywriting, Registry Safety et **Accessibility**. « Le client préfère » n'est pas une raison ; « charte de marque imposée, 6 tailles historiques » en est une.
 

@@ -13,6 +13,8 @@
     "janitor_gate": true,
     "security_gate": true,
     "visual_checkpoint": true,
+    "ui_contract_gate": true,
+    "ui_commit_gate": true,
 
     "ui_phase": true,
     "ui_front_pass": true,

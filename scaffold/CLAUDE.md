@@ -25,7 +25,7 @@ node "$HOME/.claude/se/scripts/install-gsd-patches.cjs"   # applique les enrichi
 - **Skills** (`.claude/commands/`) : `/se-pilot`, `/se-new-project`, `/se-ui`, `/se-ux`, `/se-research`, `/se-humanizer`, `/se-dev`, `/se-review` (+ modes `lint`/`perf`), `/se-security`, `/se-test`, `/se-gate-simplify`, `/se-gate-janitor`, etc.
 - **Garde-fous** (`.claude/settings.json` → `~/.claude/se/hooks/`) — actifs au démarrage de session :
   - advisory (dispatcher `se-guard.cjs`) : `humanizer-guard` (contenu user-facing), `ui-guard` (front), `hardcode-guard`, `hygiene-guard`, `monolith-guard`, `security-guard` (secrets, XSS, eval, Zod manquant), `placement-guard` (fichier de suivi rangé hors de sa destination unique)
-  - bloquants : `size-gate` (STATE.md > 300 / ROADMAP.md > 300 lignes), `slop-gate` (commit de contenu AI-slop), `secret-gate` (commit de secrets — insensible au `--no-verify`)
+  - bloquants : `size-gate` (STATE.md > 300 / ROADMAP.md > 300 lignes), `slop-gate` (commit de contenu AI-slop), `secret-gate` (commit de secrets — insensible au `--no-verify`), `ui-contract-gate` (écriture front refusée tant que DESIGN-SYSTEM.md §0 n'est pas rempli ; injecte le plancher de qualité impeccable à la première édition front de la session), `ui-gate` (commit de fichiers front refusé sans passe `/se-ui` validée : anti-patterns mesurés + GO humain avec URL, registre `.planning/design/ui-passes.json`)
 - **Cycle GSD enrichi** (`~/.claude/se/gsd-patches/` → moteur global) : gates simplify + janitor + **security** + visual-checkpoint, activées via `.planning/config.json`.
 - **Contrats** : `~/.claude/se/CONVENTIONS.md` (**loi de rangement — source unique de l'arborescence**), `.planning/design/DESIGN-SYSTEM.md` (dont §0.1 plateforme cible, §0.2 direction esthétique, §0.3 molettes), `.planning/design/JOURNEYS.md` (parcours E2E, maintenu par `/se-ux`), `~/.claude/se/references/design/` (heuristiques + table de routage), règles UI : `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json` (10 piliers, critères mesurables).
 - **Corpus de design** (`~/.claude/se/vendor/design/`) : impeccable, platform-design-skills, ui-ux-pro-max — sous-ensembles curatés, versions épinglées, **jamais édités à la main** (`node "$HOME/.claude/se/scripts/sync-design-vendors.cjs"`). Chargés à la demande, une référence par tâche.
@@ -38,8 +38,9 @@ node "$HOME/.claude/se/scripts/install-gsd-patches.cjs"   # applique les enrichi
   3. **Parcours** — cohérence avec JOURNEYS.md.
   4. **Humanizer** — sur les textes réellement affichés (`text.visible` du `ui-report.json`).
   5. **Mesure** — `UI_ROUTE=… npx playwright test tests/e2e/ui-verify.spec.ts` puis `node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name <écran>`.
+  6. **Checkpoint humain + passe** — lancer le serveur, donner à l'humain l'**URL exacte** de la page, attendre son GO explicite, puis enregistrer : `node "$HOME/.claude/se/scripts/ui-pass.cjs" record <fichiers> --url <url> --go "<réponse>"`. Sans passe enregistrée, `ui-gate` **refuse le commit**.
 
-  Rappelé par le hook `ui-guard`, tranché au checkpoint visuel. Un BLOCK mesuré arrête la livraison (`workflow.ui_gate_blocking`) ; une métrique absente ne bloque jamais.
+  Rappelé par le hook `ui-guard`, imposé par `ui-contract-gate` (écriture) et `ui-gate` (commit). Un BLOCK mesuré arrête la livraison (`workflow.ui_gate_blocking`) ; une métrique absente ne bloque jamais.
 
 ## Stack par défaut
 

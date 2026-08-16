@@ -680,7 +680,7 @@ HAS_AXE=$([ -d "node_modules/@axe-core/playwright" ] && echo 1 || echo 0)
 - `HAS_DEP=0` → proposer `npm i -D @playwright/test`
 - `HAS_AXE=0` → proposer `npm i -D @axe-core/playwright` (sans lui, les règles WCAG passent SKIPPED : la gate tourne mais mesure moins)
 
-Claude lance le serveur dev lui-même. Si l'humain décline une installation, la gate passe en non-bloquant (cf. Error handling) — on ne bloque jamais sur un outil absent.
+Claude lance le serveur dev lui-même — et le TUE en Step 6 une fois le checkpoint rendu (un serveur lancé = un serveur tué). Si l'humain décline une installation, la gate passe en non-bloquant (cf. Error handling) — on ne bloque jamais sur un outil absent.
 
 **Step 2 — Mesurer.** Les écrans à vérifier = ceux modifiés par la phase, **complétés par les étapes des parcours touchés dans `.planning/design/JOURNEYS.md`** (si un écran d'un parcours a changé, prendre aussi l'étape amont et l'étape aval — la friction vit dans les transitions) :
 ```bash
@@ -713,9 +713,10 @@ Priorité aux CTA, messages d'erreur et états vides : ce sont des BLOCK dans `u
 
 Après correction, relancer Step 2 et 3. Une seule boucle de correction, puis on présente ce qui reste à l'humain — pas d'auto-QA sans fin.
 
-**Step 6 — Checkpoint humain (ce que la mesure ne dit pas):**
+**Step 6 — Checkpoint humain (ce que la mesure ne dit pas).** Le serveur dev tourne déjà (Claude l'a lancé en Step 1) : le checkpoint donne l'**URL exacte** de chaque écran, l'humain regarde le rendu réel, pas seulement les captures.
 ```
 Checkpoint visuel — Phase {N}, écran {nom}
+URL     : http://localhost:3000{route}   ← ouvre et regarde le rendu réel
 Mesure  : BLOCK {n} · FLAG {n} · PASS {n}   (détail : node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name {nom})
 Captures: desktop / tablet / mobile — .planning/_ui/
 
@@ -726,7 +727,14 @@ Captures: desktop / tablet / mobile — .planning/_ui/
 
 → Le rendu est bon ? [GO / décrire les problèmes]
 ```
-Consigner verdict mesuré + verdict humain + chemins des captures dans `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`. Sur GO : passer les étapes de parcours concernées à `vérifié` dans `.planning/design/JOURNEYS.md` (+ date du checkpoint).
+Consigner verdict mesuré + verdict humain + chemins des captures dans `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`. Sur GO :
+1. enregistrer la passe pour que le hook `ui-gate` laisse passer les commits suivants :
+```bash
+node "$HOME/.claude/se/scripts/ui-pass.cjs" record <fichiers front de la phase> --url "http://localhost:3000{route}" --go "<réponse humaine>"
+```
+(le registre `.planning/design/ui-passes.json` s'inclut dans le commit de la phase) ;
+2. passer les étapes de parcours concernées à `vérifié` dans `.planning/design/JOURNEYS.md` (+ date du checkpoint) ;
+3. **tuer le serveur dev** lancé pour ce checkpoint (kill du process en fond). Règle : un serveur lancé = un serveur tué, que le verdict soit GO ou NO-GO. Vaut aussi pour le chemin d'erreur du Error handling ci-dessous — les serveurs orphelins s'accumulent à chaque checkpoint oublié.
 
 **Error handling:** si Playwright échoue (serveur, timeout, outil absent), display "Checkpoint visuel non disponible (non-bloquant): {error}" et proceed. Un échec de MESURE ne bloque jamais — seul un BLOCK mesuré bloque. On ne refuse pas une livraison sur ce qu'on n'a pas su vérifier.
 
