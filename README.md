@@ -121,6 +121,22 @@ Une clé traîne dans le diff que tu t'apprêtes à commiter :
    Commit refusé. Ce hook est insensible au --no-verify.
 ```
 
+Tu t'apprêtes à écrire un composant alors qu'aucune direction esthétique n'est déclarée :
+
+```
+⛔ ui-contract-gate : le contrat de design est encore un SQUELETTE
+   (manque : §0.2 direction esthétique). Écriture refusée.
+   Remplis DESIGN-SYSTEM.md avec l'humain avant toute ligne de front.
+```
+
+Tu commites de l'UI qui n'a pas été validée sur le rendu réel :
+
+```
+⛔ ui-gate : 2 fichiers front sans passe /se-ui valide.
+   Checkpoint humain requis : donner l'URL de la page, attendre le GO,
+   puis node scripts/ui-pass.cjs record <fichiers> --url <url> --go "<réponse>"
+```
+
 Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut laisser passer.
 
 ## Les skills
@@ -171,7 +187,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 
 ## Les garde-fous
 
-Quatre scripts que `se install` câble dans ton `settings.json` global, dont un dispatcher qui porte sept détecteurs. Ils ne s'activent que dans les projets SE (présence de `.planning/`) et les critères vivent tous dans `~/.claude/se/hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
+Six scripts que `se install` câble dans ton `settings.json` global, dont un dispatcher qui porte sept détecteurs. Ils ne s'activent que dans les projets SE (présence de `.planning/`) et les critères vivent tous dans `~/.claude/se/hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
 
 | Garde-fou | Se déclenche sur | Ce qu'il fait | Bloque |
 |---|---|---|---|
@@ -185,11 +201,13 @@ Quatre scripts que `se install` câble dans ton `settings.json` global, dont un 
 | `size-gate` | écriture STATE/ROADMAP | refuse au-delà de 300 lignes | **oui** |
 | `slop-gate` | `git commit` | refuse le contenu généré non relu | **oui** |
 | `secret-gate` | `git commit` | refuse un secret dans le diff, malgré `--no-verify` | **oui** |
+| `ui-contract-gate` | écriture de code front | refuse tant que DESIGN-SYSTEM.md §0 n'est pas rempli ; injecte le plancher de qualité impeccable à la 1ʳᵉ édition front de la session | **oui** |
+| `ui-gate` | `git commit` de fichiers front | refuse sans passe `/se-ui` validée : anti-patterns mesurés + GO humain avec URL (registre `ui-passes.json`) | **oui** |
 
 ```bash
 cd ~/.claude/se
 node hooks/se-guard.test.cjs     # 49 tests — détecteurs + activation hors projet SE
-node hooks/se-gates.test.cjs     # 23 tests — gates bloquantes
+node hooks/se-gates.test.cjs     # 44 tests — gates bloquantes
 node scripts/ui-verdict.test.cjs # 39 tests — moteur de verdict UI + cascade
 node scripts/se.test.cjs         # 42 tests — CLI install/init/doctor/merge
 ```
