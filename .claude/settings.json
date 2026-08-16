@@ -1,5 +1,5 @@
 {
-  "description": "Config locale SimpleEfficace — câble les garde-fous pour ce projet uniquement : se-guard (advisory) + gates bloquantes size/slop/secret. Le settings global n'est pas affecté.",
+  "description": "Config locale SimpleEfficace — câble les garde-fous pour ce projet uniquement : se-guard (advisory) + gates bloquantes size/slop/secret/ui. Le settings global n'est pas affecté.",
   "hooks": {
     "PreToolUse": [
       {
@@ -10,6 +10,12 @@
             "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-size-gate.cjs\"",
             "timeout": 5,
             "statusMessage": "se-size-gate"
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-ui-contract-gate.cjs\"",
+            "timeout": 5,
+            "statusMessage": "se-ui-contract-gate"
           }
         ]
       },
@@ -21,6 +27,12 @@
             "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-slop-gate.cjs\"",
             "timeout": 5,
             "statusMessage": "se-slop-gate"
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-ui-gate.cjs\"",
+            "timeout": 15,
+            "statusMessage": "se-ui-gate"
           },
           {
             "type": "command",

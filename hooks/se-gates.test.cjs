@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// se-gates.test.cjs — tests d'intégration des 3 gates BLOQUANTES (size/slop/secret).
+// se-gates.test.cjs — tests d'intégration des gates BLOQUANTES (size/slop/secret/ui).
 // Chaque gate est spawnée comme le fait Claude Code (JSON sur stdin) dans un repo git jetable.
 // Complète se-guard.test.cjs (qui ne couvre que les détecteurs advisory de guard-lib).
 // Run: node hooks/se-gates.test.cjs
@@ -149,6 +149,115 @@ check('fichier non plafonné → laisse passer', !denies(runHook('se-size-gate.c
   tool_name: 'Write', tool_input: { file_path: path.join(repo, 'NOTES.md'), content: lines(CAP + 200) },
 }, repo)));
 
+// ---------- se-ui-contract-gate ----------
+console.log('se-ui-contract-gate:');
+
+const editFront = (rel) => ({
+  tool_name: 'Write',
+  tool_input: { file_path: path.join(repo, rel), content: 'export function Card() { return <div>ok</div>; }\n' },
+});
+const DS_PATH = '.planning/design/DESIGN-SYSTEM.md';
+const DS_SKELETON = '# DESIGN-SYSTEM\nStatut : SQUELETTE\n\n## 0.1 Plateforme cible\nà remplir\n\n## 0.2 Direction esthétique\nà remplir\n\n## 1. Tokens\n';
+const DS_FILLED = '# DESIGN-SYSTEM\nStatut : REMPLI\n\n## 0.1 Plateforme cible\nweb\n\n## 0.2 Direction esthétique\nBrutalisme éditorial, palette encre + craie\n\n## 0.3 Molettes\nvariance 6\n\n## 1. Tokens\n';
+
+// Pas de contrat du tout → deny
+check('front sans DESIGN-SYSTEM.md → deny',
+  denies(runHook('se-ui-contract-gate.cjs', editFront('src/components/Card.tsx'), repo)));
+
+// Contrat squelette → deny
+write(DS_PATH, DS_SKELETON);
+check('front avec contrat SQUELETTE → deny',
+  denies(runHook('se-ui-contract-gate.cjs', editFront('src/components/Card.tsx'), repo)));
+
+// Fichier non-front → silence même sans contrat valide
+check('fichier backend avec contrat SQUELETTE → laisse passer',
+  !denies(runHook('se-ui-contract-gate.cjs', {
+    tool_name: 'Write', tool_input: { file_path: path.join(repo, 'src/service.ts'), content: 'export const x = 1;\n' },
+  }, repo)));
+
+// Contrat rempli → pas de deny, et injection du craft-floor à la 1re édition de la session
+write(DS_PATH, DS_FILLED);
+const firstEdit = runHook('se-ui-contract-gate.cjs', { ...editFront('src/components/Card.tsx'), session_id: 's1' }, repo);
+check('contrat rempli → laisse passer', !denies(firstEdit));
+check('1re édition front de la session → craft-floor injecté',
+  !!firstEdit && /craft floor/i.test(firstEdit.additionalContext || ''));
+check('1re édition front → contrat §0 injecté aussi',
+  !!firstEdit && /Brutalisme éditorial/.test(firstEdit.additionalContext || ''));
+const secondEdit = runHook('se-ui-contract-gate.cjs', { ...editFront('src/components/Card.tsx'), session_id: 's1' }, repo);
+check('2e édition même session → rappel court, pas le craft-floor complet',
+  !!secondEdit && !/craft floor/i.test(secondEdit.additionalContext || '') && /RITUEL/i.test(secondEdit.additionalContext || ''));
+
+// Flag off → silence total
+write('.planning/config.json', JSON.stringify({ workflow: { ui_contract_gate: false } }));
+fs.rmSync(path.join(repo, DS_PATH));
+check('ui_contract_gate=false → laisse passer sans contrat',
+  !denies(runHook('se-ui-contract-gate.cjs', editFront('src/components/Card.tsx'), repo)));
+fs.rmSync(path.join(repo, '.planning', 'config.json'));
+write(DS_PATH, DS_FILLED);
+
+// ---------- se-ui-gate + ui-pass ----------
+console.log('se-ui-gate:');
+
+const UI_PASS = path.join(__dirname, '..', 'scripts', 'ui-pass.cjs');
+const runUiPass = (argv) => spawnSync(process.execPath, [UI_PASS, ...argv], { cwd: repo, encoding: 'utf8', timeout: 30000 });
+const CLEAN_TSX = 'export function StatRow({ label }: { label: string }) {\n  return <div className="flex gap-2 p-4">{label}</div>;\n}\n';
+const SLOPPY_TSX = 'export function Hero() {\n  return <h1 className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Bienvenue</h1>;\n}\n';
+
+// Fichier front stagé sans passe → deny
+write('src/components/StatRow.tsx', CLEAN_TSX);
+git('add src/components/StatRow.tsx');
+check('front stagé sans passe /se-ui → deny au commit',
+  denies(runHook('se-ui-gate.cjs', bash('git commit -m "x"'), repo)));
+
+// ui-pass refuse sans URL ou sans GO
+check('ui-pass record sans --url → refus (exit 1)',
+  runUiPass(['record', 'src/components/StatRow.tsx', '--go', 'GO']).status === 1);
+check('ui-pass record avec --go negatif → refus (exit 1)',
+  runUiPass(['record', 'src/components/StatRow.tsx', '--url', 'http://localhost:3000/stats', '--go', 'non pas encore']).status === 1);
+
+// ui-pass refuse d'enregistrer un fichier avec anti-patterns
+write('src/components/Hero.tsx', SLOPPY_TSX);
+check('ui-pass record sur fichier avec anti-patterns → refus (exit 1)',
+  runUiPass(['record', 'src/components/Hero.tsx', '--url', 'http://localhost:3000/', '--go', 'GO']).status === 1);
+fs.rmSync(path.join(repo, 'src/components/Hero.tsx'));
+
+// Passe valide enregistrée → le commit passe
+check('ui-pass record valide (url + GO) → exit 0',
+  runUiPass(['record', 'src/components/StatRow.tsx', '--url', 'http://localhost:3000/stats', '--go', 'GO nickel']).status === 0);
+check('front stagé avec passe valide → laisse passer',
+  !denies(runHook('se-ui-gate.cjs', bash('git commit -m "x"'), repo)));
+
+// Fichier re-modifié après la passe → hash périmé → deny
+write('src/components/StatRow.tsx', CLEAN_TSX + '// changed after pass\n');
+git('add src/components/StatRow.tsx');
+const staleDeny = runHook('se-ui-gate.cjs', bash('git commit -m "x"'), repo);
+check('fichier modifié depuis la passe → deny (hash périmé)', denies(staleDeny));
+check('le deny nomme la cause (modifié depuis la passe)',
+  !!staleDeny && /modifie depuis la passe/.test(staleDeny.permissionDecisionReason || ''));
+
+// Anti-patterns stagés → deny même avec une passe (le détecteur juge le contenu commité)
+git('reset -q');
+write('src/components/StatRow.tsx', CLEAN_TSX);
+write('src/components/Hero.tsx', SLOPPY_TSX);
+git('add src/components/Hero.tsx');
+const slopDeny = runHook('se-ui-gate.cjs', bash('git commit -m "x"'), repo);
+check('anti-patterns stagés → deny avec le nom de l\'anti-pattern',
+  denies(slopDeny) && /Gradient text|gradient/i.test(slopDeny.permissionDecisionReason || ''));
+git('reset -q');
+fs.rmSync(path.join(repo, 'src/components/Hero.tsx'));
+
+// commande non-commit → silence ; flag off → silence
+check('commande non-commit → laisse passer', !denies(runHook('se-ui-gate.cjs', bash('git status'), repo)));
+write('src/components/Hero.tsx', SLOPPY_TSX);
+git('add src/components/Hero.tsx');
+write('.planning/config.json', JSON.stringify({ workflow: { ui_commit_gate: false } }));
+check('ui_commit_gate=false → laisse passer malgré anti-patterns stagés',
+  !denies(runHook('se-ui-gate.cjs', bash('git commit -m "x"'), repo)));
+fs.rmSync(path.join(repo, '.planning', 'config.json'));
+git('reset -q');
+fs.rmSync(path.join(repo, 'src/components/Hero.tsx'));
+fs.rmSync(path.join(repo, 'src'), { recursive: true, force: true });
+
 // ---------- hors projet SE (pas de .planning/) : les 4 hooks se taisent ----------
 console.log('hors projet SE:');
 
@@ -168,6 +277,12 @@ check('secret-gate: repo sans .planning → laisse passer malgré un secret stag
   !denies(runHook('se-secret-gate.cjs', bash('git commit -m "x"'), alien)));
 check('slop-gate: repo sans .planning → laisse passer malgré du slop stagé',
   !denies(runHook('se-slop-gate.cjs', bash('git commit -m "x"'), alien)));
+check('ui-gate: repo sans .planning → laisse passer',
+  !denies(runHook('se-ui-gate.cjs', bash('git commit -m "x"'), alien)));
+check('ui-contract-gate: repo sans .planning → laisse passer un front sans contrat',
+  !denies(runHook('se-ui-contract-gate.cjs', {
+    tool_name: 'Write', tool_input: { file_path: path.join(alien, 'src/components/X.tsx'), content: 'export const X = () => null;\n' },
+  }, alien)));
 check('size-gate: repo sans .planning → laisse passer un STATE.md hors plafond',
   !denies(runHook('se-size-gate.cjs', {
     tool_name: 'Write', tool_input: { file_path: path.join(alien, 'STATE.md'), content: lines(CAP + 100) },

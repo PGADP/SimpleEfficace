@@ -53,6 +53,19 @@ function isSeProject(projectDir) {
   }
 }
 
+// Read a `workflow.*` toggle from the project's .planning/config.json. Single source for
+// every gate that can be turned off per project. Unreadable config = the default, never
+// a crash: a gate must decide on its own rules, not on a parse error.
+function seFlag(projectDir, name, fallback) {
+  try {
+    const cfg = JSON.parse(fs.readFileSync(path.join(projectDir, '.planning', 'config.json'), 'utf8'));
+    const value = (cfg.workflow || {})[name];
+    return typeof value === 'boolean' ? value : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 // ---- file-type heuristics (patterns, not hardcoded lists) ----
 
 function isSourceFile(filePath) {
@@ -61,6 +74,16 @@ function isSourceFile(filePath) {
 
 function isFrontFile(filePath) {
   return /\.(tsx|jsx|css|scss)$/.test(filePath) || /\/components?\//i.test(filePath);
+}
+
+// Stricter sibling of isFrontFile, for the BLOCKING gates. isFrontFile matches anything
+// under components/ — including a README.md or a fixture — which is fine for an advisory
+// reminder but would deny legitimate writes. Here we require actual front CODE.
+function isFrontCodeFile(filePath) {
+  const p = filePath.replace(/\\/g, '/');
+  if (/\.(test|spec|stories)\./.test(p)) return false; // tests and stories carry no design
+  if (/\.(tsx|jsx|css|scss)$/.test(p)) return true;
+  return /\/components?\//i.test(p) && /\.(ts|js)$/.test(p);
 }
 
 function isUserFacingFile(filePath) {
@@ -307,7 +330,7 @@ function runAll({ filePath, content, projectDir }) {
 }
 
 module.exports = {
-  runAll, isSeProject,
+  runAll, isSeProject, seFlag,
   detectSlop, detectUi, detectHardcode, detectHygiene, detectMonolith, detectSecurity, detectPlacement,
-  isSourceFile, isFrontFile, isUserFacingFile, toRepoRelative, designContractState,
+  isSourceFile, isFrontFile, isFrontCodeFile, isUserFacingFile, toRepoRelative, designContractState,
 };
