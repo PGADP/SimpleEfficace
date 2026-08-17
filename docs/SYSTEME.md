@@ -104,7 +104,7 @@ Un hook = script déclaré dans `settings.json`, lancé par le harness sur un é
 | **placement-guard** | `PostToolUse` Edit/Write | fichier `.md` de suivi | `.md` à la racine du repo, à la racine de `.planning/`, dans un dossier non déclaré, ou nom de rapport hors destination (`placement-rules.json`) | non (rappel) |
 | **secret-gate** | `PreToolUse` Bash (`git commit`) | secret dans le diff à commiter (`secret-patterns.json`) | refuse le commit (insensible au `--no-verify`) | **oui** |
 | **size-gate** | `PreToolUse` Edit/Write | STATE.md / ROADMAP.md | si dépasse le plafond → refuse + exige archivage | **oui** |
-| **ui-contract-gate** | `PreToolUse` Edit/Write | code front (`.tsx`/`.jsx`/`.css`) | refuse tant que DESIGN-SYSTEM.md §0 est absent ou squelette ; contrat rempli → injecte le craft-floor impeccable + le §0 du contrat à la 1ʳᵉ édition front de la session (`workflow.ui_contract_gate`) | **oui** |
+| **ui-contract-gate** | `PreToolUse` Edit/Write | code front (`.tsx`/`.jsx`/`.css`) | refuse tant que DESIGN-SYSTEM.md §0 (plateforme, public cible, direction, molettes) ou §2.1 (hiérarchie visuelle) est absent ou squelette ; contrat rempli → injecte le craft-floor impeccable + le §0 du contrat à la 1ʳᵉ édition front de la session (`workflow.ui_contract_gate`) | **oui** |
 | **ui-gate** | `PreToolUse` Bash (`git commit`) | fichiers front stagés | refuse si anti-patterns mesurés (détecteur impeccable sur le contenu stagé) OU passe `/se-ui` absente/périmée/sans GO humain (registre `.planning/design/ui-passes.json`, écrit par `scripts/ui-pass.cjs` seul, `workflow.ui_commit_gate`) | **oui** |
 
 L'archivage des phases shippées n'est pas un hook : c'est le skill **`/se-archive`** (confirmation humaine avant tout déplacement de dossier).

@@ -90,6 +90,12 @@ node ~/.claude/se/se.cjs update
 `update` tire la dernière version, réinstalle, rejoue les migrations de structure en attente et affiche les nouveautés du changelog entre ta version et la nouvelle. Il n'y a **rien à faire dans les projets** : ils utilisent le système global, ils sont à jour dès la commande terminée. Sur une autre machine, la même commande.
 
 ```bash
+cd mon-projet && node ~/.claude/se/se.cjs sync-project
+```
+
+`sync-project` rattrape un projet **créé avant** une évolution du scaffold : il ajoute les clés de config manquantes et insère les sections de contrat de design apparues depuis. Il n'écrase jamais un choix explicite (une gate coupée reste coupée, elle est seulement signalée). Nécessaire parce que `scaffold/` n'est copié qu'au `se init` : sans cette commande, un projet garde ses trous pour toujours.
+
+```bash
 node ~/.claude/se/se.cjs doctor    # quelque chose cloche ? diagnostic complet, exit 1 si problème
 ```
 
@@ -202,7 +208,7 @@ Six scripts que `se install` câble dans ton `settings.json` global, dont un dis
 | `size-gate` | écriture STATE/ROADMAP | refuse au-delà de 300 lignes | **oui** |
 | `slop-gate` | `git commit` | refuse le contenu généré non relu | **oui** |
 | `secret-gate` | `git commit` | refuse un secret dans le diff, malgré `--no-verify` | **oui** |
-| `ui-contract-gate` | écriture de code front | refuse tant que DESIGN-SYSTEM.md §0 n'est pas rempli ; injecte le plancher de qualité impeccable à la 1ʳᵉ édition front de la session | **oui** |
+| `ui-contract-gate` | écriture de code front | refuse tant que DESIGN-SYSTEM.md §0 et §2.1 (hiérarchie visuelle) ne sont pas remplis ; injecte le plancher de qualité impeccable à la 1ʳᵉ édition front de la session | **oui** |
 | `ui-gate` | `git commit` de fichiers front | refuse sans passe `/se-ui` validée : anti-patterns mesurés + GO humain avec URL (registre `ui-passes.json`) | **oui** |
 
 ```bash
@@ -314,7 +320,7 @@ Le dépôt (installé dans `~/.claude/se/`) porte le **système** ; chaque proje
 
 ```
 ~/.claude/se/               LE SYSTÈME — un exemplaire par machine
-├── se.cjs                  # CLI : install · update · init · doctor
+├── se.cjs                  # CLI : install · update · init · sync-project · doctor
 ├── VERSION · CHANGELOG.md  # semver + nouveautés affichées par update
 ├── migrations/             # scripts rejoués par update entre deux versions
 ├── hooks/                  # garde-fous .cjs + rules/*.json (critères en données)

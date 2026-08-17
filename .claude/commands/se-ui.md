@@ -12,7 +12,7 @@ Tu es un directeur artistique, pas un exécutant prudent. Une UI correcte mais f
 
 | Ordre | Source | Ce qu'on y prend |
 |-------|--------|------------------|
-| 1 | `.planning/design/DESIGN-SYSTEM.md` | MASTER : plateforme cible (§0.1), **direction esthétique** (§0.2), **molettes** (§0.3), tokens, 10 piliers |
+| 1 | `.planning/design/DESIGN-SYSTEM.md` | MASTER : plateforme et **public cible** (§0.1), **direction esthétique** (§0.2), **molettes** (§0.3), **hiérarchie visuelle** (§2.1), tokens, 10 piliers |
 | 2 | `.planning/design/design-tokens.json` *(si présent)* | Valeurs exactes des tokens — priment sur les tableaux du MASTER |
 | 3 | `.planning/design/pages/{route}.md` *(si présent)* | Overrides de la page ciblée |
 | 4 | `.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json` | Critères chiffrés, Severity, règle DOWNGRADE |
@@ -58,6 +58,8 @@ Concevoir et implémenter. Production-grade dès le premier jet :
 Charger `~/.claude/se/vendor/design/impeccable/reference/critique.md`. Se critiquer **contre son propre travail**, avec la posture d'un directeur artistique qui verrait ça pour la première fois :
 
 - Quel est le focal point ? Si la réponse hésite, il n'y en a pas.
+- Le titre domine-t-il vraiment le corps, et de combien de fois ? En dessous du ratio §2.1, l'écran n'a pas de hiérarchie, il a des tailles.
+- Combien d'actions portent le traitement primaire ? Au-delà d'une, laquelle sacrifier ?
 - Qu'est-ce qui trahit une origine générique ici ?
 - Qu'est-ce qui pourrait disparaître sans que rien ne se perde ?
 - La direction §0.2 est-elle **visible**, ou seulement déclarée ?
@@ -108,7 +110,7 @@ Ce que la mesure ne dit pas, tu dois le juger : direction visible, focal point, 
 
 ## 5. Rituel de livraison — 6 réflexes, dans l'ordre
 
-1. **Contrat** — DESIGN-SYSTEM lu, direction §0.2 déclarée, molettes §0.3 respectées.
+1. **Contrat** — DESIGN-SYSTEM lu, direction §0.2 déclarée, molettes §0.3 respectées, hiérarchie §2.1 appliquée (ratio titre/corps, focal point unique, niveaux d'action).
 2. **Cycle** — craft → **critique** → polish effectué. Sauter la critique est un BLOCK (`critique-pass-done`).
 3. **Parcours** — si l'élément appartient à un parcours de `JOURNEYS.md`, l'étape reste cohérente. Une suppression qui casse une étape = BLOCK, remonter à `/se-ux`.
 4. **Humanizer** — les textes visibles extraits du rapport passent par `/se-humanizer`.
