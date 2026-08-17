@@ -127,6 +127,26 @@ Les workflows GSD préfixent : `{phase}-{plan}-PLAN.md`, `{phase}-{plan}-SUMMARY
 - Code, noms de fichiers, commandes, termes techniques : **anglais**.
 - Commentaires de code : anglais.
 
-## 9. Stack par défaut (cf. SYSTEME.md §12)
+## 9. Modèle des agents (règle DURE)
+
+**Aucune règle globale de modèle.** Pas de `CLAUDE_CODE_SUBAGENT_MODEL` dans les settings : une variable d'environnement qui s'applique à tout downgrade en silence des agents dont la tâche demande du raisonnement.
+
+Chaque agent porte son modèle, à deux endroits qui doivent rester d'accord :
+
+- **Définition d'agent** (`~/.claude/agents/*.md`) : `model:` obligatoire dans le frontmatter.
+- **Skill qui spawne un agent générique** (sans `subagent_type` dédié) : `model` explicite dans l'appel au tool Agent.
+
+Pour les agents GSD, le modèle passé au spawn vient de `get-shit-done/bin/lib/model-profiles.cjs`, qui **écrase** le frontmatter. Ce fichier est patché par `gsd-patches/lib/` : toutes les colonnes de profil y portent la même valeur, donc aucun profil (`quality`, `balanced`, `budget`) ne peut downgrader un agent.
+
+Le choix du tier :
+
+| Tier | Quand | Exemples |
+|------|-------|----------|
+| `opus` | Décision, jugement, conception, audit, debug — le défaut | planner, plan-checker, roadmapper, executor, verifier, debugger, researchers, ui-*, sous-agents de `/se-review` |
+| `sonnet` | Travail mécanique : exploration en volume, agrégation d'output déjà produit, scoring sur grille fixe | codebase-mapper, research-synthesizer, user-profiler |
+
+`haiku` n'est le modèle d'aucun agent. Un agent absent de la table retombe sur `sonnet`, jamais plus bas.
+
+## 10. Stack par défaut (cf. SYSTEME.md §12)
 
 Next.js 15 · React 19 · TS strict · Tailwind · Railway · Postgres (Railway/Supabase) · Prisma · Vitest · Playwright (E2E/visuel) · Zod · Auth Supabase ou BetterAuth.
