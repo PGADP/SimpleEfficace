@@ -89,6 +89,35 @@ check('exception ignorée sur dimension non négociable (accessibility)', verdic
 findings = judge(RULES, casse, { overflow: 'tableau large assumé' });
 check('exception ignorée sur dimension non downgradeable (visuals)', verdictOf(findings, 'overflow') === 'BLOCK');
 
+// Ces deux règles se testent contre le VRAI fichier de critères, pas contre un fixture :
+// c'est leur présence et leur sévérité réelles qu'on vérifie, pas seulement le moteur.
+console.log('\n== hiérarchie visuelle : règles réelles de rules/ui-rules.json ==');
+const REAL_RULES = require('../rules/ui-rules.json');
+const hierReport = (hierarchy) => [{ meta: { breakpoint: 'desktop' }, hierarchy }];
+
+findings = judge(REAL_RULES, hierReport({ titleToBodyRatio: 1.3, bodySizePx: 16, topHeadingSizePx: 21 }), {});
+check('titre à peine plus gros que le corps → BLOCK', verdictOf(findings, 'hierarchy-title-dominance') === 'BLOCK');
+check('le ratio mesuré est remonté', findings.find((f) => f.slug === 'hierarchy-title-dominance').measured === 1.3);
+
+findings = judge(REAL_RULES, hierReport({ titleToBodyRatio: 1.8 }), {});
+check('titre nettement dominant → pas de BLOCK', verdictOf(findings, 'hierarchy-title-dominance') === 'PASS');
+
+findings = judge(REAL_RULES, hierReport({ titleToBodyRatio: null, accentActionCount: null }), {});
+check('écran sans titre mesurable → SKIPPED, jamais BLOCK', verdictOf(findings, 'hierarchy-title-dominance') === 'SKIPPED');
+check('accent non résolu → single-primary-action SKIPPED', verdictOf(findings, 'single-primary-action') === 'SKIPPED');
+
+findings = judge(REAL_RULES, [
+  { meta: { breakpoint: 'desktop' }, hierarchy: { titleToBodyRatio: 1.9 } },
+  { meta: { breakpoint: 'mobile' }, hierarchy: { titleToBodyRatio: 1.2 } },
+], {});
+check('hiérarchie qui s\'écrase sur mobile seul → BLOCK', verdictOf(findings, 'hierarchy-title-dominance') === 'BLOCK');
+
+findings = judge(REAL_RULES, hierReport({ accentActionCount: 3, accentActions: ['button.cta', 'a.buy', 'button.demo'] }), {});
+check('trois actions accent sur un écran → FLAG', verdictOf(findings, 'single-primary-action') === 'FLAG');
+
+findings = judge(REAL_RULES, hierReport({ accentActionCount: 1, accentActions: ['button.cta'] }), {});
+check('une seule action accent → PASS', verdictOf(findings, 'single-primary-action') === 'PASS');
+
 console.log('\n== CLI : code de sortie ==');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'se-uiverdict-'));
 const reportDir = path.join(tmp, '_ui');

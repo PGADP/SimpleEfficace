@@ -1,8 +1,8 @@
 // TEMPLATE — le runner de vérification UI du système SIMPLE & EFFICACE.
 // À copier en tests/e2e/ui-verify.spec.ts au 1er besoin de checkpoint visuel.
 //
-// UN runner pour tout : captures, accessibilité, styles calculés, mouvement,
-// performance, textes visibles. Pas un script par dimension.
+// UN runner pour tout : captures, accessibilité, styles calculés, hiérarchie,
+// mouvement, performance, textes visibles. Pas un script par dimension.
 //
 // Produit, par breakpoint, un `ui-report.<breakpoint>.json` que
 // `$HOME/.claude/se/scripts/ui-verdict.cjs` croise avec les règles UI (`.planning/rules/ui-rules.json` du projet s'il existe, sinon `~/.claude/se/rules/ui-rules.json`) pour rendre
@@ -115,6 +115,13 @@ async function collectFromDom(page: Page, accentVar: string) {
       const families = new Map<string, string>();
       let bodyLineHeightRatio: number | null = null;
 
+      // Hiérarchie : la taille du titre dominant et celle du corps réel, pour mesurer leur
+      // rapport de force. Un écran peut respecter « ≤ 4 tailles » et rester illisible si
+      // ces 4 tailles sont 16/17/18/20 — c'est le ratio qui dit où l'œil se pose.
+      const bodySizeCounts = new Map<number, number>();
+      let topHeadingSize: number | null = null;
+      let topHeading: string | null = null;
+
       for (const el of all) {
         if (!hasOwnText(el)) continue;
         const cs = getComputedStyle(el);
@@ -125,12 +132,29 @@ async function collectFromDom(page: Page, accentVar: string) {
         if (!weights.has(weight)) weights.set(weight, describe(el));
         if (family && !families.has(family)) families.set(family, describe(el));
 
+        if (size >= bodyRange[0] && size <= bodyRange[1]) {
+          bodySizeCounts.set(size, (bodySizeCounts.get(size) || 0) + 1);
+        }
+        if ((/^H[1-6]$/.test(el.tagName) || el.getAttribute('role') === 'heading') && size > (topHeadingSize ?? 0)) {
+          topHeadingSize = size;
+          topHeading = describe(el);
+        }
+
         // The most-used size below 20px stands in for body copy.
         if (size >= bodyRange[0] && size <= bodyRange[1] && bodyLineHeightRatio === null) {
           const lh = parseFloat(cs.lineHeight);
           if (!Number.isNaN(lh)) bodyLineHeightRatio = round(lh / size);
         }
       }
+
+      // Corps de texte = la taille la plus répandue dans la plage, pas la première croisée :
+      // une légende isolée à 12px ne doit pas servir de référence au ratio.
+      let bodySizePx: number | null = null;
+      let bodySizeHits = 0;
+      for (const [size, hits] of bodySizeCounts) {
+        if (hits > bodySizeHits) { bodySizeHits = hits; bodySizePx = size; }
+      }
+      const titleToBodyRatio = topHeadingSize !== null && bodySizePx ? round(topHeadingSize / bodySizePx) : null;
 
       const sortedSizes = [...sizes.keys()].sort((a, b) => a - b);
       const adjacentSizesTooClose: string[] = [];
@@ -209,6 +233,21 @@ async function collectFromDom(page: Page, accentVar: string) {
         }
       }
 
+      // --- Actions primaires -----------------------------------------------
+      // L'accent est réservé au CTA primaire (cf. DESIGN-SYSTEM §1). Compter les contrôles
+      // qui le portent en fond donne le nombre d'actions primaires réellement rendues.
+      // Sans token d'accent résolu, on ne compte rien : la métrique reste absente et la
+      // règle passe en SKIPPED plutôt que de mentir.
+      const accentActions: string[] = [];
+      if (accentRgb) {
+        for (const el of Array.from(document.querySelectorAll(interactiveSelector))) {
+          if (!isVisible(el)) continue;
+          const parsed = parseColor(getComputedStyle(el).backgroundColor);
+          if (!parsed || parsed[3] === 0) continue;
+          if (`${parsed[0]},${parsed[1]},${parsed[2]}` === accentRgb) accentActions.push(describe(el));
+        }
+      }
+
       // --- Layout ----------------------------------------------------------
       const docWidth = document.documentElement.clientWidth;
       const horizontalOverflow: string[] = [];
@@ -261,6 +300,14 @@ async function collectFromDom(page: Page, accentVar: string) {
           families: [...families.keys()],
           bodyLineHeightRatio,
           adjacentSizesTooClose: sample(adjacentSizesTooClose),
+        },
+        hierarchy: {
+          topHeading,
+          topHeadingSizePx: topHeadingSize,
+          bodySizePx,
+          titleToBodyRatio,
+          accentActionCount: accentRgb ? accentActions.length : null,
+          accentActions: accentRgb ? sample(accentActions) : null,
         },
         spacing: {
           offGridValues: sample([...offGrid.values()]),

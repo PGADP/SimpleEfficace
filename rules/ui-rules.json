@@ -65,6 +65,36 @@
       "dont": "Laisser l'executor deviner la priorité visuelle"
     },
     {
+      "slug": "hierarchy-title-dominance",
+      "pillar": "visuals",
+      "severity": "BLOCK",
+      "verifiedBy": "measured",
+      "check": {
+        "metric": "hierarchy.titleToBodyRatio",
+        "op": "gte",
+        "value": 1.6
+      },
+      "norm": "Titre dominant de l'écran ≥ 1.6× le corps de texte réellement rendu",
+      "do": "h1 à 32px sur un corps à 18px (ratio 1.8) — l'œil sait où se poser en arrivant",
+      "dont": "h1 à 20px sur un corps à 18px : quatre tailles conformes, aucune hiérarchie",
+      "source": "DESIGN-SYSTEM.md §2.1 — le plancher du projet s'inscrit dans .planning/rules/ui-rules.json s'il est plus strict"
+    },
+    {
+      "slug": "single-primary-action",
+      "pillar": "visuals",
+      "severity": "FLAG",
+      "verifiedBy": "measured",
+      "check": {
+        "metric": "hierarchy.accentActionCount",
+        "op": "lte",
+        "value": 1
+      },
+      "norm": "Une seule action au traitement primaire (fond accent) par écran",
+      "do": "Un bouton accent, les alternatives en secondaire (contour) ou tertiaire (texte seul)",
+      "dont": "Deux boutons accent côte à côte : l'utilisateur arbitre à la place du produit",
+      "source": "DESIGN-SYSTEM.md §2.1 — FLAG et non BLOCK car un état actif (onglet, item de nav) porte légitimement l'accent"
+    },
+    {
       "slug": "icon-label-fallback",
       "pillar": "visuals",
       "severity": "BLOCK",
