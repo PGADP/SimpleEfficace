@@ -103,9 +103,14 @@ check('fichier hooks/ exclu du security-guard',
     projectDir: root,
   }).find((f) => f.id === 'ui-guard')?.message || '';
 
-  const REMPLI = `# DESIGN-SYSTEM\n\n## 0.1 Plateforme cible\n| Plateforme principale | web |\n\n## 0.2 Direction esthétique\n| Nom de la direction | éditorial suisse |\n\n## 0.3 Molettes\n| DESIGN_VARIANCE | 4 |\n\n## 1. Tokens\n`;
+  // §2.1 se termine par un `## 3.` : sans borne, la section avalerait tout ce qui suit
+  // (et le test « tokens à remplir » ci-dessous ajoute justement du texte à la fin).
+  const HIERARCHIE = `\n## 2.1 Hiérarchie visuelle\n| Ratio titre principal / corps | 1.8 |\n| Primaire | fond accent plein |\n\n## 3. Espacement\n`;
+  const SANS_HIERARCHIE = `# DESIGN-SYSTEM\n\n## 0.1 Plateforme cible\n| Plateforme principale | web |\n| Public cible | seniors 65+ |\n\n## 0.2 Direction esthétique\n| Nom de la direction | éditorial suisse |\n\n## 0.3 Molettes\n| DESIGN_VARIANCE | 4 |\n\n## 1. Tokens\n`;
+  const REMPLI = SANS_HIERARCHIE + HIERARCHIE;
   const SQUELETTE = `# DESIGN-SYSTEM\n> Statut : SQUELETTE — à remplir au premier projet réel.\n\n## 0.1 Plateforme cible\n| Plateforme principale | *(à remplir)* |\n\n## 0.2 Direction esthétique\n| Nom de la direction | *(à remplir)* |\n\n## 1. Tokens\n`;
-  const DIRECTION_MANQUANTE = `# DESIGN-SYSTEM\n\n## 0.1 Plateforme cible\n| Plateforme principale | web |\n\n## 0.2 Direction esthétique\n| Nom de la direction | *(à remplir)* |\n\n## 1. Tokens\n`;
+  const DIRECTION_MANQUANTE = `# DESIGN-SYSTEM\n\n## 0.1 Plateforme cible\n| Plateforme principale | web |\n\n## 0.2 Direction esthétique\n| Nom de la direction | *(à remplir)* |\n\n## 1. Tokens\n` + HIERARCHIE;
+  const HIERARCHIE_VIDE = SANS_HIERARCHIE + `\n## 2.1 Hiérarchie visuelle\n| Ratio titre principal / corps | *(à remplir, plancher ≥ 1.6)* |\n\n## 3. Espacement\n`;
 
   check('DS rempli → ui-guard rappelle le rituel normal',
     uiMsg(fakeProject(REMPLI)).includes('Rituel /se-ui'));
@@ -122,8 +127,25 @@ check('fichier hooks/ exclu du security-guard',
   check('projet sans DESIGN-SYSTEM.md → rituel normal, aucune erreur',
     uiMsg(fsd.mkdtempSync(pathd.join(osd.tmpdir(), 'se-nods-'))).includes('Rituel /se-ui'));
 
-  check('tokens à remplir mais §0 complet → PAS considéré comme squelette',
+  check('tokens à remplir mais §0 et §2.1 complets → PAS considéré comme squelette',
     !designContractStateExport(fakeProject(REMPLI + '| --color-accent | (à remplir) |\n')).isSkeleton);
+
+  // --- Hiérarchie visuelle (§2.1) : le trou qui a laissé passer 3 écrans mal hiérarchisés ---
+
+  check('§2.1 absente (contrat écrit avant la règle) → squelette',
+    designContractStateExport(fakeProject(SANS_HIERARCHIE)).isSkeleton);
+
+  check('§2.1 absente → ui-guard nomme la section manquante',
+    uiMsg(fakeProject(SANS_HIERARCHIE)).includes('§2.1 hiérarchie visuelle'));
+
+  check('§2.1 présente mais pas remplie → squelette',
+    designContractStateExport(fakeProject(HIERARCHIE_VIDE)).isSkeleton);
+
+  check('§2.1 remplie + §0 complet → contrat valide',
+    !designContractStateExport(fakeProject(REMPLI)).isSkeleton);
+
+  check('§2.1 ne déborde pas sur la section suivante',
+    !designContractStateExport(fakeProject(REMPLI + '\n## 4. Composants\n*(à remplir)*\n')).isSkeleton);
 }
 
 // --- DÉTECTION PROJET SE (isSeProject) ---

@@ -36,6 +36,7 @@ Détermine quel corpus de conventions fait foi. Les agents chargent **un seul** 
 |-------|--------|
 | Plateforme principale | *(à remplir : `web` \| `macos` \| `ios` \| `ipados` \| `android` \| `watchos` \| `visionos` \| `tvos`)* |
 | Plateformes secondaires | *(ou `aucune`)* |
+| Public cible | *(à remplir : tranche d'âge, aisance numérique, contexte d'usage)* |
 | Règles de référence | `~/.claude/se/vendor/design/platform-design-skills/skills/<plateforme>/rules/_sections.md` |
 
 Ce que ça change concrètement :
@@ -45,6 +46,14 @@ Ce que ça change concrètement :
 - **`ios` / `android`** — cibles tactiles ≥ 44pt, gestes natifs, navigation propre à la plateforme, HIG (Liquid Glass) ou Material 3 Expressive.
 
 En multi-plateforme, la règle **la plus stricte** l'emporte sur chaque critère ; toute divergence assumée s'inscrit en section 6.
+
+**Le public cible durcit les planchers, il ne les assouplit jamais.** Un public non déclaré fait
+concevoir pour soi-même, c'est-à-dire pour un développeur de 30 ans sur un écran 27 pouces.
+Contraintes à inscrire ici quand elles s'appliquent, puis à reporter en §2 et §2.1 :
+
+- **Seniors / faible aisance numérique** — plancher de corps 18px (pas 14), contraste AAA sur le corps de texte, cibles ≥ 48px, aucune action en icône seule, libellés en langage courant (jamais un terme technique exposé), retour arrière visible sur chaque écran.
+- **Usage mobile en mobilité** — une action primaire par écran atteignable au pouce, pas de survol porteur d'information.
+- **Usage expert répété** — densité assumée, raccourcis clavier, `VISUAL_DENSITY` ≥ 7.
 
 ## 0.2 Direction esthétique (à déclarer AVANT le premier composant)
 
@@ -101,6 +110,41 @@ Répartition couleur : **60 / 30 / 10** (dominant / secondaire / accent) déclar
 - Pairing : contraste d'axe (serif+sans, ou géométrique+humaniste), jamais 2 sans proches.
 - `text-wrap: balance` sur h1–h3 ; `text-wrap: pretty` sur prose longue.
 - Letter-spacing display : ≥ -0.04em (pas plus serré).
+
+## 2.1 Hiérarchie visuelle (qui domine, et de combien)
+
+La §2 déclare les tailles **disponibles**. Cette section déclare leur **rapport de force**. Sans
+elle, chaque agent invente sa propre échelle : trois écrans conçus séparément sortent avec trois
+hiérarchies différentes, et aucun n'est en faute puisque le contrat est muet.
+
+| Règle | Valeur | Pourquoi |
+|-------|--------|----------|
+| Ratio titre principal / corps | *(à remplir, plancher ≥ 1.6)* | En dessous, l'œil ne sait pas où se poser en arrivant |
+| Écart entre deux niveaux de titre | ≥ 1.25 | 20px et 22px se lisent comme une seule taille |
+| Focal point par écran | 1, nommé explicitement | Deux focal points, c'est zéro focal point |
+| Actions primaires par écran | 1 | La deuxième dilue la première |
+
+Le focal point se **nomme** avant de coder : « sur cet écran, l'œil doit tomber sur X ». S'il faut
+hésiter pour répondre, l'écran n'en a pas.
+
+### Hiérarchie des actions
+
+Trois niveaux, jamais plus. Un bouton qui n'entre dans aucun de ces niveaux n'existe pas.
+
+| Niveau | Traitement | Quand l'employer |
+|--------|------------|------------------|
+| Primaire | *(à remplir : fond accent plein)* | L'action que l'écran existe pour provoquer. **Une seule par écran.** |
+| Secondaire | *(à remplir : contour, ou surface sans accent)* | Alternative légitime au primaire, sur le même écran |
+| Tertiaire | *(à remplir : texte seul, souligné au focus)* | Sortie, annulation, retour arrière |
+
+Deux boutons de même poids visuel côte à côte forcent l'utilisateur à arbitrer à la place du
+produit. Si les deux comptent autant, c'est la page qui est mal découpée.
+
+### Sortie obligatoire
+
+Tout écran qui présente un changement de contexte ou une action irréversible offre un **retour
+arrière de niveau tertiaire**, visible sans survol. Une carte ou une vue dans laquelle on entre
+sans pouvoir ressortir est un piège, pas une navigation.
 
 ## 3. Espacement (grille 4px)
 

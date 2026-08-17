@@ -103,8 +103,9 @@ process.stdin.on('end', () => {
         'ui-contract-gate: aucun contrat de design. `.planning/design/DESIGN-SYSTEM.md` est introuvable, ' +
         'et on n\'ecrit pas de front sans direction declaree — c\'est ce qui produit les UI generiques ' +
         'et les boucles de correction sans fin.\n' +
-        'AVANT TOUTE CHOSE : creer le contrat et le remplir AVEC L\'HUMAIN (§0.1 plateforme, §0.2 direction ' +
-        'esthetique, §0.3 molettes). Gabarit : "$HOME/.claude/se/scaffold/.planning/design/DESIGN-SYSTEM.md". ' +
+        'AVANT TOUTE CHOSE : creer le contrat et le remplir AVEC L\'HUMAIN (§0.1 plateforme et public cible, ' +
+        '§0.2 direction esthetique, §0.3 molettes, §2.1 hierarchie visuelle). ' +
+        'Gabarit : "$HOME/.claude/se/scaffold/.planning/design/DESIGN-SYSTEM.md". ' +
         'Le choix de la direction est humain, jamais celui de l\'agent — proposer 2-3 directions argumentees ' +
         'via /se-ui, puis faire trancher.\n' +
         'Echappatoire assumee : `workflow.ui_contract_gate: false` dans .planning/config.json.'
@@ -118,6 +119,10 @@ process.stdin.on('end', () => {
         'AVANT TOUTE CHOSE : remplir ces sections de `.planning/design/DESIGN-SYSTEM.md` avec l\'humain. ' +
         'Sans direction, la gate visuelle de fin de phase BLOQUERA et tout le travail sera a refaire.\n' +
         'Proposer 2-3 directions argumentees (avec anti-reference), faire trancher l\'humain, inscrire le choix en §0.2.\n' +
+        'Si §2.1 manque : la section n\'existe pas encore dans ce contrat (ecrit avant la regle). La copier depuis ' +
+        'le gabarit et l\'ancrer sur le public cible de §0.1 — ratio titre/corps, focal point unique, ' +
+        'hierarchie primaire/secondaire/tertiaire des actions. C\'est la section dont l\'absence laisse trois ecrans ' +
+        'sortir avec trois echelles differentes sans qu\'aucune gate ne bronche.\n' +
         'Echappatoire assumee : `workflow.ui_contract_gate: false` dans .planning/config.json.'
       );
     }

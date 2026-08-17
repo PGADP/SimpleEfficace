@@ -158,7 +158,7 @@ const editFront = (rel) => ({
 });
 const DS_PATH = '.planning/design/DESIGN-SYSTEM.md';
 const DS_SKELETON = '# DESIGN-SYSTEM\nStatut : SQUELETTE\n\n## 0.1 Plateforme cible\nà remplir\n\n## 0.2 Direction esthétique\nà remplir\n\n## 1. Tokens\n';
-const DS_FILLED = '# DESIGN-SYSTEM\nStatut : REMPLI\n\n## 0.1 Plateforme cible\nweb\n\n## 0.2 Direction esthétique\nBrutalisme éditorial, palette encre + craie\n\n## 0.3 Molettes\nvariance 6\n\n## 1. Tokens\n';
+const DS_FILLED = '# DESIGN-SYSTEM\nStatut : REMPLI\n\n## 0.1 Plateforme cible\nweb, seniors 65+\n\n## 0.2 Direction esthétique\nBrutalisme éditorial, palette encre + craie\n\n## 0.3 Molettes\nvariance 6\n\n## 1. Tokens\n\n## 2.1 Hiérarchie visuelle\nratio titre/corps 1.8, une action primaire par écran\n\n## 3. Espacement\ngrille 4px\n';
 
 // Pas de contrat du tout → deny
 check('front sans DESIGN-SYSTEM.md → deny',
@@ -174,6 +174,13 @@ check('fichier backend avec contrat SQUELETTE → laisse passer',
   !denies(runHook('se-ui-contract-gate.cjs', {
     tool_name: 'Write', tool_input: { file_path: path.join(repo, 'src/service.ts'), content: 'export const x = 1;\n' },
   }, repo)));
+
+// §0 complet mais §2.1 absente : c'est l'état de tout contrat écrit avant la règle, et
+// celui qui a laissé trois écrans sortir avec trois hiérarchies différentes.
+write(DS_PATH, DS_FILLED.replace(/## 2\.1[\s\S]*?(?=## 3\.)/, ''));
+const sansHierarchie = runHook('se-ui-contract-gate.cjs', editFront('src/components/Card.tsx'), repo);
+check('contrat sans §2.1 hiérarchie → deny', denies(sansHierarchie));
+check('le deny nomme §2.1', /2\.1/.test(sansHierarchie?.permissionDecisionReason || ''));
 
 // Contrat rempli → pas de deny, et injection du craft-floor à la 1re édition de la session
 write(DS_PATH, DS_FILLED);

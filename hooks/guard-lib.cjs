@@ -128,8 +128,19 @@ function detectSlop({ filePath, content }) {
   }];
 }
 
-// Le contrat de design est-il encore un squelette ? On ne regarde que §0 (plateforme,
-// direction, molettes) : les tokens se raffinent en cours de route, la direction non.
+/** Contenu d'une section `## <num>` jusqu'au prochain titre de niveau 2. null si absente. */
+function sectionSlice(md, num) {
+  const start = new RegExp(`^##\\s+${num.replace(/\./g, '\\.')}(?![\\d.])`, 'm').exec(md);
+  if (!start) return null;
+  const rest = md.slice(start.index + start[0].length);
+  const next = /^##\s/m.exec(rest);
+  return next ? rest.slice(0, next.index) : rest;
+}
+
+// Le contrat de design est-il encore un squelette ? On regarde §0 (plateforme, direction,
+// molettes) et §2.1 (hiérarchie) : les tokens se raffinent en cours de route, la direction
+// et les rapports de force non. §2.1 est là parce qu'un contrat muet sur la hiérarchie
+// laisse chaque agent inventer la sienne, et rien en aval ne rattrape ça.
 // Renvoie null quand le fichier est illisible — on ne prétend rien de ce qu'on n'a pas lu.
 function designContractState(projectDir) {
   if (!projectDir) return null;
@@ -143,6 +154,10 @@ function designContractState(projectDir) {
   const missing = [];
   if (/^##\s+0\.1[\s\S]*?à remplir/m.test(section0)) missing.push('§0.1 plateforme cible');
   if (/^##\s+0\.2[\s\S]*?à remplir/m.test(section0)) missing.push('§0.2 direction esthétique');
+  // Section absente = contrat écrit avant que la règle existe : même verdict que non remplie,
+  // sinon les projets déjà démarrés gardent le trou pour toujours.
+  const hierarchy = sectionSlice(ds, '2.1');
+  if (hierarchy === null || /à remplir/.test(hierarchy)) missing.push('§2.1 hiérarchie visuelle');
   return { isSkeleton: /Statut\s*:\s*SQUELETTE/i.test(ds) || missing.length > 0, missing };
 }
 
@@ -161,7 +176,7 @@ function detectUi({ filePath, projectDir }) {
 
   return [{
     id: 'ui-guard',
-    message: 'Edition front detectee. Rituel /se-ui : (1) contrat DESIGN-SYSTEM.md — plateforme §0.1, direction §0.2, molettes §0.3 — + ui-rules.json, (2) cycle craft -> CRITIQUE -> polish, la critique n\'est pas optionnelle, (3) coherence parcours JOURNEYS.md, (4) textes UI via /se-humanizer, (5) mesure : ui-verify.spec.ts puis node scripts/ui-verdict.cjs avant livraison.',
+    message: 'Edition front detectee. Rituel /se-ui : (1) contrat DESIGN-SYSTEM.md — plateforme et public cible §0.1, direction §0.2, molettes §0.3, hierarchie §2.1 — + ui-rules.json, (2) cycle craft -> CRITIQUE -> polish, la critique n\'est pas optionnelle, (3) coherence parcours JOURNEYS.md, (4) textes UI via /se-humanizer, (5) mesure : ui-verify.spec.ts puis node scripts/ui-verdict.cjs avant livraison.',
   }];
 }
 
