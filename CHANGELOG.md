@@ -3,6 +3,23 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.5.0] - 2026-08-17
+
+Le contrat de design ne disait rien de la hiérarchie visuelle. Trois écrans conçus par trois agents sont sortis avec trois échelles différentes sans qu'aucun ne soit en faute, et neuf défauts sont arrivés jusqu'à l'humain. Les garde-fous avaient bien tourné : le plancher de qualité avait été injecté, la gate de contrat avait laissé passer. Un garde-fou ne rattrape pas un contrat muet.
+
+### Ajouté
+- **§2.1 Hiérarchie visuelle dans `DESIGN-SYSTEM.md`** : ratio titre principal / corps (plancher 1.6), écart minimal entre deux niveaux de titre, focal point unique et nommé, hiérarchie des actions en trois niveaux (primaire / secondaire / tertiaire) avec leurs règles d'emploi, et sortie obligatoire sur tout écran à changement de contexte. `designContractState` la traite comme §0.1 et §0.2 : absente ou marquée « à remplir », le contrat est un squelette et `ui-contract-gate` refuse l'écriture front.
+- **Champ « public cible » en §0.1** : tranche d'âge, aisance numérique, contexte d'usage. Il durcit les planchers et ne les assouplit jamais (public senior : corps 18px, contraste AAA, cibles 48px, aucune action en icône seule).
+- **Règle mesurée `hierarchy-title-dominance` (BLOCK)** : le titre dominant de l'écran doit faire au moins 1.6× le corps de texte réellement rendu. Un écran peut respecter « ≤ 4 tailles » et rester illisible si ces quatre tailles sont 16/17/18/20 — c'est le rapport de force qui dit où l'œil se pose, pas le nombre de tailles.
+- **Règle mesurée `single-primary-action` (FLAG)** : compte les contrôles portant l'accent en fond. FLAG et non BLOCK, parce qu'un onglet ou un item de nav actif porte légitimement l'accent.
+- **Bloc `hierarchy` dans le runner `ui-verify`** : titre dominant et sa taille, taille de corps la plus répandue (mode, pas première occurrence), ratio des deux, actions accent. Sans token d'accent résolu, la métrique reste absente et la règle passe en SKIPPED plutôt que de mentir.
+- **Étape `ui_plan_protocol` dans `gsd-executor`** : sur un plan `ui: true` (ou dès qu'un fichier front est touché, la frontmatter pouvant précéder la règle), la conception passe par `Skill(se-ui)`. Improviser un cycle craft → critique → polish équivalent est explicitement interdit : le rapport est indiscernable d'une vraie passe alors qu'il saute le contrat, les 10 piliers et la mesure.
+- **Frontmatter `ui` et section « Front Plans » dans `gsd-planner`** : un plan front sans contrat de design ne doit pas entrer en exécution, et chaque plan front se termine par une tâche de passe design non optionnelle.
+- **Commande `se sync-project`** : rattrape un projet créé avant une évolution du scaffold — clés de config manquantes ajoutées, §2.1 insérée dans le contrat de design à sa place (entre §2 et §3). N'écrase jamais un choix explicite : une gate coupée reste coupée, elle est seulement signalée. `scaffold/` n'étant copié qu'au `se init`, sans cette commande un projet gardait ses trous pour toujours.
+
+### Modifié
+- `se-guard.test.cjs` 51 → 58 tests, `se-gates.test.cjs` 44 → 46, `ui-verdict.test.cjs` 39 → 47, `se.test.cjs` 42 → 54.
+
 ## [1.4.0] - 2026-08-17
 
 ### Modifié
