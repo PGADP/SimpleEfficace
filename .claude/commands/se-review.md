@@ -48,6 +48,8 @@ Trouve la phase courante : `.planning/STATE.md` la nomme ; à défaut, prends le
 
 Lance les deux dans le **même message** pour qu'ils tournent en parallèle. Ils ne partagent pas de contexte : c'est voulu, chacun doit juger sans être influencé par les trouvailles de l'autre.
 
+**Modèle imposé : `model: "opus"` sur les deux appels.** Juger un diff demande du raisonnement, pas du pattern matching. Un modèle plus petit rend un rapport plausible qui rate les vraies violations, et un rapport de review faux coûte plus cher que pas de review du tout.
+
 ### Sous-agent Standards
 
 Lui passer : la commande de diff et la liste des commits, les fichiers de conventions du dépôt (`CLAUDE.md`, `CONVENTIONS.md`, `.eslintrc`, `.prettierrc`), et **la base Fowler ci-dessous collée en entier** (il n'y a pas accès autrement).

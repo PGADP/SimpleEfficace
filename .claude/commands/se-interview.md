@@ -16,7 +16,7 @@ La **frontière**, ce sont les décisions dont les prérequis sont déjà régl�
 
 Chaque round de réponses redessine l'arbre : ce qui vient d'être tranché repousse la frontière et débloque des questions qui en dépendaient. Recalcule la frontière, pose le round suivant. Une question dont la réponse dépend d'une autre question du round en cours appartient au round **suivant**, pas à celui-ci.
 
-**Les faits sont ton travail.** Une question de la frontière qui attend un fait de l'environnement (dépôt, fichiers, commandes, web) part en sous-agent. Ne bloque pas dessus : une recherche en cours est un prérequis non réglé, donc seules les questions qui en dépendent attendent son retour. Pose le reste de la frontière maintenant.
+**Les faits sont ton travail.** Une question de la frontière qui attend un fait de l'environnement (dépôt, fichiers, commandes, web) part en sous-agent, avec `model: "sonnet"` pour une recherche mécanique (retrouver un fichier, lire une valeur, vérifier une commande) et `model: "opus"` dès qu'il faut juger ou synthétiser. Ne bloque pas dessus : une recherche en cours est un prérequis non réglé, donc seules les questions qui en dépendent attendent son retour. Pose le reste de la frontière maintenant.
 
 **Les décisions sont les siennes.** Tu recommandes, il tranche. Tu ne réponds jamais à ta propre question pour avancer.
 

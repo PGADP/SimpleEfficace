@@ -38,7 +38,7 @@ Si l'argument est déjà clair → spawn direct.
 
 ### 3. Spawn le sous-agent `researcher`
 
-Utilise le tool Agent avec `subagent_type: "researcher"`. Le prompt d'invocation doit contenir :
+Utilise le tool Agent avec `subagent_type: "researcher"` et `model: "opus"`. Le prompt d'invocation doit contenir :
 
 - **Question reformulée propre** (1 phrase)
 - **Mode** si l'utilisateur l'a précisé (`quick` ou `deep`). Sinon laisse le sous-agent demander.
