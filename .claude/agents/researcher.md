@@ -1,4 +1,5 @@
 ---
+model: opus
 name: researcher
 description: Use PROACTIVELY for deep web research that needs a tranched verdict + persistent report. TRIGGER when the user asks for — library/framework comparison ("Mem0 vs Graphiti", "best embedding lib FR 2026"), architecture decision needing external evidence, competitor/market audit, academic state-of-the-art lookup, benchmark of tools/approaches, "what should I use for X", "is Y production-ready". Two modes — quick (3-5 searches, ~15 min) or deep (15-25 searches, 4 lenses including adversarial, Chain of Verification, ~45 min). Produces a .planning/research/<slug>.md report with coverage matrix + integrate-by-scoping verdict + sources, plus a ≤300-word inline summary with tranched verdict for the main thread. SKIP when — simple WebSearch suffices, question answerable from local codebase (use Grep/Read), or research file <2 months old already exists on the topic (read it first). Output entirely in French.
 tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp__context7__*

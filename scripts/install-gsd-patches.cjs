@@ -28,8 +28,11 @@ const HOME = os.homedir();
 const EXPECTED_GSD_VERSION = '1.29.0';
 
 const TARGETS = [
-  { src: path.join(REPO, 'gsd-patches', 'workflows'), dst: path.join(HOME, '.claude', 'get-shit-done', 'workflows') },
-  { src: path.join(REPO, 'gsd-patches', 'agents'), dst: path.join(HOME, '.claude', 'agents') },
+  { src: path.join(REPO, 'gsd-patches', 'workflows'), dst: path.join(HOME, '.claude', 'get-shit-done', 'workflows'), ext: '.md' },
+  { src: path.join(REPO, 'gsd-patches', 'agents'), dst: path.join(HOME, '.claude', 'agents'), ext: '.md' },
+  // model-profiles.cjs decides the model of every GSD Task spawn and overrides the
+  // agents' own frontmatter, so the SE model policy has to live there too.
+  { src: path.join(REPO, 'gsd-patches', 'lib'), dst: path.join(HOME, '.claude', 'get-shit-done', 'bin', 'lib'), ext: '.cjs' },
 ];
 
 function fail(msg) {
@@ -53,10 +56,10 @@ let manifest = {};
 try { manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); } catch { /* first run */ }
 
 let applied = 0, unchanged = 0;
-for (const { src, dst } of TARGETS) {
+for (const { src, dst, ext } of TARGETS) {
   if (!fs.existsSync(src)) continue;
   fs.mkdirSync(dst, { recursive: true });
-  for (const name of fs.readdirSync(src).filter((f) => f.endsWith('.md'))) {
+  for (const name of fs.readdirSync(src).filter((f) => f.endsWith(ext))) {
     const from = path.join(src, name);
     const to = path.join(dst, name);
     const next = fs.readFileSync(from, 'utf8');

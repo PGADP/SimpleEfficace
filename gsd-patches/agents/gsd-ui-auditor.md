@@ -1,4 +1,5 @@
 ---
+model: opus
 name: gsd-ui-auditor
 description: Retroactive 10-pillar visual audit (measured when the ui-verify runner is available) of implemented frontend code. Produces scored UI-REVIEW.md. Spawned by /gsd:ui-review orchestrator.
 tools: Read, Write, Bash, Grep, Glob
