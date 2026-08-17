@@ -198,7 +198,7 @@ Contexte : la UI-SPEC vient d'etre produite par gsd-ui-researcher (generique). A
 Lis obligatoirement :
 - {phase_dir}/{padded_phase}-UI-SPEC.md (spec a enrichir)
 - {phase_dir}/{padded_phase}-CONTEXT.md (decisions utilisateur — IMMUABLES, ne pas remettre en cause)
-- .planning/design/DESIGN-SYSTEM.md §0.1 (plateforme cible), §0.2 (direction esthetique), §0.3 (molettes)
+- .planning/design/DESIGN-SYSTEM.md §0.1 (plateforme cible et public cible), §0.2 (direction esthetique), §0.3 (molettes), §2.1 (hierarchie visuelle)
 - tailwind.config.ts ou equivalent (tokens DS reels)
 - src/components/ui/ + src/components/{domaine}/ (composants existants)
 - docs/reference/design_system.md (si present)

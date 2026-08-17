@@ -428,6 +428,7 @@ type: execute
 wave: N                     # Execution wave (1, 2, 3...)
 depends_on: []              # Plan IDs this plan requires
 files_modified: []          # Files this plan touches
+ui: false                   # true if files_modified contains front code — see "Front Plans"
 autonomous: true            # false if plan has checkpoints
 requirements: []            # REQUIRED — Requirement IDs from ROADMAP this plan addresses. MUST NOT be empty.
 user_setup: []              # Human-required setup (omit if empty)
@@ -494,12 +495,47 @@ After completion, create `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 | `wave` | Yes | Execution wave number |
 | `depends_on` | Yes | Plan IDs this plan requires |
 | `files_modified` | Yes | Files this plan touches |
+| `ui` | Yes | `true` if `files_modified` contains front code. Drives the executor's design protocol. |
 | `autonomous` | Yes | `true` if no checkpoints |
 | `requirements` | Yes | **MUST** list requirement IDs from ROADMAP. Every roadmap requirement ID MUST appear in at least one plan. |
 | `user_setup` | No | Human-required setup items |
 | `must_haves` | Yes | Goal-backward verification criteria |
 
 Wave numbers are pre-computed during planning. Execute-phase reads `wave` directly from frontmatter.
+
+## Front Plans (`ui: true`)
+
+Set `ui: true` when any entry of `files_modified` matches front code:
+
+- `*.tsx`, `*.jsx`, `*.vue`, `*.svelte`, `*.css`, `*.scss`
+- anything under a `components/`, `app/`, `pages/`, or `styles/` directory that renders
+
+**A front plan without a design contract must not enter execution.** Before writing the plan's
+tasks, check that the phase has one:
+
+1. `.planning/design/DESIGN-SYSTEM.md` exists with §0.1 (platform + target audience), §0.2
+   (aesthetic direction), §0.3 (dials) and **§2.1 (visual hierarchy)** filled — not `à remplir`.
+2. The phase has a UI-SPEC (`/gsd:ui-phase`) or an explicit design brief covering: the screens
+   touched, the focal point of each, the visual hierarchy, and the states to build.
+
+If either is missing, **say so in the planning output and stop before writing front tasks**. Do
+not compensate by writing more detailed tasks: a task list is not a design contract. An executor
+handed "create a StatsCard component" with no hierarchy rule invents its own scale, and three
+plans produce three different ones without any of them being in breach.
+
+Every front plan's task list ends with a design task that is not optional:
+
+```markdown
+<task type="auto">
+  <name>Task N: Design pass and visual checkpoint</name>
+  <files>[the front files of this plan]</files>
+  <action>Invoke Skill(se-ui) on the files above — craft → critique → polish. Do not improvise a
+  substitute review cycle.</action>
+  <verify>UI_ROUTE=&lt;route&gt; UI_NAME=&lt;screen&gt; npx playwright test tests/e2e/ui-verify.spec.ts
+  then node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name &lt;screen&gt; — zero BLOCK</verify>
+  <done>Verdict recorded, human GO obtained on the real URL, pass recorded via ui-pass.cjs</done>
+</task>
+```
 
 ## Interface Context for Executors
 

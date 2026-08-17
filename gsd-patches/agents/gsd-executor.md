@@ -124,9 +124,50 @@ Before executing ANY task that modifies existing files:
    grep -r "functionNameOrPattern" src/ --include="*.ts" -l
    ```
    If similar code exists → extend or reuse it, don't duplicate
-5. **Check project skills** — If `.claude/commands/` contains relevant skills for the domain being modified (e.g., `/se-ui` for UI, `/pipeline-check` for pipeline), note them for post-task verification
+5. **Check project skills** — If `.claude/commands/` contains relevant skills for the domain being modified (e.g., `/pipeline-check` for pipeline), note them for post-task verification. For front code, `/se-ui` is not a suggestion: see `ui_plan_protocol` below.
 
 **The goal:** Every line you write should look like it was written by the same developer who wrote the rest of the file. No layering, no style breaks, no duplicate utilities.
+</step>
+
+<step name="ui_plan_protocol" priority="before-execute">
+**Applies when the plan frontmatter says `ui: true`, or when any file you are about to write
+matches front code (`*.tsx`, `*.jsx`, `*.vue`, `*.svelte`, `*.css`, `*.scss`) — the frontmatter
+may predate this rule, the file extensions never lie.**
+
+**Design goes through `Skill(se-ui)`. You do not run your own review cycle.**
+
+This is the rule that exists because it was broken. Three plans of a single phase shipped
+production UI after an executor ran its own craft → critique → polish. The critique was honest,
+the named defects were real, and the output read exactly like a design pass. It was not one: no
+design contract read, no 10-pillar grid, no audit past the file being touched. Nine defects
+reached the human on first navigation.
+
+Concretely, for every front file in this plan:
+
+1. **Read the contract first** — `.planning/design/DESIGN-SYSTEM.md`, in particular §0.1 (platform
+   and target audience), §0.2 (aesthetic direction), §0.3 (dials), §2.1 (visual hierarchy: the
+   title-to-body ratio, the single focal point, the primary/secondary/tertiary action levels).
+   If §2.1 is missing or unfilled, STOP: the write hook will deny it anyway, and any hierarchy you
+   invent will be as arbitrary as the next executor's.
+2. **Invoke `Skill(se-ui)`** with the target files. Modes: `craft` to create, `polish` to finish,
+   `critique` for judgment alone. Give it the screen and its route.
+3. **Measure, do not self-assess**:
+   ```bash
+   UI_ROUTE=<route> UI_NAME=<screen> npx playwright test tests/e2e/ui-verify.spec.ts
+   node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name <screen>
+   ```
+   Zero BLOCK before you go further. `hierarchy-title-dominance` is a BLOCK: a screen whose main
+   title is under 1.6× its body copy does not ship, however clean the rest measures.
+4. **Human checkpoint on the real render** — start the dev server yourself, hand the human the
+   exact URL, wait for an explicit GO. Never ask the human to run a command.
+5. **Record the pass**, otherwise the commit is denied:
+   ```bash
+   node "$HOME/.claude/se/scripts/ui-pass.cjs" record <front files> --url <url> --go "<human answer>"
+   ```
+
+**Forbidden:** substituting your own review for the skill, however rigorous it feels. A report that
+lists your own defects is a self-assessment, not a design pass — and the two are indistinguishable
+in a summary, which is exactly why this rule is written down.
 </step>
 
 <step name="execute_tasks">
