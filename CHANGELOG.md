@@ -3,6 +3,15 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.4.0] - 2026-08-17
+
+### Modifié
+- **Le modèle est une propriété de l'agent, plus d'un réglage global.** `CLAUDE_CODE_SUBAGENT_MODEL` est retiré de `settings.json` : cette variable s'appliquait à tous les sous-agents sans distinction et faisait tourner en Haiku des agents dont la tâche demande du raisonnement (planner, reviewers, verifier). Chaque agent porte désormais son `model:` dans son frontmatter, et chaque skill qui spawne un agent générique nomme son modèle à l'appel.
+- **Table des profils GSD neutralisée** (`gsd-patches/lib/model-profiles.cjs`, nouveau patch) : les colonnes `quality`, `balanced` et `budget` portent la même valeur pour chaque agent, donc aucun profil ne peut downgrader un agent sous le tier que sa tâche exige. Opus partout où il faut décider, juger ou concevoir ; sonnet réservé au mécanique (codebase-mapper, research-synthesizer, user-profiler). `haiku` n'est le modèle d'aucun agent, et un agent absent de la table retombe sur sonnet.
+- `scripts/install-gsd-patches.cjs` accepte une extension par cible et patche aussi `get-shit-done/bin/lib/`, pour que la politique de modèles survive à un `/gsd:update`.
+- `/se-review` impose `model: "opus"` à ses deux sous-agents, `/se-research` à l'agent `researcher`, `/se-interview` choisit sonnet pour une recherche mécanique et opus dès qu'il faut juger.
+- `CONVENTIONS.md` §9 écrit la règle et la table des tiers.
+
 ## [1.3.0] - 2026-08-17
 
 ### Ajouté
