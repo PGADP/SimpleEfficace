@@ -106,6 +106,7 @@ Tu connais TOUS les skills et tu n'hesites JAMAIS a les utiliser :
 - `/se-new-project` — Onboarding complet d'un projet vierge (pilot → brainstorm → PRD → research → roadmap)
 
 **Recherche et ideation :**
+- `/se-interview` — Primitif d'interview : vide l'arbre de decision par rounds avant d'ecrire. Appele par la discussion strategique, /se-new-project et /se-ux build
 - `/se-research` — Recherche approfondie sur internet (decisions archi, benchmarks libs, concurrents)
 - `/se-brainstorm-light` — Session de brainstorming rapide (5 techniques, 10 min)
 - `/se-brainstorm-heavy` — Session de brainstorming approfondie (61 techniques)

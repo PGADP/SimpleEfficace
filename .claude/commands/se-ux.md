@@ -62,12 +62,15 @@ Auditer un desktop sans vérifier menus, raccourcis, undo et restauration de fen
 
 `/se-ux build "<nom>"`
 
-1. **Persona & JTBD** — depuis PERSONAS.md : quand [situation], j'ai besoin de [tâche], pour [gain], pour ne pas [objection].
-2. **Bornes** — l'entrée (d'où vient la personne, avec quel niveau d'intention) et le succès mesurable.
-3. **Chemin critique** — le minimum d'étapes entre les deux. Par étape : quelle décision se prend, quelle réassurance il faut, quels états d'échec existent (vide, erreur, abandon, retour).
-4. **ASCII mockup** du parcours pour validation humaine **avant** toute UI-SPEC.
-5. **Challenge** — passer son propre parcours à la grille de friction. Tuer les étapes qui ne servent ni le JTBD ni la réassurance.
-6. **Inscrire** la section dans JOURNEYS.md, étapes en `à-construire`. Signaler à `/se-planning` si le parcours implique des phases non planifiées.
+1. **Cadrage** — **invoque le skill `se-interview`** (outil Skill) : il porte la mécanique (frontière, rounds numérotés, réponse recommandée, critère de fin), tu portes l'arbre à vider :
+   - **Persona & JTBD** — depuis PERSONAS.md : quand [situation], j'ai besoin de [tâche], pour [gain], pour ne pas [objection].
+   - **Bornes** — l'entrée (d'où vient la personne, avec quel niveau d'intention) et le succès mesurable.
+   - **Chemin critique** — le minimum d'étapes entre les deux. Par étape : quelle décision se prend, quelle réassurance il faut, quels états d'échec existent (vide, erreur, abandon, retour).
+
+   Ce que PERSONAS.md, JOURNEYS.md et le code disent déjà est un fait, pas une question : va le lire.
+2. **ASCII mockup** du parcours pour validation humaine **avant** toute UI-SPEC.
+3. **Challenge** — passer son propre parcours à la grille de friction. Tuer les étapes qui ne servent ni le JTBD ni la réassurance.
+4. **Inscrire** la section dans JOURNEYS.md, étapes en `à-construire`. Signaler à `/se-planning` si le parcours implique des phases non planifiées.
 
 ## Mode AUDIT — feature ou parcours entier
 

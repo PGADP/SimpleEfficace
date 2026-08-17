@@ -35,15 +35,16 @@ Si archi / refactoring structurel / pivot / choix irréversible : raisonner en p
 **Tension principale** : [le compromis central]
 ```
 
-## Étape 3 : Débat stratégique (3-5 questions max, VISION pas technique)
-Questions type : niveau d'ambition (MVP vs complet) ? critique pour le lancement ? entre A et B lequel a le plus de valeur ? qu'est-ce qui te ferait dire "c'est raté" ? une référence qui t'inspire ?
-Ne PAS demander : choix de libs, patterns techniques, détails d'implémentation, ce que le code dit déjà.
+## Étape 3 : Débat stratégique (VISION, pas technique)
+**Invoque le skill `se-interview`** (outil Skill). Il porte la mécanique : arbre de décision, frontière, rounds numérotés avec réponse recommandée, critère de fin. Tu portes le contenu ci-dessous.
+
+L'arbre à vider est celui de la vision : niveau d'ambition (MVP vs complet) ? critique pour le lancement ? entre A et B lequel a le plus de valeur ? qu'est-ce qui te ferait dire "c'est raté" ? une référence qui t'inspire ?
+Ne PAS demander : choix de libs, patterns techniques, détails d'implémentation, ce que le code dit déjà. L'étape 1 l'a lu, c'est un fait acquis, pas une question.
 
 ### Rigueur (méthode Rodin)
 - **Steelmanning obligatoire** : reformuler la position adverse dans sa forme la plus forte avant de trancher.
 - **Classification** : ✓ correct · ~ contestable · ⚡ simplification · ◐ angle mort · ✗ faux. Utiliser quand ça clarifie une décision.
 - **Pendant le débat** : continuer à chercher dans le code pour challenger avec des faits.
-- **Anti-complaisance** : si 3 validations consécutives sans objection, s'arrêter et chercher la faille.
 
 ## Étape 4 : Synthèse
 ```
@@ -97,4 +98,4 @@ Puis : "Prochaine étape : /gsd:plan-phase X. /clear d'abord → contexte frais 
 
 ## Règles
 1. Recherche code OBLIGATOIRE — jamais de débat à vide.
-2. Max 5 questions. 3. Le Pilot tranche si hésitation. 4. Pas de re-ask. 5. CONTEXT.md au standard GSD strict. 6. Pas d'appel à /gsd:discuss-phase. 7. Anti-complaisance active. 8. Steelmanning avant de trancher. 9. Pas de validation molle.
+2. Max 5 questions par round. 3. Le Pilot tranche si hésitation. 4. Pas de re-ask. 5. CONTEXT.md au standard GSD strict. 6. Pas d'appel à /gsd:discuss-phase. 7. Steelmanning avant de trancher. 8. Pas de validation molle.

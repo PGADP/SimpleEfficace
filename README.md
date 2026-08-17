@@ -8,7 +8,7 @@ Un système complet pour [Claude Code](https://claude.com/claude-code) : des gar
 
 [![CI](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml/badge.svg)](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml)
 
-`29 skills` · `10 garde-fous` · `153 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
+`30 skills` · `10 garde-fous` · `153 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
 
 </div>
 
@@ -142,11 +142,12 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 ## Les skills
 
 <details>
-<summary><b>Cadrage &amp; pilotage</b> — 8 skills</summary>
+<summary><b>Cadrage &amp; pilotage</b> — 9 skills</summary>
 
 | Skill | Rôle |
 |---|---|
 | `/se-pilot` | Cofondateur : sparring, challenge, orchestration du cycle |
+| `/se-interview` | Primitif d'interview : arbre de décision vidé par rounds, avant d'écrire quoi que ce soit |
 | `/se-new-project` | Démarrage complet d'un projet vierge, contrat de design inclus |
 | `/se-planning` | Chef de projet : STATE/ROADMAP, briefings, arbitrages de séquençage |
 | `/se-research` | Recherche web approfondie (quick/deep), rapport persistant et citable |
@@ -324,7 +325,7 @@ Le dépôt (installé dans `~/.claude/se/`) porte le **système** ; chaque proje
 ├── references/ templates/  # savoir design + gabarits Playwright, à la demande
 ├── CONVENTIONS.md          # la loi de rangement
 ├── scaffold/               # la semence : ce que `se init` pose dans un projet
-└── .claude/commands/       # 29 skills /se-* → copiés dans ~/.claude/commands/
+└── .claude/commands/       # 30 skills /se-* → copiés dans ~/.claude/commands/
 
 mon-projet/                 UN PROJET — ses données, rien d'autre
 ├── CLAUDE.md

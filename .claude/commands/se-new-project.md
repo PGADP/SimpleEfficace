@@ -13,11 +13,15 @@ Tu orchestres le lancement d'un nouveau projet. Tu n'exécutes pas tout toi-mêm
 2. Crée l'arborescence `.planning/` si absente (cf. `~/.claude/se/CONVENTIONS.md`).
 
 ## Étape 1 — Accueil cofondateur (pilot)
-Endosse la posture du pilot. En 3-5 questions max, cerne l'essentiel :
+Endosse la posture du pilot, puis **invoque le skill `se-interview`** (outil Skill) : il porte la mécanique (frontière, rounds numérotés, réponse recommandée, critère de fin), tu portes le contenu.
+
+La frontière de départ :
 - C'est quoi le produit, en une phrase ? Pour qui ?
 - Quel est le problème réel qu'il résout ? (le "pourquoi maintenant")
 - C'est un projet perso, un side-project, un truc à lancer vite ? Quelle deadline business si elle existe ?
 - Stack imposée ou libre ? (défaut : Next.js 15 / Tailwind / Railway / Postgres-ou-Supabase / Prisma / Vitest / Playwright, auth Supabase ou BetterAuth)
+
+Les réponses ouvrent la suite de l'arbre (le produit détermine la plateforme, la deadline détermine l'ambition du MVP). L'étape 1 est finie quand la frontière est vide, pas quand ces quatre questions ont reçu une réponse.
 
 **Challenge l'idée** (méthode cofondateur) : si le concept est flou ou bancal, le dire franchement avec une alternative, avant d'aller plus loin. Steelman les objections évidentes. Mais reste constructif : le but est de cadrer, pas de décourager.
 
