@@ -3,6 +3,19 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.3.0] - 2026-08-17
+
+### Ajouté
+- **Skill `/se-interview`** : le primitif d'interview du système. Arbre de décision, frontière (les décisions dont les prérequis sont réglés), rounds de questions numérotées portant chacune sa réponse recommandée, fin quand la frontière est vide. Deux règles dures : les faits sont le travail de l'agent (sous-agent, jamais l'humain), les décisions sont celles de l'humain (l'agent ne répond jamais à sa propre question). Les gates vérifiaient que le code était bon, jamais qu'il était le bon : ce skill ferme l'entrée de la boucle.
+- **Axe Spec dans `/se-review`** : la review lit désormais `CONTEXT.md`, `PLAN.md` (et `UI-SPEC.md` si le diff touche du front) de la phase courante et rend un second verdict, indépendant de l'axe Standards : exigence manquante, comportement hors périmètre, exigence mal implémentée, chaque constat citant sa ligne de spec. Sans spec lisible, l'axe s'annonce non applicable et n'invente jamais d'exigence.
+- **Base des code smells de Fowler** dans l'axe Standards de `/se-review`, bornée par deux règles : une convention documentée du projet écrase toujours le smell, et tout ce que l'outillage attrape déjà (eslint, tsc) est ignoré.
+- **Phase 1 bloquante dans `/se-debug`** : plus d'hypothèse tant qu'une commande, déjà lancée et dont la sortie est collée, ne passe pas au rouge sur ce bug précis (symptôme exact décrit par l'humain, déterministe, rapide, lançable sans humain). Avec les dix façons de construire la boucle par ordre de préférence, la minimisation, trois à cinq hypothèses falsifiables, le préfixe de log `[DEBUG-xxxx]` et une checklist de sortie.
+- **Signal "pas de couture correcte" vers la gate SIMPLIFY** : quand aucune couture ne permet de poser un test de non-régression honnête, `/se-debug` traite l'absence de couture comme le résultat de l'enquête et la remonte à l'architecture au lieu de poser un test qui donne une fausse confiance.
+
+### Modifié
+- `pilot:strategic-discussion` (étape 3), `/se-new-project` (étape 1) et `/se-ux` (mode build) délèguent la mécanique d'interview à `/se-interview` et gardent leur contenu métier. Le garde-fou anti-complaisance disparaît de `strategic-discussion` : ce sous-skill n'est jamais chargé autrement que par `/se-pilot`, qui porte déjà la règle.
+- `/se-review` s'ancre sur un point fixe (`git diff <ref>...HEAD`) au lieu des "fichiers modifiés récemment", et échoue immédiatement sur une ref invalide ou un diff vide, avant de lancer le moindre sous-agent. Les deux axes tournent en sous-agents parallèles ; les fusionner, les reclasser ou désigner un pire défaut toutes catégories confondues est explicitement interdit. Modes focus `lint` et `perf` inchangés.
+
 ## [1.2.0] - 2026-08-16
 
 ### Ajouté
