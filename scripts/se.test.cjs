@@ -135,6 +135,46 @@ check('init : le fichier conservé est signalé', /CLAUDE\.md/.test(cli.stdout) 
 check('init : le reste du scaffold est quand même copié', fs.existsSync(path.join(proj2, '.planning', 'config.json')));
 
 // ---------------------------------------------------------------------------
+console.log('\n== se sync-project ==');
+// ---------------------------------------------------------------------------
+
+// Un projet d'avant : peu de clés, une gate coupée volontairement, un contrat de design
+// sans §2.1. C'est exactement l'état qui a laissé passer trois écrans mal hiérarchisés.
+const legacy = path.join(tmpDir('se-test-legacy-'), 'ancien');
+fs.mkdirSync(path.join(legacy, '.planning', 'design'), { recursive: true });
+fs.writeFileSync(path.join(legacy, '.planning', 'config.json'),
+  JSON.stringify({ mode: 'interactive', workflow: { research: true, visual_checkpoint: false } }));
+fs.writeFileSync(path.join(legacy, '.planning', 'design', 'DESIGN-SYSTEM.md'),
+  '# DESIGN-SYSTEM\n\n## 0.1 Plateforme cible\n| Plateforme principale | web |\n\n## 2. Typographie\n| Body | 16px |\n\n## 3. Espacement\ngrille 4px\n');
+
+cli = runCli(initHome, ['sync-project', legacy]);
+const legacyConfig = JSON.parse(fs.readFileSync(path.join(legacy, '.planning', 'config.json'), 'utf8'));
+const legacyDs = fs.readFileSync(path.join(legacy, '.planning', 'design', 'DESIGN-SYSTEM.md'), 'utf8');
+
+check('sync-project : sortie 0', cli.status === 0);
+check('sync-project : clés manquantes ajoutées', legacyConfig.workflow.ui_commit_gate === true);
+check('sync-project : un false explicite n\'est JAMAIS réactivé', legacyConfig.workflow.visual_checkpoint === false);
+check('sync-project : le false explicite est signalé', /visual_checkpoint/.test(cli.stdout));
+const offLine = (cli.stdout.split('\n').find((l) => l.includes('réglages workflow à false')) || '');
+check('sync-project : un défaut fraîchement écrit n\'est pas signalé comme choix du projet',
+  offLine.includes('visual_checkpoint') && !offLine.includes('auto_advance'));
+check('sync-project : §2.1 insérée dans le contrat', /^##\s+2\.1/m.test(legacyDs));
+check('sync-project : §2.1 placée entre §2 et §3',
+  legacyDs.indexOf('## 2. Typographie') < legacyDs.indexOf('## 2.1') && legacyDs.indexOf('## 2.1') < legacyDs.indexOf('## 3. Espacement'));
+check('sync-project : la section insérée reste à remplir (pas de faux contrat rempli)',
+  /à remplir/.test(legacyDs.slice(legacyDs.indexOf('## 2.1'))));
+check('sync-project : le public cible manquant est remonté en action humaine', /Public cible/.test(cli.stdout));
+
+const beforeSecondRun = fs.readFileSync(path.join(legacy, '.planning', 'design', 'DESIGN-SYSTEM.md'), 'utf8');
+cli = runCli(initHome, ['sync-project', legacy]);
+check('sync-project : idempotent sur le contrat',
+  fs.readFileSync(path.join(legacy, '.planning', 'design', 'DESIGN-SYSTEM.md'), 'utf8') === beforeSecondRun);
+check('sync-project : second passage ne réécrit pas la config', /aucune clé manquante/.test(cli.stdout));
+
+cli = runCli(initHome, ['sync-project', path.join(tmpDir('se-test-nonproj-'), 'vide')]);
+check('sync-project : refuse un dossier sans .planning', cli.status !== 0);
+
+// ---------------------------------------------------------------------------
 console.log('\n== se install (SE_HOME temporaire) ==');
 // ---------------------------------------------------------------------------
 

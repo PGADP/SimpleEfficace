@@ -5,6 +5,7 @@
 //   node ~/.claude/se/se.cjs install     # installe skills, agents, hooks, patches GSD
 //   node ~/.claude/se/se.cjs update      # git pull + réinstall + migrations + changelog
 //   node ~/.claude/se/se.cjs init [dir]  # sème un nouveau projet depuis scaffold/
+//   node ~/.claude/se/se.cjs sync-project # rattrape un projet existant sur le scaffold courant
 //   node ~/.claude/se/se.cjs doctor      # diagnostic d'installation (--repo : checks CI)
 //
 // Testability rule: the system root is __dirname (wherever the repo lives) and
@@ -416,6 +417,118 @@ function cmdInit(dirArg) {
 }
 
 // ---------------------------------------------------------------------------
+// sync-project
+// ---------------------------------------------------------------------------
+
+// scaffold/ n'est copié qu'au `se init` : un projet créé avant une évolution du système
+// garde sa config et son contrat de design pour toujours. C'est comme ça qu'un projet a
+// tourné avec toutes ses gates optionnelles éteintes sans que personne ne le voie.
+// Cette commande rattrape l'écart sans jamais écraser un choix explicite.
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+/** Ajoute dans `target` les clés absentes de `defaults`. Ne modifie JAMAIS une valeur
+ *  déjà présente : un flag mis à false volontairement reste à false. Retourne les
+ *  chemins pointés ajoutés. */
+function fillMissingKeys(target, defaults, prefix = '') {
+  const added = [];
+  for (const [key, value] of Object.entries(defaults)) {
+    const dotted = prefix ? `${prefix}.${key}` : key;
+    if (isPlainObject(value)) {
+      if (target[key] === undefined) {
+        target[key] = deepClone(value);
+        added.push(dotted);
+      } else if (isPlainObject(target[key])) {
+        added.push(...fillMissingKeys(target[key], value, dotted));
+      }
+      // type divergent (scalaire là où le scaffold a un objet) : on ne touche à rien
+    } else if (target[key] === undefined) {
+      target[key] = value;
+      added.push(dotted);
+    }
+  }
+  return added;
+}
+
+/** Bloc `## <num> …` complet, jusqu'au prochain titre de niveau 2. null si absent. */
+function sectionBlock(md, num) {
+  const match = new RegExp(`^##\\s+${num.replace(/\./g, '\\.')}(?![\\d.])`, 'm').exec(md);
+  if (!match) return null;
+  const after = md.slice(match.index + match[0].length);
+  const next = /^##\s/m.exec(after);
+  return match[0] + (next ? after.slice(0, next.index) : after);
+}
+
+function cmdSyncProject(dirArg) {
+  const target = path.resolve(dirArg || process.cwd());
+  const planning = path.join(target, '.planning');
+  if (!fs.existsSync(planning)) {
+    fail(`${toPosix(target)} n'est pas un projet SE (pas de .planning/) — utilise \`se init\` pour en créer un.`);
+  }
+  const scaffold = path.join(REPO_ROOT, 'scaffold');
+  if (!fs.existsSync(scaffold)) fail(`scaffold/ introuvable dans le repo (${scaffold})`);
+
+  const todo = [];
+
+  // 1. config.json — clés manquantes seulement.
+  const configPath = path.join(planning, 'config.json');
+  const defaults = readJson(path.join(scaffold, '.planning', 'config.json'), {});
+  const config = readJson(configPath, {});
+  // Relevé AVANT le remplissage : on ne veut signaler que les `false` choisis par le
+  // projet, pas les défauts que la commande vient elle-même d'écrire.
+  const off = Object.entries(config.workflow || {}).filter(([, v]) => v === false).map(([k]) => k);
+  const added = fillMissingKeys(config, defaults);
+  if (added.length) {
+    config.seVersion = readRepoVersion();
+    writeJson(configPath, config);
+    log(`✓ config.json : ${added.length} clé(s) ajoutée(s) — ${added.join(', ')}`);
+  } else {
+    log('✓ config.json : à jour, aucune clé manquante');
+  }
+  if (off.length) {
+    log(`⚠ réglages workflow à false dans ce projet (conservés tels quels) : ${off.join(', ')}`);
+    todo.push(`Vérifier que ces réglages doivent rester à false : ${off.join(', ')}`);
+  }
+
+  // 2. DESIGN-SYSTEM.md — §2.1 hiérarchie visuelle, absente de tout contrat écrit
+  //    avant que la règle existe. Sans elle, chaque agent invente son échelle.
+  const dsPath = path.join(planning, 'design', 'DESIGN-SYSTEM.md');
+  if (!fs.existsSync(dsPath)) {
+    log('· pas de DESIGN-SYSTEM.md — projet sans front, ou contrat à créer via /se-ui');
+  } else {
+    const ds = fs.readFileSync(dsPath, 'utf8');
+    if (sectionBlock(ds, '2.1')) {
+      log('✓ DESIGN-SYSTEM.md : §2.1 hiérarchie visuelle présente');
+    } else {
+      const reference = fs.readFileSync(path.join(scaffold, '.planning', 'design', 'DESIGN-SYSTEM.md'), 'utf8');
+      const block = sectionBlock(reference, '2.1');
+      if (!block) fail('§2.1 introuvable dans le gabarit scaffold — repo incomplet, relance un git pull.');
+      const anchor = /^##\s+3\./m.exec(ds);
+      const updated = anchor
+        ? ds.slice(0, anchor.index) + block + ds.slice(anchor.index)
+        : `${ds.trimEnd()}\n\n${block}`;
+      fs.writeFileSync(dsPath, updated, 'utf8');
+      log('✓ DESIGN-SYSTEM.md : §2.1 hiérarchie visuelle insérée (à remplir)');
+      todo.push('Remplir §2.1 de DESIGN-SYSTEM.md AVEC l\'humain — ratio titre/corps, focal point, niveaux d\'action. Tant qu\'elle porte « à remplir », toute écriture front est refusée.');
+    }
+    // Le champ public cible vit dans un tableau existant : on le signale, on ne l'injecte
+    // pas. Une insertion à l'aveugle dans un tableau déjà édité casse plus qu'elle ne répare.
+    if (!/\|\s*Public cible\s*\|/.test(ds)) {
+      todo.push('Ajouter la ligne `| Public cible | … |` au tableau §0.1 de DESIGN-SYSTEM.md (elle durcit les planchers : âge, aisance numérique, contexte d\'usage).');
+    }
+  }
+
+  if (todo.length) {
+    log('\nÀ FAIRE (aucune de ces actions ne se fait sans l\'humain) :');
+    todo.forEach((item, i) => log(`  ${i + 1}. ${item}`));
+  } else {
+    log('\nRien à reprendre : le projet est aligné sur le système.');
+  }
+}
+
+// ---------------------------------------------------------------------------
 // doctor
 // ---------------------------------------------------------------------------
 
@@ -570,6 +683,8 @@ Commandes :
   install         Installe skills, agents et câblage hooks dans ~/.claude, applique les patches GSD (idempotent)
   update          git pull + réinstall + migrations + affichage du changelog
   init [dir]      Sème un nouveau projet depuis scaffold/ (défaut : dossier courant)
+  sync-project    Rattrape un projet existant sur le scaffold courant : clés de config
+                  manquantes, §2.1 du contrat de design. N'écrase aucun choix explicite.
   doctor          Diagnostic de l'installation (exit 1 si problème)
   doctor --repo   Checks côté repo uniquement (mode CI : VERSION, scaffold, syntaxe, tests)
   version         Affiche la version du repo et de l'installation
@@ -586,6 +701,7 @@ function main() {
     case 'install': return cmdInstall();
     case 'update': return cmdUpdate();
     case 'init': return cmdInit(rest[0]);
+    case 'sync-project': return cmdSyncProject(rest[0]);
     case 'doctor': return cmdDoctor(rest.includes('--repo'));
     case 'version': return cmdVersion();
     case undefined:
