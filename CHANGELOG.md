@@ -18,6 +18,15 @@ C'est le guard qui cède, pas la pratique : renommer aurait demandé de patcher 
 - `STATE.template.md` nomme le chemin complet `.planning/phases/{NN}-{slug}/.continue-here.md` au lieu du nom nu, pour qu'on ne l'écrive pas à la racine de `.planning/` où il serait refusé à juste titre.
 - `se-guard.test.cjs` 58 → 63 tests.
 
+## [1.7.1] - 2026-08-19
+
+`killTree` rendait son verdict juste après l'envoi du signal. Sur Windows, `taskkill /F` est synchrone et le process est déjà mort au retour ; sur Linux et macOS, un SIGTERM ne l'est pas, donc un process en train de mourir proprement était déclaré « il résiste » et son entrée restait au registre. Le système marchait sur la machine où il a été écrit, ce que la CI Ubuntu a dit tout de suite.
+
+### Corrigé
+- **`killTree` attend la mort, avec escalade** : SIGTERM, trois secondes de grâce, puis SIGKILL. Un serveur qui ignore SIGTERM garde son port ; il ne peut pas avoir le dernier mot.
+- **`isAlive` ignore les zombies** : un process réparenté et non collecté répond encore à `kill(0)` alors qu'il ne tient plus ni port ni fichier. L'attendre, c'est attendre un kill qui n'arrivera jamais.
+- **`scripts/se-serve.test.cjs` gagne son étape CI** : lancée seulement via `doctor --repo`, sa sortie était avalée et un échec ne disait pas quel test cassait.
+
 ## [1.7.0] - 2026-08-19
 
 Des serveurs de dev restaient allumés session après session, chacun tenant son port. La règle « un serveur lancé = un serveur tué » était pourtant écrite à deux endroits depuis le début : personne ne l'exécutait. Le système disait aussi « Claude ne te demande JAMAIS de lancer une commande », ce qui est juste pour un build et faux pour un process qui survit à la commande.
