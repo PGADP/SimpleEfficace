@@ -18,6 +18,22 @@ C'est le guard qui cède, pas la pratique : renommer aurait demandé de patcher 
 - `STATE.template.md` nomme le chemin complet `.planning/phases/{NN}-{slug}/.continue-here.md` au lieu du nom nu, pour qu'on ne l'écrive pas à la racine de `.planning/` où il serait refusé à juste titre.
 - `se-guard.test.cjs` 58 → 63 tests.
 
+## [1.6.0] - 2026-08-19
+
+Une phase coûtait trois interruptions pour un seul diff. Les gates SIMPLIFY, JANITOR et SECURITY s'enchaînaient en file, chacune avec son checkpoint et son build, alors qu'elles lisent le même diff et n'écrivent rien avant le GO. Et chaque skill improvisait la forme de sa demande de validation, jusqu'au « Le rendu est bon ? » du checkpoint visuel, qui ne vérifie rien.
+
+### Ajouté
+- **`/se-checkpoint`, primitif de checkpoint humain** : une forme unique pour toute demande de GO (Fait / Mesuré / À juger / Regarder / une question fermée) et des règles dures qui la rendent utile. Quatre points à juger au maximum, jamais un point que la machine a déjà mesuré, rien à lire avant de trancher, un checkpoint par groupe de résultats et non par analyse, le silence n'est pas un GO. Les trois types restent ceux de GSD : `human-verify`, `decision`, `human-action`.
+- **`CHECKPOINTS.template.md` dans le scaffold** : gabarit du journal de phase, avec la réponse humaine recopiée mot pour mot. C'est la trace, pas un résumé.
+- **`CONVENTIONS.md` §11, la loi de parallélisation** : ce qui lit part ensemble, ce qui écrit part en file. Les analyses, audits et mesures partent en un seul message ; l'écriture reste séquentielle ou en vagues à fichiers disjoints. L'anti-pattern nommé : une suite d'étapes numérotées qui appellent chacune un skill de lecture et attendent sa réponse.
+- **`se sync-project` copie les gabarits `_templates/` manquants** : sans ça, un projet créé avant l'arrivée d'un gabarit ne l'aurait jamais eu. Copie non destructive, un gabarit adapté par le projet n'est jamais écrasé.
+
+### Modifié
+- **Step `simplify_janitor_gate` renommé `quality_gates`** dans `execute-phase` : les trois gates partent dans un seul message, en `--report-only`, et rendent **un** checkpoint groupé à trois sections. L'application des fixes reste séquentielle après le GO (sécurité, puis simplification, puis nettoyage, pour ne pas supprimer du code qu'une simplification vient de déplacer), avec un seul `build && type-check` pour l'ensemble au lieu d'un par gate. La supply-chain rejoint le sous-agent SECURITY plutôt que d'être un step de plus.
+- **Mode `--report-only` sur `/se-gate-simplify`, `/se-gate-janitor` et `/se-security`** : la gate lit, rapporte, et ne touche à rien. Écrire un fichier ou lancer un build depuis ce mode est une faute, pas un raccourci : elle tourne à côté d'autres lectures.
+- **Les checkpoints du cycle prennent la forme du primitif** : le checkpoint visuel d'`execute-phase` et le rituel 6 de `/se-ui`. « Le rendu est bon ? » devient une question fermée précédée de points à juger nommés, et les mesures déjà rendues ne sont plus soumises au jugement humain.
+- `scripts/se.test.cjs` 54 → 56 tests.
+
 ## [1.5.0] - 2026-08-17
 
 Le contrat de design ne disait rien de la hiérarchie visuelle. Trois écrans conçus par trois agents sont sortis avec trois échelles différentes sans qu'aucun ne soit en faute, et neuf défauts sont arrivés jusqu'à l'humain. Les garde-fous avaient bien tourné : le plancher de qualité avait été injecté, la gate de contrat avait laissé passer. Un garde-fou ne rattrape pas un contrat muet.
