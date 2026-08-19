@@ -148,12 +148,13 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 ## Les skills
 
 <details>
-<summary><b>Cadrage &amp; pilotage</b> — 9 skills</summary>
+<summary><b>Cadrage &amp; pilotage</b> — 10 skills</summary>
 
 | Skill | Rôle |
 |---|---|
 | `/se-pilot` | Cofondateur : sparring, challenge, orchestration du cycle |
 | `/se-interview` | Primitif d'interview : arbre de décision vidé par rounds, avant d'écrire quoi que ce soit |
+| `/se-checkpoint` | Primitif de checkpoint : la forme unique de toute demande de GO, 4 points à juger maximum |
 | `/se-new-project` | Démarrage complet d'un projet vierge, contrat de design inclus |
 | `/se-planning` | Chef de projet : STATE/ROADMAP, briefings, arbitrages de séquençage |
 | `/se-research` | Recherche web approfondie (quick/deep), rapport persistant et citable |
