@@ -1,5 +1,5 @@
 {
-  "description": "Banque de règles du placement-guard (advisory). Source de vérité humaine : .planning/CONVENTIONS.md §2-3-4. Tout nouveau dossier de suivi doit être déclaré dans les DEUX fichiers.",
+  "description": "Banque de règles du placement-guard (advisory). Source de vérité humaine : .planning/CONVENTIONS.md §2-3-4-6. Tout nouveau dossier de suivi doit être déclaré dans les DEUX fichiers.",
   "skipDirPatterns": [
     "^\\.git/",
     "^\\.claude/",
@@ -57,6 +57,9 @@
     "HUMAN-UAT.md",
     "UI-REVIEW.md",
     "REVIEWS.md"
+  ],
+  "phaseTransientAllow": [
+    ".continue-here.md"
   ],
   "reportNamePattern": "(AUDIT|REVIEW|REPORT|RAPPORT|ANALYSE|ANALYSIS|BILAN)",
   "reportAllowDirs": [

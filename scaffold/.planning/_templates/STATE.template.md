@@ -28,4 +28,4 @@
 ## Reprise de session
 - Dernière session : [YYYY-MM-DD HH:MM]
 - Arrêté à : [description]
-- Fichier de reprise : [.continue-here.md ou Aucun]
+- Fichier de reprise : [.planning/phases/{NN}-{slug}/.continue-here.md ou Aucun]

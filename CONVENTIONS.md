@@ -113,6 +113,16 @@ Noms invariants pour qu'un parser les trouve sans grep :
 
 Les workflows GSD préfixent : `{phase}-{plan}-PLAN.md`, `{phase}-{plan}-SUMMARY.md`. Le suffixe reste invariant.
 
+### Fichier d'état transitoire
+
+Un dossier de phase accepte **un seul** nom hors de cette table : `.continue-here.md`, le handoff humain écrit par `/gsd:pause-work` et relu par `/gsd:resume-work`.
+
+Ce n'est pas un onzième artefact de phase, c'est une autre classe. Les noms MAJUSCULES ci-dessus sont des produits durables : ils partent à l'archive avec la phase. Celui-là est un état de session, consommé à la reprise. Le point et les minuscules signalent cette différence, ce n'est pas une entorse.
+
+Règles : nom exact, aucun préfixe `{phase}-{plan}-` toléré, un seul par dossier de phase. À la reprise il est périmé, donc on le supprime au lieu de le laisser voyager jusqu'à `_archive/`.
+
+Déclaré dans `hooks/rules/placement-rules.json` sous `phaseTransientAllow`, surchargeable par projet.
+
 ## 7. Anti-entropie (plafonds DURS)
 
 - `STATE.md` ≤ 300 lignes. Présent only. Au-delà → `size-gate` refuse l'écriture.

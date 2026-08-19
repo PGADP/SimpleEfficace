@@ -221,6 +221,15 @@ check('recherche datée dans research/ → PAS de placement-guard',
   check('override n\'affecte pas les autres dossiers non déclarés',
     has(placeIn(ovRoot, pathp.join('.planning', 'rapports', 'truc.md')), 'placement-guard'));
 
+  fsp.writeFileSync(
+    pathp.join(ovRoot, '.planning', 'rules', 'placement-overrides.json'),
+    JSON.stringify({ phaseTransientAllow: ['.resume-notes.md'] }),
+  );
+  check('transitoire déclaré via placement-overrides.json → PAS de placement-guard',
+    !has(placeIn(ovRoot, pathp.join('.planning', 'phases', '03-auth', '.resume-notes.md')), 'placement-guard'));
+  check('override transitoire ne remplace pas la banque globale',
+    !has(placeIn(ovRoot, pathp.join('.planning', 'phases', '03-auth', '.continue-here.md')), 'placement-guard'));
+
   fsp.writeFileSync(pathp.join(ovRoot, '.planning', 'rules', 'placement-overrides.json'), '{invalid json');
   check('override JSON invalide → ignoré sans erreur, règles globales seules',
     has(placeIn(ovRoot, pathp.join('.planning', 'issues', 'truc.md')), 'placement-guard'));
@@ -234,6 +243,15 @@ check('fichier de phase préfixé GSD → PAS de placement-guard',
 
 check('fichier de phase au nom libre → placement-guard',
   has(place('.planning/phases/03-auth/notes.md'), 'placement-guard'));
+
+check('fichier transitoire .continue-here.md en phase → PAS de placement-guard',
+  !has(place('.planning/phases/03-auth/.continue-here.md'), 'placement-guard'));
+
+check('autre dotfile en phase → placement-guard',
+  has(place('.planning/phases/03-auth/.notes-perso.md'), 'placement-guard'));
+
+check('transitoire préfixé GSD → placement-guard (nom exact seulement)',
+  has(place('.planning/phases/03-auth/03-01-.continue-here.md'), 'placement-guard'));
 
 check('phase archivée → PAS de placement-guard',
   !has(place('.planning/_archive/phases/01-fondations/SUMMARY.md'), 'placement-guard'));

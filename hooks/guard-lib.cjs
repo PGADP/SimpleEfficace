@@ -18,7 +18,7 @@ function loadJson(name) {
 // Per-project extension of the placement rules. A project may declare extra
 // allowed dirs/files in .planning/rules/placement-overrides.json (additive only:
 // arrays are concatenated with the global bank, nothing can be removed).
-const PLACEMENT_OVERRIDE_KEYS = ['repoRootAllow', 'planningRootAllow', 'planningDirs', 'phaseFileAllow', 'reportAllowDirs'];
+const PLACEMENT_OVERRIDE_KEYS = ['repoRootAllow', 'planningRootAllow', 'planningDirs', 'phaseFileAllow', 'phaseTransientAllow', 'reportAllowDirs'];
 
 function loadPlacementRules(projectDir) {
   const rules = loadJson('placement-rules.json');
@@ -315,9 +315,12 @@ function detectPlacement({ filePath, projectDir }) {
     if (segments.length > 2 && !rules.planningDirs.includes(segments[1])) {
       findings.push(`\`.planning/${segments[1]}/\` n'est pas un dossier déclaré — ajoute-le à CONVENTIONS §2 ET à placement-rules.json, ou range ailleurs`);
     }
-    // fichiers d'une phase : suffixe invariant en MAJUSCULES (le préfixe GSD {phase}-{plan}- est toléré)
+    // fichiers d'une phase : suffixe invariant en MAJUSCULES (le préfixe GSD {phase}-{plan}- est toléré).
+    // Les fichiers d'état transitoires (cf. CONVENTIONS §6) sont une classe à part :
+    // nom exact, pas de préfixe toléré, ils meurent à la reprise au lieu de partir à l'archive.
     if (segments[1] === 'phases' && segments.length >= 3) {
-      const allowed = (rules.phaseFileAllow || []).some((n) => base === n || base.endsWith('-' + n));
+      const allowed = (rules.phaseFileAllow || []).some((n) => base === n || base.endsWith('-' + n))
+        || (rules.phaseTransientAllow || []).includes(base);
       if (!allowed) {
         findings.push(`\`${base}\` n'est pas un nom de fichier de phase valide — attendus : ${(rules.phaseFileAllow || []).join(', ')}`);
       }
