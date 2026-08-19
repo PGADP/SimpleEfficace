@@ -253,7 +253,11 @@ GSD a la bonne philosophie (« humain = jugement seul, Claude automate ») mais 
 - `decision` (choix d'archi/techno) — 9%. Options avec pour/contre.
 - `human-action` (auth gate uniquement) — 1%. Seul cas où tu fais un truc.
 
-**Journal :** chaque checkpoint et son verdict sont consignés dans `{phase}/CHECKPOINTS.md`.
+**Une forme unique, portée par un primitif.** Chaque skill improvisait son bloc de validation, donc la qualité du checkpoint dépendait du skill qui le rendait. `/se-checkpoint` porte désormais la forme (Fait / Mesuré / À juger / Regarder / une question fermée) et les règles dures : quatre points à juger au maximum, jamais un point que la machine a déjà mesuré, rien à lire avant de trancher, une seule question. Les gates et `/se-ui` l'invoquent au lieu d'inventer leur format.
+
+**Un checkpoint par groupe, pas par analyse.** Les trois gates de fin de phase (SIMPLIFY, JANITOR, SECURITY) lisent le même diff et n'écrivent rien avant le GO : elles partent donc en un seul lancement parallèle et rendent un seul bloc à trois sections. Le coût d'un cycle ne se compte pas en secondes de machine, il se compte en nombre de fois où l'humain est réveillé pour le même diff (loi : `CONVENTIONS.md` §11).
+
+**Journal :** chaque checkpoint et son verdict sont consignés dans `{phase}/CHECKPOINTS.md`, sur le gabarit `.planning/_templates/CHECKPOINTS.template.md`. La réponse humaine s'y recopie mot pour mot : c'est la trace, pas un résumé.
 
 ---
 

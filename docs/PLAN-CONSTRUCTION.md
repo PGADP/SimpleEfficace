@@ -313,7 +313,7 @@ Source : `_sources/claude-config/commands/`. Tous alignés stack sauf 2.
 | 7 | Skills dev rapatriés + adaptés (deploy/se-health-check Railway) | ✅ |
 
 **Câblage opérationnel (fait après la 1re relance "tout doit être branché") :**
-- ✅ gates SIMPLIFY/JANITOR branchées dans `get-shit-done/workflows/execute-phase.md` (step `simplify_janitor_gate`, vérifié 18/18 steps)
+- ✅ gates SIMPLIFY/JANITOR branchées dans `get-shit-done/workflows/execute-phase.md` (step `quality_gates`, les trois gates en un lancement parallèle et un checkpoint unique)
 - ✅ moteur GSD rapatrié dans le dossier (`get-shit-done/`, v1.29) → système autonome
 - ✅ `/init` créé (pilot → brainstorm → PRD → research → roadmap)
 - ✅ template config (`_templates/config.template.json`) active tdd_mode/simplify_gate/janitor_gate — chaîne config→gate vérifiée cohérente

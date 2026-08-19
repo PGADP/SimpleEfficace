@@ -162,3 +162,21 @@ Le choix du tier :
 ## 10. Stack par défaut (cf. SYSTEME.md §12)
 
 Next.js 15 · React 19 · TS strict · Tailwind · Railway · Postgres (Railway/Supabase) · Prisma · Vitest · Playwright (E2E/visuel) · Zod · Auth Supabase ou BetterAuth.
+
+## 11. Parallélisation (règle DURE)
+
+Le temps d'attente d'une phase vient surtout de ce qui s'exécute en file alors que rien ne l'y oblige. La règle tient en une ligne : **ce qui lit part ensemble, ce qui écrit part en file.**
+
+| Nature du travail | Comment |
+|---|---|
+| Lecture, analyse, audit, mesure, recherche (aucun fichier touché) | **En parallèle, dans un seul message.** Un appel par angle, jamais un agent unique qui fait tout. |
+| Écriture de code | Séquentiel, ou en vagues GSD à `files_modified` disjoints. Deux agents sur un même fichier coûtent plus cher que le temps gagné. |
+| Application d'un fix validé | Séquentiel, après le GO. |
+
+Trois conséquences :
+
+- **Un checkpoint par groupe, pas par analyse.** Trois gates lancées ensemble rendent un seul bloc à trois sections (`/se-checkpoint`, règle 6). Le vrai coût n'est pas le temps machine, c'est le nombre de fois où l'humain est réveillé pour le même diff.
+- **Chaque agent spawné nomme son modèle** (§9) : `sonnet` pour une lecture mécanique, `opus` dès qu'il faut juger.
+- **Un skill invoqué en mode rapport n'écrit rien.** Il tourne à côté d'autres lectures : y écrire un fichier ou y lancer un build est une faute, pas un raccourci.
+
+Anti-pattern à ne pas réintroduire : une suite d'étapes numérotées qui appellent chacune un skill de lecture et attendent sa réponse avant de passer à la suivante.

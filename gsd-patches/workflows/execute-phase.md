@@ -580,73 +580,72 @@ Options:
 Use AskUserQuestion to present the options.
 </step>
 
-<step name="simplify_janitor_gate">
-**SIMPLE & EFFICACE gates** — quality + cleanup before goal verification. Advisory: surfaces opportunities, the human decides (GO/NO-GO). Never blocks the flow.
+<step name="quality_gates">
+**SIMPLE & EFFICACE gates** — quality + cleanup + security before goal verification. Advisory: they surface opportunities, the human decides (GO/NO-GO). They never block the flow.
+
+**The three gates read the same diff and write nothing until the human says GO.** So they run in ONE parallel batch and produce ONE checkpoint. Running them in sequence triples the wall-clock and, worse, wakes the human three times for the same diff (loi : `~/.claude/se/CONVENTIONS.md` §11).
 
 **Config gates:**
 ```bash
 SIMPLIFY_ENABLED=$(gsd-sdk query config-get workflow.simplify_gate 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.simplify_gate 2>/dev/null || echo "false")
 JANITOR_ENABLED=$(gsd-sdk query config-get workflow.janitor_gate 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.janitor_gate 2>/dev/null || echo "false")
 SECURITY_ENABLED=$(gsd-sdk query config-get workflow.security_gate 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.security_gate 2>/dev/null || echo "false")
+
+# SECURITY trigger: sensitive surface OR dependencies touched by this phase.
+DEPS_CHANGED=$(git log --name-only --grep="${PHASE_NUMBER}" --pretty="" | grep -E '^(package\.json|package-lock\.json|pnpm-lock\.yaml|bun\.lock)$' | sort -u)
 ```
 
 All default to `"false"`: these gates are opt-in. Enable per project in `.planning/config.json` under `workflow.simplify_gate` / `workflow.janitor_gate` / `workflow.security_gate`.
 
-**Step 1 — SIMPLIFY gate (if SIMPLIFY_ENABLED is "true"):**
-Invoke the quality gate on the phase's modified files:
-```
-Skill(skill="se-gate-simplify", args="phase ${PHASE_NUMBER} — fichiers modifies de la phase")
-```
-The gate runs deterministic detector + LLM cross-check, classifies P0/P1, and presents a GO/NO-GO checkpoint. If the user approves P0 fixes, it applies them (Minimal Viable Change) then runs `npm run build && npm run type-check`. Findings are logged to `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`.
-If SIMPLIFY_ENABLED is "false": display "Gate SIMPLIFY skipped (workflow.simplify_gate=false)" and proceed.
+SECURITY also needs a trigger: a modified file matching `/api/`, `route.(ts|js)`, `middleware.*`, `auth`, `login`, `session`, `*.sql`, `migrations/`, `prisma/schema.prisma`, `next.config.*`, or code calling Supabase/DB clients — **or** a non-empty `DEPS_CHANGED`. Neither → "Gate SECURITY skipped (surface non sensible)".
 
-**Step 2 — JANITOR gate (if JANITOR_ENABLED is "true"):**
-After SIMPLIFY, invoke the cleanup gate:
-```
-Skill(skill="se-gate-janitor", args="phase ${PHASE_NUMBER} — fichiers modifies de la phase")
-```
-Detector + LLM cross-check classify DEAD / VIOLATION / SUSPECT. SUSPECT is never auto-removed. On GO, deletes DEAD + migrates VIOLATION in separate commits, then `npm run build && npm run type-check`. Logged to CHECKPOINTS.md.
-If JANITOR_ENABLED is "false": display "Gate JANITOR skipped (workflow.janitor_gate=false)" and proceed.
+**Step 1 — Spawn every enabled gate IN PARALLEL, in a SINGLE message.**
 
-**Step 3 — SECURITY gate (if SECURITY_ENABLED is "true"):**
-Triggered when the phase touched sensitive surface — any modified file matching: `/api/`, `route.(ts|js)`, `middleware.*`, `auth`, `login`, `session`, `*.sql`, `migrations/`, `prisma/schema.prisma`, `next.config.*`, or code calling Supabase/DB clients — **or dependencies**:
-```bash
-# Deps touched during this phase? Same mechanism as service detection: the phase's commits.
-DEPS_CHANGED=$(git log --name-only --grep="${PHASE_NUMBER}" --pretty="" | grep -E '^(package\.json|package-lock\.json|pnpm-lock\.yaml|bun\.lock)$' | sort -u)
-```
-If neither sensitive surface nor `DEPS_CHANGED`: display "Gate SECURITY skipped (surface non sensible)" and proceed.
-```
-Skill(skill="se-security", args="phase ${PHASE_NUMBER} — fichiers sensibles modifies de la phase")
-```
-The audit classifies findings CRITICAL/HIGH/MEDIUM/LOW and presents a GO/NO-GO checkpoint. CRITICAL findings must be fixed (or explicitly accepted by the human with a written reason) before ship; findings and verdict are logged to `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`.
+One subagent per enabled gate, all three Task calls in the same message. Each gate is invoked in `--report-only` mode: it reads, it reports, it changes nothing.
 
-**Step 3b — supply-chain (only if DEPS_CHANGED is non-empty):**
-Waiting for `/se-deploy` to catch a bad dependency means it ships to the push. Check it now, in the phase:
-1. List added/changed dependencies from the phase's package.json diff:
-```bash
-git log -p --grep="${PHASE_NUMBER}" --pretty="" -- package.json | grep -E '^\+\s*"[^"]+"\s*:\s*"' || true
 ```
-2. Audit — pick the command matching the lockfile found in DEPS_CHANGED (`package-lock.json` → npm, `pnpm-lock.yaml` → pnpm, `bun.lock` → bun):
-```bash
-npm audit --json --omit=dev 2>/dev/null || pnpm audit --json 2>/dev/null || bun audit 2>/dev/null
+Task(subagent_type="general-purpose", model="opus",
+     prompt="Invoke Skill(se-gate-simplify) with args 'phase ${PHASE_NUMBER} --report-only — fichiers modifies de la phase'. Return its report block verbatim and nothing else. Modify no file, run no build, ask no question.")
+
+Task(subagent_type="general-purpose", model="opus",
+     prompt="Invoke Skill(se-gate-janitor) with args 'phase ${PHASE_NUMBER} --report-only — fichiers modifies de la phase'. Return its report block verbatim and nothing else. Delete no file, commit nothing, ask no question.")
+
+Task(subagent_type="general-purpose", model="opus",
+     prompt="Invoke Skill(se-security) with args 'phase ${PHASE_NUMBER} --report-only — fichiers sensibles modifies de la phase'. ${DEPS_CHANGED:+Dependencies changed in this phase (${DEPS_CHANGED}): also run the supply-chain grid (§5 of the skill) — audit, install scripts of NEW deps, pinning, provenance.} If this phase exposes the project's first public route and next.config.* declares no headers(), report 'Headers de sécurité absents — template : .planning/_templates/security-headers.md'. Return findings and verdict, nothing else. Modify no file, ask no question.")
 ```
-CRITICAL = same rule as the rest of the gate: fix it, or explicit human acceptance with a written reason.
-3. For each NEW dependency, inspect its install scripts:
-```bash
-node -e "console.log(JSON.stringify(require('./node_modules/PKG/package.json').scripts||{}))"
+
+A disabled or untriggered gate is simply not spawned: display `Gate {name} skipped ({reason})` and move on. Model per `~/.claude/se/CONVENTIONS.md` §9: these gates judge, so `opus`.
+
+**Step 2 — One grouped checkpoint** (form imposed by `Skill(se-checkpoint)`, type `human-verify`):
+
 ```
-An unexpected `preinstall`/`postinstall`/`install` script is SIGNALED to the human — no automatic verdict, it is sometimes legitimate (esbuild compiles its binary this way). "Signaler" = montrer le script et demander.
-4. Version declared in package.json: exact pin or reasonable `^` range = OK ; `*` or `latest` = FLAG.
+CHECKPOINT · Gates phase {N}                          [human-verify]
 
-Best-effort like the rest of the gate: if npm (or the detected package manager) is unavailable, note "supply-chain non vérifiable (npm absent)" in the report and proceed — never block on a missing tool.
+Fait        {n} fichiers modifiés · gates lancées en parallèle : {liste}
+Mesuré      SIMPLIFY  P0 {a} · P1 {b}
+            JANITOR   DEAD {c} · VIOLATION {d} · SUSPECT {e}
+            SECURITY  CRITICAL {f} · HIGH {g}
+À juger     1. [SUSPECT] fichier:ligne · <pourquoi le doute>
+            2. [CRITICAL] fichier:ligne · <attaque> · fix : <...>
+            (4 maximum — ce qui est mesuré ne se juge pas, il passe avec le GO)
+Regarder    <fichiers:lignes concernés>
 
-Reminder — if this phase exposes the project's first public route and `next.config.*` declares no `headers()`: signal "Headers de sécurité absents — template prêt à copier : `.planning/_templates/security-headers.md`".
+→ Appliquer P0 + DEAD + VIOLATION + les fixes CRITICAL ? [GO / sélection / NO-GO]
+```
 
-Log the supply-chain verdict in the same `## Gate SECURITY` section of `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`, same format as the rest: what was checked, with what, verdict, accepted exceptions with written reason.
+Ce qui est déjà tranché par la mesure (P0, DEAD, VIOLATION) n'entre pas dans « À juger » : seuls les SUSPECT et les CRITICAL demandent l'avis humain. Les P1 vont au journal.
 
-If SECURITY_ENABLED is "false": display "Gate SECURITY skipped (workflow.security_gate=false)" and proceed.
+**Step 3 — Apply sequentially, after the GO.** Writing is never parallel (§11). Order matters:
 
-**Error handling:** If either Skill invocation fails or throws, catch the error, display "Gate {name} encountered an error (non-blocking): {error}" and proceed. Gate failures must NEVER block execution.
+1. CRITICAL security fixes,
+2. SIMPLIFY P0,
+3. JANITOR DEAD + VIOLATION (cleaning last: it must not delete code a simplification just moved).
+
+Atomic commits separated by category, then `npm run build && npm run type-check` **once for the whole batch**, not once per gate.
+
+**Journal:** one `## Gates` section in `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md` (gabarit `.planning/_templates/CHECKPOINTS.template.md`): what each gate measured, the human's answer verbatim, what was applied, and every accepted exception with its written reason. A CRITICAL left unfixed is only legal with that written reason.
+
+**Error handling:** if a subagent fails or throws, display "Gate {name} encountered an error (non-blocking): {error}" and keep the other reports. A missing tool (npm absent, detector unavailable) is noted "non vérifiable" in the report, never a blocker. Gate failures must NEVER block execution.
 
 Regardless of gate results, ALWAYS proceed to visual_checkpoint_gate.
 </step>
@@ -714,18 +713,20 @@ Priorité aux CTA, messages d'erreur et états vides : ce sont des BLOCK dans `u
 Après correction, relancer Step 2 et 3. Une seule boucle de correction, puis on présente ce qui reste à l'humain — pas d'auto-QA sans fin.
 
 **Step 6 — Checkpoint humain (ce que la mesure ne dit pas).** Le serveur dev tourne déjà (Claude l'a lancé en Step 1) : le checkpoint donne l'**URL exacte** de chaque écran, l'humain regarde le rendu réel, pas seulement les captures.
+
+Forme imposée par `Skill(se-checkpoint)`, type `human-verify` : quatre points à juger au maximum, et jamais un point que la mesure a déjà tranché.
 ```
-Checkpoint visuel — Phase {N}, écran {nom}
-URL     : http://localhost:3000{route}   ← ouvre et regarde le rendu réel
-Mesure  : BLOCK {n} · FLAG {n} · PASS {n}   (détail : node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name {nom})
-Captures: desktop / tablet / mobile — .planning/_ui/
+CHECKPOINT · écran {nom} (phase {N})                  [human-verify]
 
-À juger (aucune mesure ne le dit) :
-- La direction esthétique déclarée en §0.2 est-elle VISIBLE, ou seulement écrite ?
-- Où l'œil se pose-t-il en premier ? Est-ce voulu ?
-- Qu'est-ce qui trahit une origine générique ici ?
+Fait        <ce qui a été livré sur cet écran, 3 lignes maximum>
+Mesuré      BLOCK {n} · FLAG {n} · PASS {n}   (détail : node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name {nom})
+            captures desktop / tablet / mobile dans .planning/_ui/
+À juger     1. la direction §0.2 se voit-elle, ou est-elle seulement écrite ?
+            2. l'oeil se pose-t-il sur le focal point déclaré ?
+            3. qu'est-ce qui trahit une origine générique ici ?
+Regarder    http://localhost:3000{route}   ← le rendu réel, pas seulement les captures
 
-→ Le rendu est bon ? [GO / décrire les problèmes]
+→ Le rendu part en commit ? [GO / décrire les problèmes]
 ```
 Consigner verdict mesuré + verdict humain + chemins des captures dans `${PHASE_DIR}/${PADDED}-CHECKPOINTS.md`. Sur GO :
 1. enregistrer la passe pour que le hook `ui-gate` laisse passer les commits suivants :
