@@ -39,6 +39,7 @@ const REPO_TEST_SUITES = [
   path.join('hooks', 'se-guard.test.cjs'),
   path.join('hooks', 'se-gates.test.cjs'),
   path.join('scripts', 'ui-verdict.test.cjs'),
+  path.join('scripts', 'se-serve.test.cjs'),
 ];
 const SCAFFOLD_REQUIRED_FILES = ['CLAUDE.md', '.gitignore', path.join('.planning', 'config.json')];
 

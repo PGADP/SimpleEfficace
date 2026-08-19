@@ -21,6 +21,9 @@ node_modules/
 .planning/_screenshots/
 **/screenshots/
 
+# Process longs lancés par se-serve.cjs (PID + logs) — n'ont de sens que sur cette machine
+.planning/_servers/
+
 # Mesures UI (captures + ui-report.*.json produits par tests/e2e/ui-verify.spec.ts)
 .planning/_ui/
 

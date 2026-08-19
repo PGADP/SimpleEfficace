@@ -32,3 +32,6 @@ node_modules/
 playwright-report/
 test-results/
 coverage/
+
+# Process longs lancés par se-serve.cjs (PID + logs) — jamais commités
+.planning/_servers/

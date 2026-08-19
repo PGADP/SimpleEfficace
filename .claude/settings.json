@@ -55,6 +55,18 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-server-reaper.cjs\"",
+            "timeout": 15,
+            "statusMessage": "se-server-reaper"
+          }
+        ]
+      }
     ]
   }
 }
