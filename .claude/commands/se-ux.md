@@ -76,6 +76,8 @@ Auditer un desktop sans vérifier menus, raccourcis, undo et restauration de fen
 
 Deux granularités : **feature** (le workflow ci-dessous) ou **parcours E2E** (`/se-ux audit J2`) — dans ce cas, dérouler le workflow sur **chaque** étape, et vérifier les **transitions**. Le plus gros gisement de friction est entre les écrans : redirections, contexte perdu, états incohérents, retour arrière cassé.
 
+Sur un parcours de plus de deux étapes, les étapes s'auditent **en parallèle** : un sous-agent par étape (`model: "opus"`), tous dans le même message, chacun rendant ses frictions au format ci-dessous (loi : `~/.claude/se/CONVENTIONS.md` §11). Les **transitions**, elles, restent au thread principal : elles croisent deux étapes, aucun agent ne les voit depuis la sienne. C'est là que se trouve le plus gros du gisement, donc c'est le travail qui mérite le contexte complet.
+
 ### Étape 1 — Mapping JTBD → parcours
 
 Extraire le JTBD complet, tracer le flow proposé, marquer où chaque étape du JTBD est couverte ou **manquante**.

@@ -682,8 +682,10 @@ HAS_AXE=$([ -d "node_modules/@axe-core/playwright" ] && echo 1 || echo 0)
 Le serveur de dev n'est PAS lancé ici : Playwright le gère seul via `webServer` (il réutilise celui de l'humain s'il tourne, sinon il en démarre un et le tue à la fin du run). Pour l'URL du checkpoint humain en Step 6, demander à l'humain de lancer `npm run dev` dans son terminal s'il n'en a pas déjà un (loi : `~/.claude/se/CONVENTIONS.md` §12) ; en flux autonome uniquement, passer par `se-serve.cjs start`, jamais par un lancement en fond non enregistré. Si l'humain décline une installation, la gate passe en non-bloquant (cf. Error handling) — on ne bloque jamais sur un outil absent.
 
 **Step 2 — Mesurer.** Les écrans à vérifier = ceux modifiés par la phase, **complétés par les étapes des parcours touchés dans `.planning/design/JOURNEYS.md`** (si un écran d'un parcours a changé, prendre aussi l'étape amont et l'étape aval — la friction vit dans les transitions) :
+Plusieurs écrans : **un seul message, un run par écran** (loi : `~/.claude/se/CONVENTIONS.md` §11). Mesurer est une lecture ; les enchaîner multiplie l'attente sans rien apporter.
+
 ```bash
-# Pour chaque route/écran (+ étapes adjacentes du parcours) :
+# Pour chaque route/écran (+ étapes adjacentes du parcours), tous lancés ensemble :
 UI_ROUTE="<route>" UI_NAME="<ecran>" npx playwright test tests/e2e/ui-verify.spec.ts
 # → .planning/_ui/ui-report.<ecran>.{desktop,tablet,mobile}.json + les captures
 #   (.planning/_ui/ est gitignoré : jamais dans le dossier de phase, ils ne doivent

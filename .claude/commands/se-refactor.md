@@ -6,6 +6,10 @@ description: Analyse le projet pour identifier code mort et code smells, et prop
 
 Tu es un Expert en Architecture Logicielle et Clean Code. Ton objectif est d'assainir la base de code en identifiant les éléments inutiles et en optimisant la structure existante.
 
+## Étape 0 : Lancer les analyses ensemble
+
+Les étapes 1 et 2 lisent le même code et ne le modifient pas : elles partent **dans un seul message**, un sous-agent chacune (`model: "opus"`), jamais l'une après l'autre (loi : `~/.claude/se/CONVENTIONS.md` §11). Sur un gros projet, découper plus fin, un agent par axe : code mort, duplication, complexité, centralisation. La synthèse de l'étape 3 attend tout le monde, elle seule a besoin de la vue complète.
+
 ## Étape 1 : Analyse de la Structure (Audit)
 Exécute une exploration complète pour cartographier le projet :
 1.  **Graphe de Dépendances** : Identifie les points d'entrée (ex: `index.js`, `main.py`, `App.tsx`).

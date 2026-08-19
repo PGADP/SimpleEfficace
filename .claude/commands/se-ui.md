@@ -79,7 +79,7 @@ Ne pas boucler indéfiniment : une passe de critique, un lot de corrections, une
 | `/se-ui craft <cible>` | Concevoir | `craft.md`, `new-work.md` |
 | `/se-ui critique <cible>` | Critique seule, sans toucher au code | `critique.md` |
 | `/se-ui polish <cible>` | Passe de finition avant livraison | `polish.md` |
-| `/se-ui audit <cible>` | Verdict contre les 10 piliers (§4) | `audit.md` |
+| `/se-ui audit <cible>` | Verdict contre les 10 piliers (§4), un agent par écran quand la cible en compte plusieurs | `audit.md` |
 | `/se-ui bolder <cible>` | Amplifier une UI fade | `bolder.md` |
 | `/se-ui quieter <cible>` | Calmer une UI qui crie | `quieter.md` |
 | `/se-ui distill <cible>` | Retirer jusqu'à l'essentiel | `distill.md` |
@@ -96,6 +96,8 @@ node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name <écran>
 ```
 
 Produit un verdict BLOCK / FLAG / PASS mesuré sur les 10 piliers : WCAG 2.2 AA (axe-core), typographie et espacements réellement rendus, cibles tactiles, débordements, focus visible, pièges clavier, `prefers-reduced-motion`, Core Web Vitals.
+
+Plusieurs écrans à mesurer : les runs partent **dans un seul message**, un par écran, jamais l'un après l'autre (loi : `~/.claude/se/CONVENTIONS.md` §11). Mesurer est une lecture, et Playwright sait tenir plusieurs runs de front.
 
 Croiser avec le détecteur d'anti-patterns :
 ```bash
@@ -149,7 +151,7 @@ Une exception documentée rétrograde BLOCK → FLAG, sauf sur Copywriting, Regi
 
 - **craft / polish / bolder / quieter / distill** — le code, plus un résumé des choix ancrés dans le contrat, plus les défauts que la critique a trouvés et ce qui a été corrigé.
 - **critique** — les défauts nommés et classés, sans modification de code.
-- **audit** — le tableau des 10 piliers avec verdict, écart mesuré et fix précis. Pas de jugement subjectif là où une mesure existe.
+- **audit** — le tableau des 10 piliers avec verdict, écart mesuré et fix précis. Pas de jugement subjectif là où une mesure existe. Sur plusieurs écrans, un sous-agent par écran (`model: "opus"`, tous dans le même message), puis une synthèse qui garde les défauts communs ensemble : dix écrans qui ratent le même pilier, c'est un défaut de contrat, pas dix défauts d'écran.
 
 ## 7. Frontières
 
