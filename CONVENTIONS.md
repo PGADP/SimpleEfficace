@@ -27,6 +27,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ├── RETROSPECTIVE.md      leçons transverses
 ├── CONVENTIONS.md        ce fichier
 ├── config.json           toggles du cycle GSD
+├── HANDOFF.json          état de session en pause (/gsd:pause-work), effacé à la reprise
 │
 ├── phases/               phases ACTIVES uniquement
 ├── research/             recherches transverses
@@ -70,6 +71,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 | Les parcours E2E | `.planning/design/JOURNEYS.md` |
 | Une banque de règles | `.planning/rules/{nom}.json` (données typées) |
 | Une idée capturée | `.planning/todos/pending/` puis `done/` |
+| Un handoff de session en pause | `.planning/HANDOFF.json` (machine) + `.planning/phases/{NN}-{slug}/.continue-here.md` (humain) |
 | Un milestone archivé | `.planning/_archive/milestones/{vX.Y}/` |
 | Une spec de chantier système | `docs/_design/{NN}-{nom}.md` |
 | La conception du système | `docs/SYSTEME.md` |
