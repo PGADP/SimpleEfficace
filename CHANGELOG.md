@@ -18,6 +18,21 @@ C'est le guard qui cède, pas la pratique : renommer aurait demandé de patcher 
 - `STATE.template.md` nomme le chemin complet `.planning/phases/{NN}-{slug}/.continue-here.md` au lieu du nom nu, pour qu'on ne l'écrive pas à la racine de `.planning/` où il serait refusé à juste titre.
 - `se-guard.test.cjs` 58 → 63 tests.
 
+## [1.7.0] - 2026-08-19
+
+Des serveurs de dev restaient allumés session après session, chacun tenant son port. La règle « un serveur lancé = un serveur tué » était pourtant écrite à deux endroits depuis le début : personne ne l'exécutait. Le système disait aussi « Claude ne te demande JAMAIS de lancer une commande », ce qui est juste pour un build et faux pour un process qui survit à la commande.
+
+### Ajouté
+- **`scripts/se-serve.cjs` et son registre** (`hooks/server-registry.cjs`) : `start` / `stop` / `status` pour les process longs, avec PID, log et URL enregistrés dans `.planning/_servers/` (gitignoré). Un `start` sur un nom déjà vivant réutilise au lieu de doubler, ce qui est exactement comme on se retrouve avec dix serveurs. `--wait` attend que l'URL réponde et échoue proprement si le process meurt au démarrage.
+- **`hooks/se-server-reaper.cjs`, hook SessionEnd** : tue ce que la session a laissé tourner. Il ne touche qu'au registre, donc jamais au serveur que l'humain a lancé dans son terminal.
+- **`CONVENTIONS.md` §12, la frontière des commandes** : éphémère (build, type-check, tests, Playwright, migrations) pour Claude ; process long (dev server, worker, tunnel, docker) pour l'humain, sur une commande d'une ligne donnée une fois par session. Deux exceptions nommées : Playwright, qui gère son serveur seul via `webServer`, et les flux autonomes, qui passent par `se-serve.cjs`.
+- **`scripts/se-serve.test.cjs`, 20 tests** : de vrais process sont lancés, et un battement de fichier vérifie que c'est bien le process de travail qui meurt, pas seulement le relais qui l'a lancé.
+
+### Modifié
+- **Le lancement d'un process long ne passe plus par `shell + detached`** : sur Windows, un `cmd.exe` détaché ouvre une fenêtre de console visible à chaque démarrage, et le même avec `CREATE_NO_WINDOW` meurt à la naissance. Un relais node détaché relance la commande en enfant. Les quatre combinaisons ont été mesurées avant de choisir.
+- **Alignés sur §12** : `SYSTEME.md` §11 principe 5, le rituel 6 de `/se-ui`, le checkpoint visuel d'`execute-phase`, le gabarit `playwright.config` et le `CLAUDE.md` du scaffold, qui affirmaient tous l'inverse.
+- **Les audits qui restaient mono-agent passent en parallèle** : `/se-ui audit` (un agent par écran), la mesure Playwright multi-écrans (un run par écran dans le même message), `/se-ux audit` de parcours (un agent par étape, les transitions restant au thread principal), `/se-refactor` (structure et qualité ensemble, par axe sur un gros projet), `/se-security` (un agent par bloc de la grille sur un périmètre large).
+
 ## [1.6.0] - 2026-08-19
 
 Une phase coûtait trois interruptions pour un seul diff. Les gates SIMPLIFY, JANITOR et SECURITY s'enchaînaient en file, chacune avec son checkpoint et son build, alors qu'elles lisent le même diff et n'écrivent rien avant le GO. Et chaque skill improvisait la forme de sa demande de validation, jusqu'au « Le rendu est bon ? » du checkpoint visuel, qui ne vérifie rien.
