@@ -3,6 +3,21 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.5.1] - 2026-08-19
+
+`placement-guard` refusait `.continue-here.md` dans un dossier de phase, alors que c'est le nom que `/gsd:pause-work` écrit et que le gabarit `STATE.template.md` du scaffold cite lui-même. La loi de rangement contredisait la pratique livrée par le système, sur un fichier produit à chaque pause de session.
+
+C'est le guard qui cède, pas la pratique : renommer aurait demandé de patcher quatre workflows GSD amont (`pause-work`, `resume-project`, `transition`, `templates/state.md`), qu'un `/gsd:update` aurait pu défaire en silence.
+
+### Ajouté
+- **Classe « fichier d'état transitoire » en §6** : un dossier de phase accepte un seul nom hors de la table MAJUSCULES, `.continue-here.md`. Ce n'est pas un onzième artefact de phase mais une autre nature : les noms MAJUSCULES sont des produits durables qui partent à l'archive, celui-là est un état de session consommé à la reprise. Le point et les minuscules signalent cette différence.
+- **Clé `phaseTransientAllow`** dans `hooks/rules/placement-rules.json`, en match exact : aucun préfixe `{phase}-{plan}-` toléré, pour que la porte s'ouvre sur un nom et pas sur la catégorie « dotfile ». Ajoutée à `PLACEMENT_OVERRIDE_KEYS`, donc surchargeable par projet via `placement-overrides.json`.
+- **`HANDOFF.json` déclaré** dans l'arborescence §2 et dans la table des destinations §3. Il ne déclenchait rien (le guard sort tôt sur tout ce qui n'est pas `.md`) mais la loi restait muette sur un fichier que `/gsd:pause-work` écrit à la racine de `.planning/`.
+
+### Modifié
+- `STATE.template.md` nomme le chemin complet `.planning/phases/{NN}-{slug}/.continue-here.md` au lieu du nom nu, pour qu'on ne l'écrive pas à la racine de `.planning/` où il serait refusé à juste titre.
+- `se-guard.test.cjs` 58 → 63 tests.
+
 ## [1.5.0] - 2026-08-17
 
 Le contrat de design ne disait rien de la hiérarchie visuelle. Trois écrans conçus par trois agents sont sortis avec trois échelles différentes sans qu'aucun ne soit en faute, et neuf défauts sont arrivés jusqu'à l'humain. Les garde-fous avaient bien tourné : le plancher de qualité avait été injecté, la gate de contrat avait laissé passer. Un garde-fou ne rattrape pas un contrat muet.
