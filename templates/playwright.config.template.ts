@@ -27,7 +27,9 @@ export default defineConfig({
     { name: 'tablet', use: { ...devices['iPad Pro'] } },
     { name: 'mobile', use: { ...devices['Pixel 5'] } },
   ],
-  // Claude lance le serveur lui-même (cf. principe checkpoints : l'humain ne lance jamais une commande).
+  // Playwright est le SEUL à lancer un serveur automatiquement : il le démarre s'il n'y en
+  // a pas, réutilise celui de l'humain s'il tourne, et ne tue que ce qu'il a lancé.
+  // Partout ailleurs, un process long est lancé par l'humain (cf. CONVENTIONS §12).
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',

@@ -180,3 +180,25 @@ Trois conséquences :
 - **Un skill invoqué en mode rapport n'écrit rien.** Il tourne à côté d'autres lectures : y écrire un fichier ou y lancer un build est une faute, pas un raccourci.
 
 Anti-pattern à ne pas réintroduire : une suite d'étapes numérotées qui appellent chacune un skill de lecture et attendent sa réponse avant de passer à la suivante.
+
+## 12. Commandes : qui lance quoi (règle DURE)
+
+Une commande qui se termine seule ne laisse rien derrière elle. Un process qui survit à la commande, si.
+
+| Type | Qui lance | Pourquoi |
+|---|---|---|
+| Éphémère : build, type-check, lint, tests, Playwright, migration de dev, git | **Claude** | Elle rend la main, rien ne survit. |
+| Process long : dev server, worker, queue, tunnel, docker compose | **L'humain**, dans son terminal | Claude le perd de vue dès le tour suivant. Il ne le tue jamais, le port reste pris, et les orphelins s'empilent. |
+
+Quand Claude a besoin d'un process long, il ne le lance pas : il donne la commande en **un bloc copiable d'une ligne**, seule sur sa ligne, et attend. Une fois par session, pas une fois par checkpoint.
+
+Deux exceptions, pas une de plus :
+
+- **Playwright** lance et tue son serveur lui-même (`webServer` dans la config, `reuseExistingServer` réutilise celui de l'humain s'il tourne déjà). C'est le mécanisme natif, on ne le double pas.
+- **Un flux autonome** qui doit vraiment démarrer un serveur passe par `se-serve.cjs`, jamais par `run_in_background` ni par un `&`. Le PID est enregistré, donc le process reste tuable, et le hook `se-server-reaper` (SessionEnd) tue ce qui reste quand la session se termine.
+
+```bash
+node "$HOME/.claude/se/scripts/se-serve.cjs" start dev --cmd "npm run dev" --url http://localhost:3000 --wait
+node "$HOME/.claude/se/scripts/se-serve.cjs" status
+node "$HOME/.claude/se/scripts/se-serve.cjs" stop dev        # ou --all
+```

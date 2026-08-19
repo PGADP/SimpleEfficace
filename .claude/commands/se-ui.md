@@ -104,7 +104,7 @@ node "$HOME/.claude/se/vendor/design/impeccable/detect.mjs" --json <fichiers|URL
 
 Puis, sur les **textes extraits** (`text.visible` du rapport) : passer par `/se-humanizer`. C'est automatique — plus de « vérifier que les textes sont passés par ».
 
-Si Playwright n'est pas configuré : copier `$HOME/.claude/se/templates/playwright.config.template.ts` et `$HOME/.claude/se/templates/ui-verify.template.ts`, installer `@playwright/test` et `@axe-core/playwright`. **Claude lance les commandes, jamais l'humain.**
+Si Playwright n'est pas configuré : copier `$HOME/.claude/se/templates/playwright.config.template.ts` et `$HOME/.claude/se/templates/ui-verify.template.ts`, installer `@playwright/test` et `@axe-core/playwright`. Ces commandes-là se terminent seules, donc c'est Claude qui les lance (CONVENTIONS §12).
 
 Ce que la mesure ne dit pas, tu dois le juger : direction visible, focal point, qualité de la critique. Les règles `verifiedBy: llm|human` de `ui-rules.json` listent exactement lesquelles.
 
@@ -116,7 +116,11 @@ Ce que la mesure ne dit pas, tu dois le juger : direction visible, focal point, 
 4. **Humanizer** — les textes visibles extraits du rapport passent par `/se-humanizer`.
 5. **Mesure** — `ui-verify` + `ui-verdict` verts, ou écarts assumés et documentés en §6 de DESIGN-SYSTEM.md.
 6. **Checkpoint humain + passe enregistrée** — obligatoire pour toute création ou modification front, et **le commit est refusé sans elle** (hook `ui-gate`) :
-   - lancer le serveur dev toi-même (jamais demander à l'humain de lancer une commande) ;
+   - avoir une URL qui répond. Le serveur de dev se lance **par l'humain** (CONVENTIONS §12) : s'il n'en a pas déjà un, lui donner la commande, seule sur sa ligne, et attendre.
+     ```bash
+     npm run dev
+     ```
+     Playwright, lui, gère son serveur seul via `webServer` : rien à lancer pour la mesure ;
    - rendre le checkpoint via `Skill(se-checkpoint)`, type `human-verify`, dans sa forme exacte :
      ```
      CHECKPOINT · <écran>                                  [human-verify]
@@ -136,7 +140,7 @@ Ce que la mesure ne dit pas, tu dois le juger : direction visible, focal point, 
      node "$HOME/.claude/se/scripts/ui-pass.cjs" record <fichiers front modifiés> --url <url> --go "<réponse humaine>"
      ```
      Le script relance le détecteur : il refuse d'enregistrer s'il reste des anti-patterns. Inclure `.planning/design/ui-passes.json` dans le commit.
-   - **tuer le serveur dev** lancé pour le checkpoint, tout de suite après l'enregistrement. Un serveur lancé = un serveur tué ; les orphelins s'accumulent sinon.
+   - **ne rien laisser tourner derrière toi.** Le serveur de l'humain lui appartient, on n'y touche pas. Ce que tu as lancé toi-même en autonomie, tu le tues : `node "$HOME/.claude/se/scripts/se-serve.cjs" stop --all`. Le hook `se-server-reaper` repasse en fin de session, mais un filet n'est pas une excuse.
    - toute re-modification d'un fichier invalide sa passe (hash) : re-checkpoint avant le prochain commit.
 
 Une exception documentée rétrograde BLOCK → FLAG, sauf sur Copywriting, Registry Safety et **Accessibility**. « Le client préfère » n'est pas une raison ; « charte de marque imposée, 6 tailles historiques » en est une.

@@ -246,7 +246,7 @@ GSD a la bonne philosophie (« humain = jugement seul, Claude automate ») mais 
 2. **Visuel d'abord.** Claude démarre le serveur, te donne l'URL + 3-4 points précis à regarder. Tu valides avec tes yeux.
 3. **Décision claire.** GO / NO-GO / NO-GO-avec-raison. Pas de rapport à lire.
 4. **Test manuel > script** quand c'est du fonctionnel/visuel. On ne code pas un test E2E pour vérifier « est-ce que ça a la bonne tête ».
-5. **Claude ne te demande JAMAIS de lancer une commande.** Serveur, build, migrations = Claude. Toi = regarder et trancher.
+5. **Tu ne lances que ce qui survit à la commande.** Build, migrations, tests, Playwright : Claude, elles rendent la main. Le serveur de dev, un worker, un tunnel : toi, dans ton terminal, sur une commande d'une ligne que Claude te donne. Il le perdrait de vue au tour suivant et ne le tuerait jamais, d'où les serveurs qui s'empilent (loi : `CONVENTIONS.md` §12). Le peu que Claude doit lancer en autonomie passe par `se-serve.cjs`, donc par un PID enregistré que le hook de fin de session tue.
 
 **3 types :**
 - `human-verify` (visuel/fonctionnel) — 90%. Claude a tout fait, tu confirmes.

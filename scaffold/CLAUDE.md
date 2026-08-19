@@ -38,7 +38,7 @@ node "$HOME/.claude/se/scripts/install-gsd-patches.cjs"   # applique les enrichi
   3. **Parcours** — cohérence avec JOURNEYS.md.
   4. **Humanizer** — sur les textes réellement affichés (`text.visible` du `ui-report.json`).
   5. **Mesure** — `UI_ROUTE=… npx playwright test tests/e2e/ui-verify.spec.ts` puis `node "$HOME/.claude/se/scripts/ui-verdict.cjs" --name <écran>`.
-  6. **Checkpoint humain + passe** — lancer le serveur, donner à l'humain l'**URL exacte** de la page, attendre son GO explicite, puis enregistrer : `node "$HOME/.claude/se/scripts/ui-pass.cjs" record <fichiers> --url <url> --go "<réponse>"`. Sans passe enregistrée, `ui-gate` **refuse le commit**.
+  6. **Checkpoint humain + passe** — donner l'**URL exacte** de la page (le serveur de dev est lancé par l'humain, cf. CONVENTIONS §12), attendre son GO explicite, puis enregistrer : `node "$HOME/.claude/se/scripts/ui-pass.cjs" record <fichiers> --url <url> --go "<réponse>"`. Sans passe enregistrée, `ui-gate` **refuse le commit**.
 
   Rappelé par le hook `ui-guard`, imposé par `ui-contract-gate` (écriture) et `ui-gate` (commit). Un BLOCK mesuré arrête la livraison (`workflow.ui_gate_blocking`) ; une métrique absente ne bloque jamais.
 

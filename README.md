@@ -195,7 +195,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 
 ## Les garde-fous
 
-Six scripts que `se install` câble dans ton `settings.json` global, dont un dispatcher qui porte sept détecteurs. Ils ne s'activent que dans les projets SE (présence de `.planning/`) et les critères vivent tous dans `~/.claude/se/hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
+Sept scripts que `se install` câble dans ton `settings.json` global, dont un dispatcher qui porte sept détecteurs. Ils ne s'activent que dans les projets SE (présence de `.planning/`) et les critères vivent tous dans `~/.claude/se/hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
 
 | Garde-fou | Se déclenche sur | Ce qu'il fait | Bloque |
 |---|---|---|---|
@@ -211,13 +211,15 @@ Six scripts que `se install` câble dans ton `settings.json` global, dont un dis
 | `secret-gate` | `git commit` | refuse un secret dans le diff, malgré `--no-verify` | **oui** |
 | `ui-contract-gate` | écriture de code front | refuse tant que DESIGN-SYSTEM.md §0 et §2.1 (hiérarchie visuelle) ne sont pas remplis ; injecte le plancher de qualité impeccable à la 1ʳᵉ édition front de la session | **oui** |
 | `ui-gate` | `git commit` de fichiers front | refuse sans passe `/se-ui` validée : anti-patterns mesurés + GO humain avec URL (registre `ui-passes.json`) | **oui** |
+| `server-reaper` | fin de session | tue les process longs que Claude a enregistrés (`se-serve.cjs`) — jamais ceux lancés par l'humain | — |
 
 ```bash
 cd ~/.claude/se
-node hooks/se-guard.test.cjs     # 49 tests — détecteurs + activation hors projet SE
-node hooks/se-gates.test.cjs     # 44 tests — gates bloquantes
-node scripts/ui-verdict.test.cjs # 39 tests — moteur de verdict UI + cascade
-node scripts/se.test.cjs         # 42 tests — CLI install/init/doctor/merge
+node hooks/se-guard.test.cjs     # 63 tests — détecteurs + activation hors projet SE
+node hooks/se-gates.test.cjs     # 46 tests — gates bloquantes
+node scripts/ui-verdict.test.cjs # 47 tests — moteur de verdict UI + cascade
+node scripts/se.test.cjs         # 56 tests — CLI install/init/doctor/merge
+node scripts/se-serve.test.cjs   # 20 tests — registre des process longs + reaper
 ```
 
 ## Le contrat de design vient avant le premier composant
