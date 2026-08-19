@@ -27,22 +27,35 @@ Sans la sortie de B, relis pour confirmer : un « mort » est-il utilisé via `r
 - VIOLATION → migrer (console.log → logger) ou centraliser (doublon).
 - SUSPECT → JAMAIS supprimé automatiquement.
 
-## Étape 4 — Checkpoint humain (GO / NO-GO)
-```
-Gate JANITOR — Phase {N}
-DEAD (suppression sûre) : {n}   VIOLATION : {m}   SUSPECT (à valider) : {k}
+## Étape 4 — Sortie
 
-[liste DEAD + VIOLATION avec fichier:ligne]
-[liste SUSPECT — nécessite ton avis, NON supprimés]
+**Mode rapport** (argument `--report-only`, c'est ainsi que le cycle t'invoque) : tu t'arrêtes ici. Tu ne supprimes RIEN, tu ne commites RIEN, tu ne poses AUCUNE question. Tu retournes ce bloc, et rien d'autre :
 
-→ Supprimer DEAD + corriger VIOLATION ? [GO / NO-GO]
 ```
-Si GO → supprimer DEAD, migrer VIOLATION, en **commits séparés par catégorie** (cf. /se-janitor), puis `npm run build && npm run type-check`. Consigner dans `{phase}/CHECKPOINTS.md`.
+GATE JANITOR · phase {N}
+DEAD {n} · VIOLATION {m} · SUSPECT {k}
+- [DEAD] fichier:ligne · <quoi>
+- [VIOLATION] fichier:ligne · <quoi> · fix : <migration proposée>
+- [SUSPECT] fichier:ligne · <pourquoi le doute> · NON supprimé
+```
+
+Le cycle lance les gates en parallèle et groupe les rapports en un seul checkpoint (cf. `execute-phase`, step `quality_gates`). Trois gates ne réveillent pas l'humain trois fois.
+
+**Mode direct** (invocation manuelle) : rends le checkpoint toi-même. Invoque `Skill(se-checkpoint)` de type `human-verify`, et respecte sa forme :
+
+- `Fait` : le périmètre scanné.
+- `Mesuré` : `DEAD {n} · VIOLATION {m} · SUSPECT {k}`.
+- `À juger` : les SUSPECT seulement, 4 maximum. DEAD et VIOLATION sont mesurés, ils n'ont rien à faire dans la question : ils passent avec le GO.
+- `Regarder` : les fichiers:lignes des SUSPECT.
+- Question : `→ Supprimer DEAD + corriger VIOLATION ? [GO / NO-GO / sélection]`
+
+Sur GO : supprimer DEAD, migrer VIOLATION, en **commits séparés par catégorie** (cf. /se-janitor), puis `npm run build && npm run type-check`. Consigner dans `{phase}/CHECKPOINTS.md`.
 
 ## Règles
 - Supprime le mort, ne refactore pas le vivant.
 - SUSPECT ne se supprime jamais sans validation humaine explicite.
 - Commits atomiques séparés par catégorie.
+- En mode rapport, supprimer un fichier ou commiter est une faute : tu es une lecture, tu tournes en parallèle d'autres lectures.
 
 ---
 **Phase / fichiers** : $ARGUMENTS

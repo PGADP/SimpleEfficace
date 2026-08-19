@@ -32,23 +32,34 @@ Croise A et B :
 
 Classe chaque opportunité : `P0` (à corriger avant ship) / `P1` (nice-to-have) / `rejet` (faux positif).
 
-## Étape 4 — Checkpoint humain (GO / NO-GO)
-Présente :
-```
-Gate SIMPLIFY — Phase {N}
-P0 (à corriger avant ship) : {n}
-P1 (optionnel)            : {m}
+## Étape 4 — Sortie
 
-[liste P0 avec fichier:ligne + raison + fix proposé]
+**Mode rapport** (argument `--report-only`, c'est ainsi que le cycle t'invoque) : tu t'arrêtes ici. Tu ne modifies AUCUN fichier et tu ne poses AUCUNE question. Tu retournes ce bloc, et rien d'autre :
 
-→ Appliquer les simplifications P0 ? [GO / NO-GO / sélection]
 ```
-Si GO → appliquer (via /se-refactor ou édition ciblée, Minimal Viable Change), puis `npm run build && npm run type-check`. Consigner dans `{phase}/CHECKPOINTS.md`.
+GATE SIMPLIFY · phase {N}
+P0 {n} · P1 {m}
+- [P0] fichier:ligne · <raison en une ligne> · fix : <le changement précis>
+- [P1] fichier:ligne · <raison> · fix : <...>
+```
+
+Le cycle lance les gates en parallèle et groupe les rapports en un seul checkpoint (cf. `execute-phase`, step `quality_gates`). Trois gates ne réveillent pas l'humain trois fois.
+
+**Mode direct** (invocation manuelle) : rends le checkpoint toi-même. Invoque `Skill(se-checkpoint)` de type `human-verify`, et respecte sa forme :
+
+- `Fait` : les fichiers examinés et le périmètre.
+- `Mesuré` : `P0 {n} · P1 {m}`, plus les catégories du détecteur.
+- `À juger` : les P0 seulement, 4 maximum, chacun avec son fix en une ligne. Les P1 vont dans le journal, pas dans la question.
+- `Regarder` : `git diff` du périmètre, ou les fichiers:lignes concernés.
+- Question : `→ Appliquer les simplifications P0 ? [GO / NO-GO / sélection]`
+
+Sur GO : appliquer (édition ciblée ou `/se-refactor`, Minimal Viable Change), puis `npm run build && npm run type-check`. Consigner dans `{phase}/CHECKPOINTS.md`.
 
 ## Règles
-- Quality only. Si tu trouves un bug, NE le corrige PAS ici — note-le pour /se-review.
+- Quality only. Si tu trouves un bug, NE le corrige PAS ici : note-le pour /se-review.
 - Minimal Viable Change : pas de refacto opportuniste hors scope.
 - Respecte CLAUDE.md : « no over-engineered solutions », « source unique », découplage.
+- En mode rapport, écrire un fichier ou lancer un build est une faute : tu es une lecture, tu tournes en parallèle d'autres lectures.
 
 ---
 **Phase / fichiers** : $ARGUMENTS

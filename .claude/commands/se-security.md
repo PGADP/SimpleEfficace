@@ -57,6 +57,20 @@ Puis le verdict :
 - MEDIUM/LOW : X (backlog)
 ```
 
+## Deux modes d'invocation
+
+**Mode rapport** (argument `--report-only`, c'est ainsi que le cycle t'invoque) : tu rends les findings et le verdict, tu ne poses AUCUNE question. Compacte la sortie :
+
+```
+GATE SECURITY · phase {N}
+CRITICAL {n} · HIGH {m} · MEDIUM/LOW {k}
+- [CRITICAL] fichier:ligne · <attaque en une ligne> · fix : <le correctif>
+```
+
+Le cycle lance les gates en parallèle et groupe les rapports en un seul checkpoint (cf. `execute-phase`, step `quality_gates`).
+
+**Mode direct** : rends le checkpoint toi-même via `Skill(se-checkpoint)`, type `human-verify`. `Mesuré` porte le décompte par sévérité, `À juger` ne contient que les CRITICAL et les acceptations de risque demandées (4 maximum), la question est `→ Corriger les CRITICAL avant ship ? [GO / acceptation écrite + raison]`.
+
 ## Règles
 
 - **CRITICAL = NO-GO.** Pas d'exception silencieuse : seul l'humain peut accepter le risque, par écrit.

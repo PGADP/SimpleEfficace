@@ -117,14 +117,20 @@ Ce que la mesure ne dit pas, tu dois le juger : direction visible, focal point, 
 5. **Mesure** — `ui-verify` + `ui-verdict` verts, ou écarts assumés et documentés en §6 de DESIGN-SYSTEM.md.
 6. **Checkpoint humain + passe enregistrée** — obligatoire pour toute création ou modification front, et **le commit est refusé sans elle** (hook `ui-gate`) :
    - lancer le serveur dev toi-même (jamais demander à l'humain de lancer une commande) ;
-   - donner à l'humain l'**URL exacte** de la page à regarder, avec un message de validation explicite :
+   - rendre le checkpoint via `Skill(se-checkpoint)`, type `human-verify`, dans sa forme exacte :
      ```
-     Checkpoint visuel — <écran>
-     URL : http://localhost:3000/<route>
-     Mesure : BLOCK 0 · FLAG n · PASS n
-     À juger (aucune mesure ne le dit) : la direction §0.2 est-elle visible ? où l'œil se pose-t-il ?
-     → Le rendu est bon ? [GO / décrire les problèmes]
+     CHECKPOINT · <écran>                                  [human-verify]
+
+     Fait        <ce qui a été conçu, 3 lignes maximum>
+     Mesuré      BLOCK 0 · FLAG n · PASS n
+     À juger     1. la direction §0.2 se voit-elle au premier coup d'oeil ?
+                 2. l'oeil se pose-t-il sur le focal point déclaré ?
+                 3. <point propre à cet écran>
+     Regarder    http://localhost:3000/<route>
+
+     → Le rendu part en commit ? [GO / décrire les problèmes]
      ```
+     Les points « À juger » sont ceux que `ui-rules.json` marque `verifiedBy: llm|human`, jamais une mesure déjà rendue en ligne `Mesuré`. Quatre maximum.
    - attendre sa réponse. Sur GO, enregistrer la passe :
      ```bash
      node "$HOME/.claude/se/scripts/ui-pass.cjs" record <fichiers front modifiés> --url <url> --go "<réponse humaine>"
