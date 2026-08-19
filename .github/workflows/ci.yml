@@ -45,6 +45,17 @@ jobs:
             echo "scripts/se.test.cjs absent — étape sautée"
           fi
 
+      # Étape dédiée : lancée seulement par `doctor --repo`, la sortie détaillée est
+      # avalée et un échec ne dit pas QUEL test casse.
+      - name: Tests du registre de process (scripts/se-serve.test.cjs, si présent)
+        shell: bash
+        run: |
+          if [ -f scripts/se-serve.test.cjs ]; then
+            node scripts/se-serve.test.cjs
+          else
+            echo "scripts/se-serve.test.cjs absent — étape sautée"
+          fi
+
       - name: Vérification syntaxique de tous les .cjs
         shell: bash
         run: |

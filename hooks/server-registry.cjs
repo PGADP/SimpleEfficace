@@ -17,6 +17,9 @@ const SERVERS_DIR_REL = path.join('.planning', '_servers');
 const REGISTRY_REL = path.join(SERVERS_DIR_REL, 'registry.json');
 const REGISTRY_VERSION = 1;
 const KILL_TIMEOUT_MS = 5000;
+const KILL_GRACE_MS = 3000;   // délai laissé à un SIGTERM pour faire son travail
+const KILL_FINAL_MS = 2000;   // délai accordé après le coup de grâce
+const KILL_POLL_MS = 50;
 
 function serversDir(projectDir) { return path.join(projectDir, SERVERS_DIR_REL); }
 function registryPath(projectDir) { return path.join(projectDir, REGISTRY_REL); }
@@ -39,28 +42,66 @@ function writeRegistry(projectDir, registry) {
   fs.writeFileSync(target, JSON.stringify({ version: REGISTRY_VERSION, entries }, null, 2) + '\n');
 }
 
+/** Un zombie répond encore à kill(0) alors qu'il ne tient plus rien : ni port, ni fichier.
+ *  Le compter comme vivant ferait attendre un kill qui n'arrivera jamais. */
+function isZombie(pid) {
+  if (process.platform === 'win32') return false;
+  try {
+    const stat = fs.readFileSync(`/proc/${pid}/stat`, 'utf8');
+    return stat.slice(stat.lastIndexOf(')') + 2)[0] === 'Z';
+  } catch {
+    return false;   // pas de /proc (macOS) : on s'en remet à kill(0)
+  }
+}
+
 /** Le process existe-t-il encore ? Signal 0 = test de présence, il ne tue rien. */
 function isAlive(pid) {
   if (!Number.isInteger(pid) || pid <= 0) return false;
   try {
     process.kill(pid, 0);
-    return true;
   } catch (err) {
     return err.code === 'EPERM'; // vivant mais appartient à quelqu'un d'autre
   }
+  return !isZombie(pid);
 }
 
-/** Tue le process ET ses enfants. `npm run dev` spawn le vrai serveur : tuer le parent
- *  seul laisse l'enfant tenir le port, ce qui est exactement le bug qu'on corrige. */
+/** Pause synchrone : le registre est lu par un hook qui doit rendre un verdict, pas
+ *  enchaîner des promesses. Atomics.wait bloque sans brûler le CPU. */
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function waitDeath(pid, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (!isAlive(pid)) return true;
+    sleepSync(KILL_POLL_MS);
+  }
+  return !isAlive(pid);
+}
+
+function signalTree(pid, signal) {
+  // detached: true a fait du process un chef de groupe, donc -pid vise tout le groupe.
+  // Repli sur le PID seul si le groupe n'existe pas (process déjà réparenté).
+  try { process.kill(-pid, signal); return; } catch { /* pas de groupe */ }
+  try { process.kill(pid, signal); } catch { /* déjà mort */ }
+}
+
+/** Tue le process ET ses enfants, puis ATTEND la mort. `npm run dev` spawn le vrai
+ *  serveur : tuer le parent seul laisse l'enfant tenir le port, ce qui est le bug qu'on
+ *  corrige. Et un SIGTERM n'est pas instantané : rendre un verdict juste après l'envoi
+ *  ferait dire « il résiste » à un process en train de mourir proprement. */
 function killTree(pid) {
   if (!isAlive(pid)) return true;
   if (process.platform === 'win32') {
     spawnSync('taskkill', ['/PID', String(pid), '/T', '/F'], { timeout: KILL_TIMEOUT_MS, stdio: 'ignore' });
-  } else {
-    // detached: true a fait du process un chef de groupe, donc -pid tue tout le groupe.
-    try { process.kill(-pid, 'SIGTERM'); } catch { try { process.kill(pid, 'SIGTERM'); } catch { /* déjà mort */ } }
+    return waitDeath(pid, KILL_FINAL_MS);
   }
-  return !isAlive(pid);
+  signalTree(pid, 'SIGTERM');
+  if (waitDeath(pid, KILL_GRACE_MS)) return true;
+  // Ce qui traîne finit en SIGKILL : un serveur qui ignore SIGTERM garde son port.
+  signalTree(pid, 'SIGKILL');
+  return waitDeath(pid, KILL_FINAL_MS);
 }
 
 /** Tue tout ce qui traîne et vide le registre. Retourne ce qui a été tué et ce qui résiste. */
