@@ -520,6 +520,16 @@ function cmdSyncProject(dirArg) {
     }
   }
 
+  // 3. _templates/ — gabarits ajoutés au système APRÈS la création du projet (un projet
+  //    d'avant n'a jamais eu CHECKPOINTS.template.md). Copie non destructive : un gabarit
+  //    déjà présent a pu être adapté par le projet, on ne le touche pas.
+  const templatesSrc = path.join(scaffold, '.planning', '_templates');
+  if (fs.existsSync(templatesSrc)) {
+    const { copied: tplCopied } = copyTreeNoOverwrite(templatesSrc, path.join(planning, '_templates'));
+    if (tplCopied) log(`✓ _templates/ : ${tplCopied} gabarit(s) ajouté(s)`);
+    else log('✓ _templates/ : à jour, aucun gabarit manquant');
+  }
+
   if (todo.length) {
     log('\nÀ FAIRE (aucune de ces actions ne se fait sans l\'humain) :');
     todo.forEach((item, i) => log(`  ${i + 1}. ${item}`));

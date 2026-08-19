@@ -147,6 +147,10 @@ fs.writeFileSync(path.join(legacy, '.planning', 'config.json'),
 fs.writeFileSync(path.join(legacy, '.planning', 'design', 'DESIGN-SYSTEM.md'),
   '# DESIGN-SYSTEM\n\n## 0.1 Plateforme cible\n| Plateforme principale | web |\n\n## 2. Typographie\n| Body | 16px |\n\n## 3. Espacement\ngrille 4px\n');
 
+// Un gabarit déjà adapté par le projet : la copie des _templates ne doit pas l'écraser.
+fs.mkdirSync(path.join(legacy, '.planning', '_templates'), { recursive: true });
+fs.writeFileSync(path.join(legacy, '.planning', '_templates', 'STATE.template.md'), 'GABARIT ADAPTE PAR LE PROJET\n');
+
 cli = runCli(initHome, ['sync-project', legacy]);
 const legacyConfig = JSON.parse(fs.readFileSync(path.join(legacy, '.planning', 'config.json'), 'utf8'));
 const legacyDs = fs.readFileSync(path.join(legacy, '.planning', 'design', 'DESIGN-SYSTEM.md'), 'utf8');
@@ -164,6 +168,10 @@ check('sync-project : §2.1 placée entre §2 et §3',
 check('sync-project : la section insérée reste à remplir (pas de faux contrat rempli)',
   /à remplir/.test(legacyDs.slice(legacyDs.indexOf('## 2.1'))));
 check('sync-project : le public cible manquant est remonté en action humaine', /Public cible/.test(cli.stdout));
+check('sync-project : gabarit manquant copié dans _templates/',
+  fs.existsSync(path.join(legacy, '.planning', '_templates', 'CHECKPOINTS.template.md')));
+check('sync-project : un gabarit adapté par le projet n\'est jamais écrasé',
+  fs.readFileSync(path.join(legacy, '.planning', '_templates', 'STATE.template.md'), 'utf8').startsWith('GABARIT ADAPTE'));
 
 const beforeSecondRun = fs.readFileSync(path.join(legacy, '.planning', 'design', 'DESIGN-SYSTEM.md'), 'utf8');
 cli = runCli(initHome, ['sync-project', legacy]);
