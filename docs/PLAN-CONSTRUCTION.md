@@ -43,7 +43,7 @@ Déploiement vers `~/.claude/` : à la fin, push GitHub puis copie/sync. (Étape
 Déjà construit. Pour mémoire :
 - `.planning/` : phases/ research/ design/ rules/ todos/ _archive/ _templates/
 - `.planning/CONVENTIONS.md`, `.planning/INDEX.md`
-- `.planning/_templates/STATE.template.md` (plafond 150), `ROADMAP.template.md` (plafond 200)
+- `.planning/_templates/STATE.template.md`, `ROADMAP.template.md` (plafonds : voir CONVENTIONS.md, source unique)
 
 **Reste à créer dans ce chantier** (petit) :
 - 🔴 `.planning/_templates/phase-template/` : CONTEXT, RESEARCH, PLAN, SUMMARY, VERIFICATION, CHECKPOINTS, UI-SPEC (noms fixes, cf. CONVENTIONS §4). Source d'inspiration : `_sources/get-shit-done/get-shit-done/templates/*.md`.
@@ -84,7 +84,7 @@ Note : le validateur de settings est lui-même un garde-fou (il a bloqué un nom
 | 4 | **hardcode-guard** | PostToolUse Edit/Write | code source | valeurs magiques + listes hardcodées (cf. règle CLAUDE.md « no hardcoded lists ») | non |
 | 5 | **hygiene-guard** | PostToolUse Edit | code source | imports inutilisés, console.log, code mort | non |
 | 6 | **monolith-guard** | PostToolUse Edit | code source | fichier > seuil lignes, fonction > seuil, trop d'exports | **non (advisory — décidé)** |
-| 7 | **size-gate** | PostToolUse Write | STATE.md / ROADMAP.md | refuse si > plafond (150 / 200) | **oui** |
+| 7 | **size-gate** | PostToolUse Write | STATE.md / ROADMAP.md | refuse si > plafond (cf. CONVENTIONS.md) | **oui** |
 | 8 | **archive-hook** | à ship réussi | phase passée en shipped | déplace dossier en `_archive/` + maj INDEX | auto |
 
 **Garde-fous bloquants = 2 seulement** (slop-gate, size-gate). Le reste souffle. Cohérent avec « advisory par défaut, on ne bride pas ».
@@ -117,11 +117,11 @@ Les hooks GSD actuels (`gsd-context-monitor` sur PostToolUse, `gsd-prompt-guard`
 ## 2.1 Anti-entropie — à récupérer
 | Élément | Source | Action |
 |---|---|---|
-| Plafond STATE (idée) | `_sources/get-shit-done/.../templates/state.md` (100 lignes conseillé) | 🔵 durcir en 150 + le FORCER (size-gate) |
+| Plafond STATE (idée) | `_sources/get-shit-done/.../templates/state.md` (100 lignes conseillé) | 🔵 durcir + le FORCER (size-gate) |
 | Archivage milestones | `_sources/get-shit-done/.../workflows/cleanup.md`, `complete-milestone.md`, `templates/milestone-archive.md` | 🔵 généraliser en archive-hook auto |
 
 ## 2.2 Les 3 mécanismes — plan
-- **size-gate** (hook #7) : compte lignes après écriture, refuse si > plafond, message « archive le vieux ». Avertit dès ~90% avant de bloquer.
+- **size-gate** (hook #7) : mesure lignes, caractères et largeur de ligne après écriture, refuse si un plafond est dépassé ET que l'écriture aggrave, message « archive le vieux ». Avertit dès ~90% avant de bloquer.
 - **archive-hook** (hook #8) : phase shippée (SUMMARY + statut completed, ou via ship) → `mv` vers `_archive/phases/` + log `ARCHIVE.log` + maj INDEX.
 - **INDEX vivant** : un hook régénère les sections « Phases actives » et « Archive » après chaque archivage. Maintenu, jamais greppé.
 
@@ -241,7 +241,7 @@ Source : `_sources/claude-config/commands/se-pilot.md` + `planning.md`.
 ## 5.2 Plan de refonte
 - `/se-pilot` = routeur mince + sparring (Mode 2) chargé d'emblée. Détecte le mode et délègue.
 - Sous-skills `user-invocable:false` : `pilot:briefing`, `pilot:closure`, `pilot:strategic-discussion`. Chargés à la demande (pattern hyperresearch : routeur mince + étapes fraîches).
-- Briefing lit **un** STATE.md consolidé (≤150 lignes), pas la cascade.
+- Briefing lit **un** STATE.md consolidé (plafonds dans CONVENTIONS.md), pas la cascade.
 
 ## 5.3 Décision tranchée
 **Sparring INTÉGRÉ dans /se-pilot** (pas skill dédié). Raison : fluidité « je parle, il challenge » sans saut d'invocation. Le routeur mince suffit à régler le poids. → à confirmer par Paul.

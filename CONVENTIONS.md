@@ -16,8 +16,8 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ```
 .planning/
 ├── INDEX.md              carte de tout
-├── STATE.md              présent only, ≤ 300 lignes (size-gate)
-├── ROADMAP.md            3 horizons, ≤ 300 lignes (size-gate)
+├── STATE.md              présent only, ≤ 300 lignes / 20 000 car. / 300 car. par ligne (size-gate)
+├── ROADMAP.md            3 horizons + empreinte des phases livrées, mêmes plafonds (size-gate)
 ├── STRATEGY.md           vision, deadlines business
 ├── STRATEGY-ARCHIVE.md   décisions stratégiques sorties de STRATEGY.md
 ├── PROJECT.md            description produit + Key Decisions
@@ -28,6 +28,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ├── CONVENTIONS.md        ce fichier
 ├── config.json           toggles du cycle GSD
 ├── HANDOFF.json          état de session en pause (/gsd:pause-work), effacé à la reprise
+├── ARCHIVE.log           journal append-only des archivages (/se-archive)
 │
 ├── phases/               phases ACTIVES uniquement
 ├── research/             recherches transverses
@@ -127,9 +128,23 @@ Déclaré dans `hooks/rules/placement-rules.json` sous `phaseTransientAllow`, su
 
 ## 7. Anti-entropie (plafonds DURS)
 
-- `STATE.md` ≤ 300 lignes. Présent only. Au-delà → `size-gate` refuse l'écriture.
-- `ROADMAP.md` ≤ 300 lignes. Horizon court détaillé, moyen+long en une ligne.
-- Phase `complete` + `SUMMARY.md` → migrée en `_archive/phases/` par `/se-archive`. `phases/` ne contient QUE l'actif.
+`STATE.md` et `ROADMAP.md` ont trois plafonds, tous tenus par `size-gate` :
+
+| Plafond | Valeur | Pourquoi |
+|---|---|---|
+| Lignes | 300 | La mesure historique. |
+| Caractères | 20 000 | Le compte de lignes se contourne : 300 lignes de 1000 caractères coûtent autant que 3000 lignes normales. C'est le coût de contexte réel. |
+| Largeur d'une ligne | 300 | Attrape le paragraphe entassé sur une ligne. **Les lignes de tableau markdown en sont exemptées** : leur largeur est mécanique, la contraindre reviendrait à interdire les tableaux. |
+
+Deux règles de fonctionnement :
+
+- **Seule l'aggravation est refusée.** Un fichier déjà hors plafond (projet antérieur à la règle) reste modifiable tant que l'écriture ne l'alourdit pas. Sans cela, le gate bloquerait l'étape de `/se-archive` qui vient précisément l'assainir.
+- **Les CR ne comptent pas.** Un fichier en CRLF n'est pas plafonné plus sévèrement que le même fichier en LF.
+
+Le reste :
+
+- `STATE.md` : présent only. `ROADMAP.md` : horizon court détaillé, moyen+long en une ligne.
+- Phase `complete` + `SUMMARY.md` → migrée en `_archive/phases/` par `/se-archive`. `phases/` ne contient QUE l'actif, et la phase laisse UNE ligne d'empreinte (80 caractères) sous `## Phases livrées` dans `ROADMAP.md` plus une entrée dans `INDEX.md`. Déplacer sans laisser ces deux traces rend la phase introuvable.
 - `research/` et `audits/` de plus d'un milestone → `_archive/research/`, `_archive/audits/`.
 - Binaires (screenshots) : jamais commités (cf. `.gitignore`).
 
