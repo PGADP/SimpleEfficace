@@ -41,7 +41,7 @@ const REPO_TEST_SUITES = [
   path.join('scripts', 'ui-verdict.test.cjs'),
   path.join('scripts', 'se-serve.test.cjs'),
 ];
-const SCAFFOLD_REQUIRED_FILES = ['CLAUDE.md', '.gitignore', path.join('.planning', 'config.json')];
+const SCAFFOLD_REQUIRED_FILES = ['CLAUDE.md', '.gitignore', path.join('.planning', 'config.json'), path.join('.planning', 'INDEX.md')];
 
 // ---------------------------------------------------------------------------
 // Path & IO helpers
@@ -521,7 +521,19 @@ function cmdSyncProject(dirArg) {
     }
   }
 
-  // 3. _templates/ — gabarits ajoutés au système APRÈS la création du projet (un projet
+  // 3. INDEX.md : la carte anti-grep. Un projet créé avant qu'elle existe n'en a pas,
+  //    et sans elle le step `update_planning_index` d'execute-phase se saute en silence :
+  //    les phases archivées deviennent alors introuvables. Copie non destructive.
+  const indexPath = path.join(planning, 'INDEX.md');
+  if (fs.existsSync(indexPath)) {
+    log('✓ INDEX.md : présent');
+  } else {
+    fs.copyFileSync(path.join(scaffold, '.planning', 'INDEX.md'), indexPath);
+    log('✓ INDEX.md : créé depuis le scaffold (squelette vide)');
+    todo.push('Remplir INDEX.md : lister les phases actives et les phases déjà archivées (sections "Phases actives" et "Phases archivées").');
+  }
+
+  // 4. _templates/ : gabarits ajoutés au système APRÈS la création du projet (un projet
   //    d'avant n'a jamais eu CHECKPOINTS.template.md). Copie non destructive : un gabarit
   //    déjà présent a pu être adapté par le projet, on ne le touche pas.
   const templatesSrc = path.join(scaffold, '.planning', '_templates');
@@ -627,7 +639,7 @@ function collectRepoChecks() {
 
   // Scaffold completeness.
   const missingScaffold = SCAFFOLD_REQUIRED_FILES.filter((rel) => !fs.existsSync(path.join(REPO_ROOT, 'scaffold', rel)));
-  if (missingScaffold.length === 0) checks.push(check(CHECK_OK, 'scaffold complet (CLAUDE.md, .gitignore, .planning/config.json)'));
+  if (missingScaffold.length === 0) checks.push(check(CHECK_OK, 'scaffold complet (CLAUDE.md, .gitignore, .planning/config.json, .planning/INDEX.md)'));
   else checks.push(check(CHECK_KO, `scaffold incomplet : ${missingScaffold.map(toPosix).join(', ')}`));
 
   // Vendored corpora present.
