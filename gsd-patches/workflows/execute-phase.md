@@ -659,7 +659,11 @@ Ce que la machine tranche : WCAG 2.2 AA, tailles et poids typographiques réelle
 
 **Config gate:**
 ```bash
-VISUAL_ENABLED=$(gsd-sdk query config-get workflow.visual_checkpoint 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.visual_checkpoint 2>/dev/null || echo "false")
+# Défaut `true` : une clé absente veut dire « projet créé avant que la gate existe »,
+# pas « l'humain n'en veut pas ». Le défaut `false` éteignait la mesure visuelle en
+# silence sur tout projet dont le config.json n'avait pas encore la clé. Même
+# convention que les hooks (seFlag, guard-lib.cjs) : absent = actif.
+VISUAL_ENABLED=$(gsd-sdk query config-get workflow.visual_checkpoint 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.visual_checkpoint 2>/dev/null || echo "true")
 UI_GATE_BLOCKING=$(gsd-sdk query config-get workflow.ui_gate_blocking 2>/dev/null || node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.ui_gate_blocking 2>/dev/null || echo "true")
 ```
 `workflow.visual_checkpoint` active la gate. `workflow.ui_gate_blocking` (défaut `true`) décide si un BLOCK arrête la livraison ou reste consultatif. Le passer à `false` si la gate devient trop rigide au quotidien.
