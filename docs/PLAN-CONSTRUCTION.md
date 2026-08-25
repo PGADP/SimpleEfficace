@@ -324,7 +324,7 @@ Source : `_sources/claude-config/commands/`. Tous alignés stack sauf 2.
 **Reste (non bloquant) :**
 - **Câbler les hooks en global** (décidé : à l'étape DEPLOY, pas avant)
 - **Checkpoints visuels mid-flight** : templates Playwright prêts, mais l'INVERSION du défaut GSD `end-of-phase` dans le workflow verify n'est pas faite (SYSTEME §11)
-- ✅ **`/se-ui` skill standalone** : `.claude/commands/se-ui.md` existe (et le Front Pass de ui-phase pointe dessus)
+- ✅ **`/se-ui` skill standalone** : installé globalement dans `~/.claude/commands/` (le Front Pass de ui-phase l'invoque sans tester de chemin projet)
 - remplir DESIGN-SYSTEM.md / PERSONAS.md avec les vraies valeurs au 1er projet (voulu : ce sont des templates)
 - phase-template/ dans _templates/
 - TEST en conditions réelles (nouvelle session)

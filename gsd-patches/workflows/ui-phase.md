@@ -159,7 +159,7 @@ Display blocker details and options. Exit workflow.
 
 ## 6.5. Front Pass (Project DS Enrichment) — OPTIONAL
 
-Ce step est optionnel et gouverne par la config `workflow.ui_front_pass` (defaut: `true`). Il invoque le skill projet `/se-ui` (si present dans `.claude/commands/se-ui.md`) pour enrichir la UI-SPEC generique produite par le researcher avec le design system specifique du projet.
+Ce step est optionnel et gouverne par la config `workflow.ui_front_pass` (defaut: `true`). Il invoque le skill `/se-ui` pour enrichir la UI-SPEC generique produite par le researcher avec le design system specifique du projet.
 
 **Pourquoi cette etape existe :** `gsd-ui-researcher` produit une spec correcte mais generique (regles universelles : max 4 tailles, 60/30/10, CTA specifiques). Elle ne connait pas le DS specifique du projet (tokens Tailwind reels, composants existants, exceptions DS historiques). Le skill `/se-ui` est l'expert DS du projet — il comble ce fosse avant le checker, ce qui evite les revisions mecaniques (checker qui bloque sur des regles generales alors que la spec pourrait etre ancree dans le DS projet).
 
@@ -167,17 +167,21 @@ Ce step est optionnel et gouverne par la config `workflow.ui_front_pass` (defaut
 
 ```bash
 FRONT_PASS_ENABLED=$(node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" config-get workflow.ui_front_pass 2>/dev/null || echo "true")
-FRONT_SKILL_PATH=".claude/commands/se-ui.md"
 ```
 
-**Skip conditions (aucune de ces 3 conditions ne bloque le workflow, on passe simplement au step 7) :**
+**Ne PAS conditionner ce step a la presence de `.claude/commands/se-ui.md`.** Le systeme Simple & Efficace
+s'installe une fois par machine dans `~/.claude/` : ses skills vivent dans `~/.claude/commands/`, jamais
+dans le projet. Tester le chemin projet revenait a skipper le pass dans 100% des projets, en silence.
+Invoquer le skill et traiter son echec (voir "Handle front skill return") est la seule verification fiable.
+
+**Skip conditions (aucune ne bloque le workflow, on passe simplement au step 7) :**
 - `FRONT_PASS_ENABLED` vaut `false`
-- Le fichier `.claude/commands/se-ui.md` n'existe pas (projet sans skill `/se-ui`)
 - La UI-SPEC contient deja un marqueur `revised: ... front skill` (deja enrichie)
+- L'invocation de `/se-ui` echoue (skill indisponible) : c'est constate a l'appel, pas devine avant
 
 Si l'un de ces cas s'applique, display un message concis (`Front pass skipped: {raison}`) et passer directement au step 7.
 
-**Spawn `/se-ui` via Skill tool (si toutes conditions remplies) :**
+**Spawn `/se-ui` via Skill tool (si aucune skip condition ne s'applique) :**
 
 Display:
 ```
@@ -231,7 +235,7 @@ Contraintes : respecte les decisions CONTEXT.md, accents francais user-facing, p
 - Si le skill echoue ou ne peut pas s'executer → display warning, continue step 7 quand meme (spec originale utilisee)
 - Si le skill retourne sans avoir modifie le fichier (rien a enrichir) → continue step 7
 
-**Note :** le step 6.5 ne bloque jamais le workflow. Meme en cas d'echec, on passe au checker. C'est un step **best-effort** d'enrichissement qui ameliore la qualite si le projet a un skill `/se-ui`, mais n'est pas critique au fonctionnement du workflow.
+**Note :** le step 6.5 ne bloque jamais le workflow. Meme en cas d'echec, on passe au checker. C'est un step **best-effort** d'enrichissement qui ameliore la qualite quand `/se-ui` est disponible, mais n'est pas critique au fonctionnement du workflow.
 
 ## 7. Spawn gsd-ui-checker
 
@@ -369,7 +373,7 @@ node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state record-session \
 - [ ] Existing UI-SPEC handled (update/view/skip)
 - [ ] gsd-ui-researcher spawned with correct context and file paths
 - [ ] UI-SPEC.md created in correct location
-- [ ] Front skill pass attempted (if `workflow.ui_front_pass=true` and `.claude/commands/se-ui.md` exists) — best-effort, non-blocking
+- [ ] Front skill pass attempted (if `workflow.ui_front_pass=true`) — best-effort, non-blocking
 - [ ] gsd-ui-checker spawned with UI-SPEC.md
 - [ ] All 6 dimensions evaluated
 - [ ] Revision loop if BLOCKED (max 2 iterations)

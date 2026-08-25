@@ -124,7 +124,7 @@ Before executing ANY task that modifies existing files:
    grep -r "functionNameOrPattern" src/ --include="*.ts" -l
    ```
    If similar code exists → extend or reuse it, don't duplicate
-5. **Check project skills** — If `.claude/commands/` contains relevant skills for the domain being modified (e.g., `/pipeline-check` for pipeline), note them for post-task verification. For front code, `/se-ui` is not a suggestion: see `ui_plan_protocol` below.
+5. **Check project skills** — If `.claude/commands/` contains relevant skills for the domain being modified (e.g., `/pipeline-check` for pipeline), note them for post-task verification. For front code, `/se-ui` is not a suggestion and its absence from `.claude/commands/` proves nothing: Simple & Efficace installs its skills once per machine under `~/.claude/commands/`. Invoke it and see `ui_plan_protocol` below.
 
 **The goal:** Every line you write should look like it was written by the same developer who wrote the rest of the file. No layering, no style breaks, no duplicate utilities.
 </step>
