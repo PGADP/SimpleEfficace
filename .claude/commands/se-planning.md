@@ -135,6 +135,14 @@ Quand /se-pilot te dit "on ajoute/décale/change X" :
    - Prochaine priorité: Phase/Action
    ```
 
+## La section `## Phases livrées` de ROADMAP.md
+
+C'est l'empreinte des phases archivées : UNE ligne par phase, 80 caractères max, écrite par /se-archive.
+
+- Tu la **lis** pour calculer l'avancement du milestone : elle est la liste exhaustive de ce qui a shippé.
+- Tu ne la réécris pas et tu ne la rallonges jamais. Le détail vit dans `_archive/phases/{NN}-{slug}/{NN}-SUMMARY.md`, dont l'INDEX donne le chemin.
+- Une phase qui apparaît là ne doit plus figurer dans l'horizon court ni dans la vue semaine : si c'est le cas, c'est une incohérence à signaler.
+
 ## Principes
 
 ### Réalisme avant optimisme

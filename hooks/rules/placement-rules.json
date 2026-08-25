@@ -29,7 +29,8 @@
     "REQUIREMENTS.md",
     "MILESTONES.md",
     "RETROSPECTIVE.md",
-    "CONVENTIONS.md"
+    "CONVENTIONS.md",
+    "ARCHIVE.log"
   ],
   "planningDirs": [
     "phases",
