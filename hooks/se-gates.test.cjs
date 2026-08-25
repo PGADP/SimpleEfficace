@@ -119,7 +119,7 @@ console.log('se-size-gate:');
 // Plafond lu depuis le source du gate (source unique) : le test suit le seuil réel,
 // il ne le re-hardcode pas.
 const gateSrc = fs.readFileSync(path.join(__dirname, 'se-size-gate.cjs'), 'utf8');
-const CAP = Number((gateSrc.match(/STATE\\\.md\$\/i,\s*limit:\s*(\d+)/) || [])[1]);
+const CAP = Number((gateSrc.match(/STATE\\\.md\$\/i,\s*lines:\s*(\d+)/) || [])[1]);
 if (!CAP) { console.error('  FAIL  impossible de lire le plafond STATE.md dans se-size-gate.cjs'); process.exit(1); }
 
 const statePath = path.join(repo, 'STATE.md');
@@ -148,6 +148,70 @@ check('Edit neutre sur STATE.md sous plafond → laisse passer', !denies(runHook
 check('fichier non plafonné → laisse passer', !denies(runHook('se-size-gate.cjs', {
   tool_name: 'Write', tool_input: { file_path: path.join(repo, 'NOTES.md'), content: lines(CAP + 200) },
 }, repo)));
+
+// SIZE-2 : le plafond de lignes se contourne avec des lignes longues. Les plafonds
+// caractères et largeur ferment la porte. Seuils lus depuis le source du gate.
+const CHARS = Number((gateSrc.match(/STATE[^\n]*chars:\s*(\d+)/) || [])[1]);
+const WIDTH = Number((gateSrc.match(/STATE[^\n]*width:\s*(\d+)/) || [])[1]);
+if (!CHARS || !WIDTH) { console.error('  FAIL  plafonds chars/lineWidth illisibles dans se-size-gate.cjs'); process.exit(1); }
+
+// Chaque ligne reste sous la largeur max et le total sous le plafond de lignes,
+// mais le poids en caractères déborde : c'est exactement le contournement visé.
+const wide = (n, w) => Array.from({ length: n }, () => 'x'.repeat(w)).join('\n') + '\n';
+const underWidth = WIDTH - 1;
+const linesToBust = Math.ceil(CHARS / underWidth) + 1;
+check(`${linesToBust} lignes de ${underWidth} caractères (sous le plafond de lignes) → deny sur les caractères`,
+  linesToBust <= CAP && denies(runHook('se-size-gate.cjs', {
+    tool_name: 'Write', tool_input: { file_path: statePath, content: wide(linesToBust, underWidth) },
+  }, repo)));
+
+check(`une seule ligne de ${WIDTH + 1} caractères → deny sur la largeur`, denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: `# titre\n${'x'.repeat(WIDTH + 1)}\n` },
+}, repo)));
+
+check(`une ligne de ${WIDTH} caractères pile → laisse passer`, !denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: `# titre\n${'x'.repeat(WIDTH)}\n` },
+}, repo)));
+
+check('STATE.md court et étroit → laisse passer', !denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(20) },
+}, repo)));
+
+// SIZE-3 : les tableaux markdown alignés dépassent couramment la largeur max (mesuré
+// jusqu'à 556 caractères sur un ROADMAP.md réel). Leur largeur est mécanique, pas
+// rédactionnelle : elle est exemptée, sinon le gate interdirait les tableaux.
+const tableRow = `| ${'colonne'.padEnd(WIDTH, ' ')} | x |`;
+check(`ligne de tableau de ${tableRow.length} caractères → laisse passer`, !denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: `# titre\n${tableRow}\n` },
+}, repo)));
+
+// SIZE-4 : sens de variation. Un fichier déjà hors plafond (projet antérieur à la règle)
+// reste modifiable tant que l'écriture ne l'aggrave pas — sinon le gate refuserait
+// l'étape de /se-archive qui vient l'assainir.
+write('STATE.md', lines(CAP + 50));
+check('fichier déjà hors plafond, écriture qui réduit → laisse passer', !denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(CAP + 10) },
+}, repo)));
+check('fichier déjà hors plafond, écriture à taille égale → laisse passer', !denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(CAP + 50) },
+}, repo)));
+check('fichier déjà hors plafond, écriture qui aggrave → deny', denies(runHook('se-size-gate.cjs', {
+  tool_name: 'Write', tool_input: { file_path: statePath, content: lines(CAP + 51) },
+}, repo)));
+
+// SIZE-5 : un fichier CRLF ne doit pas être plafonné plus sévèrement que le même
+// fichier en LF (tous les .planning/ de la machine sont en CRLF).
+fs.rmSync(statePath, { force: true });
+const justUnder = lines(CAP - 1);
+check('même contenu en CRLF et en LF → même verdict', (() => {
+  const lf = denies(runHook('se-size-gate.cjs', {
+    tool_name: 'Write', tool_input: { file_path: statePath, content: justUnder },
+  }, repo));
+  const crlf = denies(runHook('se-size-gate.cjs', {
+    tool_name: 'Write', tool_input: { file_path: statePath, content: justUnder.replace(/\n/g, '\r\n') },
+  }, repo));
+  return lf === crlf && !lf;
+})());
 
 // ---------- se-ui-contract-gate ----------
 console.log('se-ui-contract-gate:');
