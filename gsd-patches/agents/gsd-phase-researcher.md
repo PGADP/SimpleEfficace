@@ -460,7 +460,10 @@ cat "$phase_dir"/*-CONTEXT.md 2>/dev/null
 
 1. **Search past phases** for related work:
    ```bash
-   grep -rl "keyword1\|keyword2\|keyword3" .planning/phases/ --include="*PLAN.md" --include="*SUMMARY.md" --include="*RESEARCH.md" --include="*VERIFICATION.md" | head -20
+   # `phases/` only holds ACTIVE work. Shipped phases are moved to `_archive/phases/`
+   # by /se-archive, so searching `phases/` alone hides everything older than the
+   # current milestone: search both roots.
+   grep -rl "keyword1\|keyword2\|keyword3" .planning/phases/ .planning/_archive/phases/ --include="*PLAN.md" --include="*SUMMARY.md" --include="*RESEARCH.md" --include="*VERIFICATION.md" 2>/dev/null | head -20
    ```
 
 2. **Read matching files** — Extract:

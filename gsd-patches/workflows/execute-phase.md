@@ -526,8 +526,10 @@ Run prior phases' test suites to catch cross-phase regressions BEFORE verificati
 
 **Step 1: Discover prior phases' test files**
 ```bash
-# Find all VERIFICATION.md files from prior phases in current milestone
-PRIOR_VERIFICATIONS=$(find .planning/phases/ -name "*-VERIFICATION.md" ! -path "*${PHASE_NUMBER}*" 2>/dev/null)
+# Find all VERIFICATION.md files from prior phases, active AND archived.
+# /se-archive moves shipped phases to _archive/phases/: searching only phases/
+# would silently skip every phase completed before the last archival pass.
+PRIOR_VERIFICATIONS=$(find .planning/phases/ .planning/_archive/phases/ -name "*-VERIFICATION.md" ! -path "*${PHASE_NUMBER}*" 2>/dev/null)
 ```
 
 **Step 2: Extract test file lists from prior verifications**

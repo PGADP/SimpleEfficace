@@ -229,6 +229,21 @@ find .planning/phases -mindepth 1 -maxdepth 1 -type d -exec mv {} "${phase_archi
 
 Then verify `.planning/phases/` no longer contains old milestone directories before continuing.
 
+**Then update `.planning/INDEX.md` (skip if the file does not exist).** This bulk move is a
+second archival path alongside `/se-archive`: entries written by `update_planning_index`
+still point at `phases/{NN}-{slug}/`, which no longer exists. Left uncorrected, every phase
+of the finished milestone becomes an unreachable path and reads as never having happened.
+
+For each directory moved:
+- Move its line from `## Phases actives` to `## Phases archivées`.
+- Rewrite its link target to `${phase_archive_path}/{NN}-{slug}/`.
+- Update the date at the top of the INDEX.
+
+Also add a one-line footprint per phase under `## Phases livrées` in ROADMAP.md
+(`{NN}-{slug} · {vX.Y} · {what it shipped, 6 words}`, 80 characters max) if the phase does
+not already have one. Same format as `/se-archive` step 5: one identifier per phase, no
+invented code name.
+
 If `phase_dir_count > 0` but `phase_archive_path` is missing:
 - Stop and explain that reset numbering is unsafe without a completed milestone archive target.
 - Tell the user to complete/archive the previous milestone first, then rerun `/gsd:new-milestone --reset-phase-numbers ${GSD_WS}`.

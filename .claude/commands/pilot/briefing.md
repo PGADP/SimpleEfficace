@@ -25,6 +25,6 @@ Procédure lourde du Mode 1, chargée à la demande pour garder /se-pilot mince.
 
 4. **Icebox** : si STATE.md montre qu'un nouveau milestone vient d'etre active, proposer `/gsd:check-todos` + `/gsd:review-backlog` pour revoir les idees capturees. Attendre confirmation, ne pas lancer auto.
 
-5. **Si l'utilisateur veut relancer quelque chose** : chercher dans `.planning/phases/` d'abord. Si trouve : "On a deja fait ca en phase X. Resume : [...]"
+5. **Si l'utilisateur veut relancer quelque chose** : lire `.planning/INDEX.md` d'abord, jamais un grep dans `.planning/phases/`. L'INDEX liste les phases actives ET les phases archivees ; `phases/` ne contient que l'actif, donc une phase livree il y a trois semaines n'y est plus. Si l'INDEX la nomme : "On a deja fait ca en phase X. Resume : [...]" en lisant le SUMMARY au chemin donne par l'INDEX (`_archive/phases/{NN}-{slug}/`). Si l'INDEX est absent OU si la section porte encore « ⚠ NON RENSEIGNE », ne pas conclure que rien n'existe : lister `.planning/phases/` ET `.planning/_archive/phases/`, le signaler, et proposer de remplir l'INDEX. Un INDEX vide ment plus qu'un INDEX absent.
 
 Retour au sparring /se-pilot pour la suite.
