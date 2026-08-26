@@ -18,6 +18,29 @@ C'est le guard qui cède, pas la pratique : renommer aurait demandé de patcher 
 - `STATE.template.md` nomme le chemin complet `.planning/phases/{NN}-{slug}/.continue-here.md` au lieu du nom nu, pour qu'on ne l'écrive pas à la racine de `.planning/` où il serait refusé à juste titre.
 - `se-guard.test.cjs` 58 → 63 tests.
 
+## [1.8.0] - 2026-08-26
+
+`/se-archive` déplaçait les dossiers de phases vers `_archive/` sans toucher aux trois documents qui pointent dessus. La phase devenait un chemin mort : `ROADMAP.md` gardait son détail intégral, `STATE.md` gardait des chemins vers un dossier disparu, et aucun agent ne lisait jamais `_archive/`. Le pilot répondait « on n'a jamais fait ça » sur du travail livré trois semaines plus tôt.
+
+En remontant la chaîne, la carte censée rendre l'archive retrouvable n'existait dans aucun projet, et deux gates UI étaient éteintes en silence par un chemin devenu faux.
+
+### Ajouté
+- **`INDEX.md` dans le scaffold.** `CONVENTIONS.md` l'annonçait comme la carte anti-grep et `execute-phase` la maintenait à chaque clôture de phase, mais rien ne la semait : le step se sautait donc toujours, et l'archivage reposait sur une carte inexistante. `se init` la pose, `se sync-project` la crée sur les projets antérieurs, `se doctor --repo` l'exige. Ses sections vides portent « ⚠ NON RENSEIGNÉ » et non « (aucune) » : un INDEX vide affirmerait qu'aucune phase n'existe, ce qui ment plus qu'un INDEX absent.
+- **Section `## Phases livrées` dans `ROADMAP.template.md`.** Une phase archivée y laisse une ligne d'empreinte de 80 caractères, `{NN}-{slug} · {vX.Y} · {6 mots}`. L'identifiant reste celui du dossier archivé : pas de nom de code inventé, un seul identifiant par phase et il sert de chemin.
+- **Deux plafonds au `size-gate` : 20 000 caractères par fichier, 300 par ligne.** Le compte de lignes se contournait trivialement — mesuré sur un `STATE.md` réel à 197 lignes pour 162 000 caractères, dont une ligne de 27 500. Les lignes de tableau markdown sont exemptées de la largeur : mesuré 43 lignes de tableau au-dessus de 300 sur un `ROADMAP.md` réel, leur largeur est mécanique et la contraindre reviendrait à interdire les tableaux.
+- **Étapes 4 à 6 de `/se-archive`** : recaler `INDEX.md`, condenser dans `ROADMAP.md`, réécrire les chemins de `STATE.md` puis déléguer à `/se-planning`. Aussi obligatoires que le déplacement lui-même.
+
+### Corrigé
+- **Le `size-gate` ne refuse plus que l'aggravation.** Un fichier déjà hors plafond reste modifiable tant que l'écriture ne l'alourdit pas. Sans cette règle les nouveaux plafonds bloquaient les 6 projets de la machine, dont l'étape de `/se-archive` qui vient précisément les assainir : on refusait le remède au motif que le patient est malade. Les CR ne comptent plus non plus, un fichier CRLF n'étant pas plus gros que le même fichier en LF.
+- **Cinq consommateurs cherchaient le passé dans `.planning/phases/`**, qui ne contient que l'actif : `briefing`, `se-pilot`, `gsd-phase-researcher`, `execute-phase` et `new-milestone`. Ils lisent `INDEX.md` ou fouillent les deux racines. `new-milestone` déplaçait en masse les phases vers l'archive du milestone sans jamais toucher la carte — second chemin d'archivage, mêmes dégâts.
+- **Le front pass UI testait un chemin de skill obsolète.** `ui-phase` skippait l'enrichissement de la UI-SPEC quand `.claude/commands/se-ui.md` manquait dans le projet. Depuis l'installation globale les skills vivent dans `~/.claude/commands/` et `/se-migrate` archive justement les copies projet : le fichier est absent des 5 projets de la machine sur 5, donc le pass était sauté dans 100 % des cas, avec un message qui laissait croire à un choix. Même déduction fautive dans `gsd-executor`.
+- **Le checkpoint visuel s'éteignait sur une clé absente.** `execute-phase` traitait `workflow.visual_checkpoint` manquant comme un refus, alors qu'elle manque sur tout projet créé avant que la gate existe : mesuré absent sur 3 projets sur 5, où Playwright n'a donc jamais tourné. Le défaut passe à `true`, la convention des hooks : absent = actif.
+- **Le journal `ARCHIVE.log` consignait les déplacements ratés** : le `echo` était une commande séparée du `mv`, pas sa suite conditionnelle.
+
+### Modifié
+- **`CONVENTIONS.md` §7 devient la source unique des plafonds** : un tableau des trois mesures avec le pourquoi de chacune, la règle du sens de variation, l'exemption des tableaux, et la trace obligatoire laissée par un archivage. Quatre documents donnaient trois valeurs différentes — les templates disaient 200 et 150 lignes là où la loi et le hook disaient 300. Les docs n'énoncent plus les valeurs, elles y renvoient.
+- **`hooks/se-gates.test.cjs` 50 → 55 tests** : contournement par lignes longues, tableau large, fichier déjà hors plafond dans les trois sens, équivalence CRLF/LF.
+
 ## [1.7.1] - 2026-08-19
 
 `killTree` rendait son verdict juste après l'envoi du signal. Sur Windows, `taskkill /F` est synchrone et le process est déjà mort au retour ; sur Linux et macOS, un SIGTERM ne l'est pas, donc un process en train de mourir proprement était déclaré « il résiste » et son entrée restait au registre. Le système marchait sur la machine où il a été écrit, ce que la CI Ubuntu a dit tout de suite.

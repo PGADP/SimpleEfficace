@@ -120,6 +120,8 @@ Ton fichier d'état déborde :
    Archive le passé avant d'écrire le présent.
 ```
 
+Le compte de lignes ne suffit pas : 300 lignes de 1000 caractères coûtent autant de contexte que 3000 lignes normales. Deux autres plafonds mesurent le poids réel (20 000 caractères par fichier, 300 par ligne, les tableaux exemptés). Un fichier déjà trop gros reste modifiable tant que l'écriture ne l'alourdit pas : sinon la gate refuserait le ménage qu'elle réclame.
+
 Une clé traîne dans le diff que tu t'apprêtes à commiter :
 
 ```
@@ -160,7 +162,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 | `/se-research` | Recherche web approfondie (quick/deep), rapport persistant et citable |
 | `/se-brainstorm-light` | 20 idées ciblées en 10 minutes |
 | `/se-brainstorm-heavy` | 60-80 idées, 61 techniques créatives, multi-session |
-| `/se-archive` | Sort les phases shippées du chemin de travail, avec confirmation |
+| `/se-archive` | Sort les phases shippées du chemin de travail et recale INDEX, ROADMAP et STATE, avec confirmation |
 | `/se-migrate` | Migre un projet de l'ancien modèle (système cloné) vers l'installation globale — dry-run, zéro perte |
 
 </details>
@@ -206,7 +208,7 @@ Sept scripts que `se install` câble dans ton `settings.json` global, dont un di
 | `monolith-guard` | code source | fichiers et exports trop gros | non |
 | `security-guard` | code source | secrets, XSS, `eval`, route API sans Zod | non |
 | `placement-guard` | `.md` de suivi | fichier rangé hors de sa destination unique | non |
-| `size-gate` | écriture STATE/ROADMAP | refuse au-delà de 300 lignes | **oui** |
+| `size-gate` | écriture STATE/ROADMAP | refuse au-delà de 300 lignes, 20 000 caractères ou 300 caractères sur une ligne — et seulement si l'écriture aggrave | **oui** |
 | `slop-gate` | `git commit` | refuse le contenu généré non relu | **oui** |
 | `secret-gate` | `git commit` | refuse un secret dans le diff, malgré `--no-verify` | **oui** |
 | `ui-contract-gate` | écriture de code front | refuse tant que DESIGN-SYSTEM.md §0 et §2.1 (hiérarchie visuelle) ne sont pas remplis ; injecte le plancher de qualité impeccable à la 1ʳᵉ édition front de la session | **oui** |
@@ -316,6 +318,8 @@ La règle qui pèse le plus lourd sur la durée : **un rapport ne s'écrit sur d
 | Transverse et persistante | `/se-security` (audit complet), `/se-ux` (audit), `/gsd:ui-review` | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
 Trois mécanismes d'anti-entropie complètent le dispositif : les plafonds durs de `size-gate`, l'archivage des phases shippées par `/se-archive`, et `INDEX.md` maintenu en continu à la clôture de chaque phase. On lit `INDEX.md` pour s'orienter, jamais un `grep` à l'aveugle.
+
+Ranger n'est pas oublier. Une phase archivée laisse trois traces, sans quoi elle deviendrait un chemin mort : son entrée passe de « Phases actives » à « Phases archivées » dans `INDEX.md`, elle se condense en une ligne d'empreinte de 80 caractères sous `## Phases livrées` dans `ROADMAP.md`, et les chemins qui la citaient sont réécrits dans `STATE.md`. Les agents qui cherchent le passé lisent `INDEX.md` et fouillent `_archive/phases/`, jamais `phases/` seul, qui ne contient que l'actif.
 
 ## Anatomie
 
