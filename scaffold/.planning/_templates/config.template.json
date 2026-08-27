@@ -20,6 +20,18 @@
     "ui_front_pass": true,
     "ui_safety_gate": true
   },
+  "models": {
+    "planning": "opus",
+    "discuss": "opus",
+    "research": "opus",
+    "execution": "opus",
+    "verification": "opus",
+    "completion": "sonnet"
+  },
+  "model_overrides": {
+    "gsd-research-synthesizer": "sonnet",
+    "gsd-codebase-mapper": "sonnet"
+  },
   "parallelization": {
     "enabled": true,
     "plan_level": true,

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // install-gsd-patches — applies the Simple & Efficace enrichments to the GLOBAL
-// GSD engine (~/.claude/get-shit-done/ and ~/.claude/agents/).
+// GSD engine (~/.claude/gsd-core/ and ~/.claude/agents/).
 //
 // Why global: /gsd:* commands are user-level and user-level always shadows
 // project-level, so project-local copies of workflows/agents are never loaded.
@@ -25,14 +25,13 @@ const crypto = require('crypto');
 
 const REPO = path.resolve(__dirname, '..');
 const HOME = os.homedir();
-const EXPECTED_GSD_VERSION = '1.29.0';
+const EXPECTED_GSD_VERSION = '1.11.0';
 
 const TARGETS = [
-  { src: path.join(REPO, 'gsd-patches', 'workflows'), dst: path.join(HOME, '.claude', 'get-shit-done', 'workflows'), ext: '.md' },
+  { src: path.join(REPO, 'gsd-patches', 'workflows'), dst: path.join(HOME, '.claude', 'gsd-core', 'workflows'), ext: '.md' },
   { src: path.join(REPO, 'gsd-patches', 'agents'), dst: path.join(HOME, '.claude', 'agents'), ext: '.md' },
-  // model-profiles.cjs decides the model of every GSD Task spawn and overrides the
-  // agents' own frontmatter, so the SE model policy has to live there too.
-  { src: path.join(REPO, 'gsd-patches', 'lib'), dst: path.join(HOME, '.claude', 'get-shit-done', 'bin', 'lib'), ext: '.cjs' },
+  // model policy: no more model-profiles.cjs patch — gsd-core exposes model
+  // profiles as official config (.planning/config.json + gsd-config).
 ];
 
 function fail(msg) {
@@ -40,9 +39,9 @@ function fail(msg) {
   process.exit(1);
 }
 
-const versionFile = path.join(HOME, '.claude', 'get-shit-done', 'VERSION');
+const versionFile = path.join(HOME, '.claude', 'gsd-core', 'VERSION');
 if (!fs.existsSync(versionFile)) {
-  fail(`GSD introuvable (${versionFile}). Installe get-shit-done d'abord : https://github.com/gsd-build/get-shit-done`);
+  fail(`GSD introuvable (${versionFile}). Installe gsd-core d'abord : npx @opengsd/gsd-core@latest --claude --global`);
 }
 const installed = fs.readFileSync(versionFile, 'utf8').trim();
 if (installed !== EXPECTED_GSD_VERSION) {
@@ -50,7 +49,7 @@ if (installed !== EXPECTED_GSD_VERSION) {
 }
 
 // Manifest: target path → sha256 of the last patch content we wrote there.
-const MANIFEST = path.join(HOME, '.claude', 'get-shit-done', 'se-patches-manifest.json');
+const MANIFEST = path.join(HOME, '.claude', 'gsd-core', 'se-patches-manifest.json');
 const sha = (s) => crypto.createHash('sha256').update(s).digest('hex');
 let manifest = {};
 try { manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); } catch { /* first run */ }
