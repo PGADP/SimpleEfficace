@@ -315,7 +315,7 @@ Après analyse des sources réelles (`_sources/claude-config` = config perso de 
 | Garde-fous (hooks Humanizer/UI/hardcode/slop/monolithe/size/se-archive) | ❌ aucun. Pattern de hook propre existe (`gsd-prompt-guard.js`) | **CRÉER sur le pattern existant** |
 | Expert UX personas | ❌ inexistant (gsd-user-profiler = profil DEV pas clients) | **CRÉER** |
 | Diète contexte (skillListingBudget, MCP deferral) | ❌ absente de settings.json | **AJOUTER** (gain gratuit) |
-| Anti-entropie (size-gate, archive auto, INDEX vivant) | 🔶 partiel (`/gsd:cleanup`, milestone-archive) | **GÉNÉRALISER** |
+| Anti-entropie (size-gate, archive auto, INDEX vivant) | 🔶 partiel (`/gsd-cleanup`, milestone-archive) | **GÉNÉRALISER** |
 
 **Ce qu'on crée vraiment de zéro :** uniquement les hooks (sur pattern existant) + l'expert UX. Tout le reste = cherry-pick ou extraction.
 

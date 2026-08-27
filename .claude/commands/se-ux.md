@@ -201,7 +201,7 @@ Chaque étape porte **la décision prise et l'échec possible**, pas seulement s
 
 - `/se-ui` — implémentation visuelle, après que l'UX soit tranchée
 - `/se-humanizer` — le texte des écrans conçus ici
-- `/gsd:discuss-phase` — si l'audit révèle des trous structuraux
+- `/gsd-discuss-phase` — si l'audit révèle des trous structuraux
 
 ---
 

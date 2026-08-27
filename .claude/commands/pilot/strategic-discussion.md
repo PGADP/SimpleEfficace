@@ -14,7 +14,7 @@ allowed-tools:
 
 # Pilot — Discussion stratégique de phase
 
-Procédure lourde du Mode 4, chargée à la demande. Le Pilot ajoute une couche top-down (vision, compromis, ambition) à `/gsd:discuss-phase`, puis traduit le débat en CONTEXT.md standard GSD.
+Procédure lourde du Mode 4, chargée à la demande. Le Pilot ajoute une couche top-down (vision, compromis, ambition) à `/gsd-discuss-phase`, puis traduit le débat en CONTEXT.md standard GSD.
 
 ## Étape 1 : Recherche préalable (OBLIGATOIRE, silencieuse)
 Avant toute question, explorer en parallèle (agents Explore ou calls directs) :
@@ -92,10 +92,10 @@ Format obligatoire :
 
 ## Étape 6 : Commit + suite
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(${padded_phase}): capture phase context (pilot discussion)" --files "${phase_dir}/${padded_phase}-CONTEXT.md"
+node "$HOME/.claude/gsd-core/bin/gsd-tools.cjs" commit "docs(${padded_phase}): capture phase context (pilot discussion)" --files "${phase_dir}/${padded_phase}-CONTEXT.md"
 ```
-Puis : "Prochaine étape : /gsd:plan-phase X. /clear d'abord → contexte frais pour le planner."
+Puis : "Prochaine étape : /gsd-plan-phase X. /clear d'abord → contexte frais pour le planner."
 
 ## Règles
 1. Recherche code OBLIGATOIRE — jamais de débat à vide.
-2. Max 5 questions par round. 3. Le Pilot tranche si hésitation. 4. Pas de re-ask. 5. CONTEXT.md au standard GSD strict. 6. Pas d'appel à /gsd:discuss-phase. 7. Steelmanning avant de trancher. 8. Pas de validation molle.
+2. Max 5 questions par round. 3. Le Pilot tranche si hésitation. 4. Pas de re-ask. 5. CONTEXT.md au standard GSD strict. 6. Pas d'appel à /gsd-discuss-phase. 7. Steelmanning avant de trancher. 8. Pas de validation molle.

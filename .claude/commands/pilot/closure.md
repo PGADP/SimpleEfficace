@@ -26,7 +26,7 @@ Procédure lourde du Mode 3, chargée à la demande. Toutes les étapes sont obl
 
 5. **Archivage si necessaire** : deplacer les elements termines de STRATEGY.md → STRATEGY-ARCHIVE.md.
 
-6. **Icebox** : si l'utilisateur a evoque 2+ idees produit sans les formaliser, proposer en fin de cloture : "Tu as evoque [idee1] et [idee2]. On les note avec `/gsd:note` avant de fermer ?" Si non, laisser.
+6. **Icebox** : si l'utilisateur a evoque 2+ idees produit sans les formaliser, proposer en fin de cloture : "Tu as evoque [idee1] et [idee2]. On les note avec `/gsd-note` avant de fermer ?" Si non, laisser.
 
 7. **Prochaines actions** : 3-5 items clairs pour la prochaine session.
 

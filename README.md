@@ -56,7 +56,7 @@ Un garde-fou qui plante n'interrompt jamais rien : le contrat commun impose de s
 
 ## Installer (une fois par machine)
 
-Le système vit dans `~/.claude/se/` et se partage entre tous les projets de la machine. Les projets, eux, ne contiennent que leurs données (`.planning/` + `CLAUDE.md`). Prérequis : le moteur [GSD](https://github.com/gsd-build/get-shit-done), que les patches SE enrichissent à l'installation.
+Le système vit dans `~/.claude/se/` et se partage entre tous les projets de la machine. Les projets, eux, ne contiennent que leurs données (`.planning/` + `CLAUDE.md`). Prérequis : le moteur [GSD Core](https://github.com/open-gsd/gsd-core) (paquet @opengsd/gsd-core), que les patches SE enrichissent à l'installation.
 
 ```bash
 git clone https://github.com/PGADP/SimpleEfficace.git ~/.claude/se
@@ -315,7 +315,7 @@ La règle qui pèse le plus lourd sur la durée : **un rapport ne s'écrit sur d
 |---|---|---|
 | Éphémère — verdict consommé en séance | `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`… | **Rien.** Chat + `TodoWrite` |
 | Liée à une phase | gates SIMPLIFY, JANITOR, SECURITY, checkpoint visuel | `phases/{NN}-{slug}/CHECKPOINTS.md`, qui part à l'archive avec la phase |
-| Transverse et persistante | `/se-security` (audit complet), `/se-ux` (audit), `/gsd:ui-review` | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
+| Transverse et persistante | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review` | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
 Trois mécanismes d'anti-entropie complètent le dispositif : les plafonds durs de `size-gate`, l'archivage des phases shippées par `/se-archive`, et `INDEX.md` maintenu en continu à la clôture de chaque phase. On lit `INDEX.md` pour s'orienter, jamais un `grep` à l'aveugle.
 
@@ -375,7 +375,7 @@ Ce système est un travail de cherry-picking : il assemble et adapte plusieurs p
 
 | Source | Auteur | Ce qu'on en a tiré |
 |---|---|---|
-| [get-shit-done](https://github.com/gsd-build/get-shit-done) | gsd-build | Le moteur GSD : cycle par phases, workflows, sous-agents, checkpoints |
+| [gsd-core](https://github.com/open-gsd/gsd-core) | open-gsd | Le moteur GSD : cycle par phases, workflows, sous-agents, checkpoints |
 | [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | nextlevelbuilder | Le format de règles UI externalisées, le pattern MASTER+overrides, les bases de direction |
 | [impeccable](https://github.com/pbakaus/impeccable) | Paul Bakaus | Le pattern détecteur déterministe × jugement LLM, le contrat des hooks, le langage de design |
 | [platform-design-skills](https://github.com/ehmo/platform-design-skills) | ehmo | Les critères de design par plateforme : web, desktop, mobile |

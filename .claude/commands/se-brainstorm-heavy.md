@@ -429,9 +429,9 @@ Ajouter au document toutes les sections : themes, idees organisees, priorisation
 "**Comment veux-tu integrer ces resultats dans ton workflow ?**
 
 **[G]** Creer une phase GSD — Je cree des phases dans la roadmap a partir des idees priorisees (par ordre de priorite)
-**[C]** Generer un CONTEXT.md — Je cree un fichier de contexte compatible `/gsd:plan-phase` pour une phase existante
+**[C]** Generer un CONTEXT.md — Je cree un fichier de contexte compatible `/gsd-plan-phase` pour une phase existante
 **[R]** Ajouter a la roadmap — Je propose des ajouts a `.planning/ROADMAP.md` avec les idees priorisees
-**[T]** Creer des todos GSD — Je cree des `/gsd:add-todo` pour les quick wins
+**[T]** Creer des todos GSD — Je cree des `/gsd-add-todo` pour les quick wins
 **[G+C]** Phase GSD + Context — Les deux
 **[S]** Skip — Juste garder le document de brainstorming
 
@@ -444,7 +444,7 @@ Pour chaque idee priorisee (dans l'ordre de priorite) :
 - Definir les success criteria
 - Estimer la complexite
 - Suggerer les dependances
-- Demander confirmation avant d'appeler `/gsd:add-phase`
+- Demander confirmation avant d'appeler `/gsd-add-phase`
 
 ### Si [C] ou [G+C] : Generation de CONTEXT.md
 
@@ -463,7 +463,7 @@ Proposer des ajouts a la roadmap avec :
 
 ### Si [T] : Todos GSD
 
-Pour chaque quick win, preparer un `/gsd:add-todo` avec description claire.
+Pour chaque quick win, preparer un `/gsd-add-todo` avec description claire.
 
 ---
 

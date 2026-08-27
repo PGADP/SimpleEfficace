@@ -27,7 +27,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ├── RETROSPECTIVE.md      leçons transverses
 ├── CONVENTIONS.md        ce fichier
 ├── config.json           toggles du cycle GSD
-├── HANDOFF.json          état de session en pause (/gsd:pause-work), effacé à la reprise
+├── HANDOFF.json          état de session en pause (/gsd-pause-work), effacé à la reprise
 ├── ARCHIVE.log           journal append-only des archivages (/se-archive)
 │
 ├── phases/               phases ACTIVES uniquement
@@ -36,7 +36,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ├── brainstorming/        sessions /se-brainstorm-*
 ├── design/               design-system, personas, journeys, templates Playwright
 ├── rules/                banques de règles typées (JSON)
-├── codebase/             cartographie /gsd:map-codebase
+├── codebase/             cartographie /gsd-map-codebase
 ├── debug/                sessions de debug (+ resolved/)
 ├── decisions/            décisions techniques isolées (si le cycle en produit)
 ├── todos/                capture zéro-friction (pending/ + done/)
@@ -87,7 +87,7 @@ Un rapport ne s'écrit sur disque **que s'il sera relu**. Trois classes, une des
 |---|---|---|
 | **Éphémère** — verdict consommé en séance | `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`, `/se-fix`, `/se-plan`, `/se-explain`, `/se-refactor` | **Rien sur disque.** Réponse en chat + `TodoWrite`. Fichier seulement si l'utilisateur le demande explicitement → `.planning/audits/` |
 | **Liée à une phase** | gates SIMPLIFY / JANITOR / SECURITY / visuel, `/se-debug` en phase | `.planning/phases/{NN}-{slug}/CHECKPOINTS.md` — part à l'archive avec la phase |
-| **Transverse persistante** | `/se-security` (audit complet), `/se-ux` (audit), `/gsd:ui-review`, `/se-refactor` (stratégie globale demandée) | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
+| **Transverse persistante** | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review`, `/se-refactor` (stratégie globale demandée) | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
 `{type}` ∈ `security` · `ux` · `ui` · `refactor` · `review` · `health`.
 
@@ -118,7 +118,7 @@ Les workflows GSD préfixent : `{phase}-{plan}-PLAN.md`, `{phase}-{plan}-SUMMARY
 
 ### Fichier d'état transitoire
 
-Un dossier de phase accepte **un seul** nom hors de cette table : `.continue-here.md`, le handoff humain écrit par `/gsd:pause-work` et relu par `/gsd:resume-work`.
+Un dossier de phase accepte **un seul** nom hors de cette table : `.continue-here.md`, le handoff humain écrit par `/gsd-pause-work` et relu par `/gsd-resume-work`.
 
 Ce n'est pas un onzième artefact de phase, c'est une autre classe. Les noms MAJUSCULES ci-dessus sont des produits durables : ils partent à l'archive avec la phase. Celui-là est un état de session, consommé à la reprise. Le point et les minuscules signalent cette différence, ce n'est pas une entorse.
 
@@ -163,7 +163,7 @@ Chaque agent porte son modèle, à deux endroits qui doivent rester d'accord :
 - **Définition d'agent** (`~/.claude/agents/*.md`) : `model:` obligatoire dans le frontmatter.
 - **Skill qui spawne un agent générique** (sans `subagent_type` dédié) : `model` explicite dans l'appel au tool Agent.
 
-Pour les agents GSD, le modèle passé au spawn vient de `get-shit-done/bin/lib/model-profiles.cjs`, qui **écrase** le frontmatter. Ce fichier est patché par `gsd-patches/lib/` : toutes les colonnes de profil y portent la même valeur, donc aucun profil (`quality`, `balanced`, `budget`) ne peut downgrader un agent.
+Pour les agents GSD, le modèle passé au spawn est résolu par gsd-core depuis `.planning/config.json` : `models` (par type de phase) puis `model_overrides` (par agent), qui **écrasent** le frontmatter. La politique SE vit dans le scaffold (`scaffold/.planning/config.json`) : opus partout où l'agent raisonne, sonnet pour la synthèse et la cartographie. Référence : `~/.claude/gsd-core/references/model-profiles.md`.
 
 Le choix du tier :
 

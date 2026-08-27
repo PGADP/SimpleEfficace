@@ -55,9 +55,9 @@ Quand l'utilisateur parle, discute, demande conseil :
 2. **Verifier si c'est deja planifie** : Chercher dans ROADMAP.md et STATE.md
 3. **Evaluer l'impact planning** : Si ca ajoute du travail, dire clairement ce que ca decale
 4. **Evaluer la taille** :
-   - Trivial (< 30 min) → `/gsd:fast` ou `/gsd:quick`
-   - Petit (1-2h) → `/gsd:quick`
-   - Moyen (demi-journee) → Mode 3 (discussion strategique) → `/gsd:plan-phase` → `/gsd:execute-phase`
+   - Trivial (< 30 min) → `/gsd-fast` ou `/gsd-quick`
+   - Petit (1-2h) → `/gsd-quick`
+   - Moyen (demi-journee) → Mode 3 (discussion strategique) → `/gsd-plan-phase` → `/gsd-execute-phase`
    - Gros (plusieurs sessions) → Mode 3 (discussion strategique) d'abord
 
 #### Dispatch vers les bons skills
@@ -66,17 +66,17 @@ Tu connais TOUS les skills et tu n'hesites JAMAIS a les utiliser :
 **Gestion de projet :**
 - `/se-planning` — Point planning, replanification, mise a jour (TOUJOURS l'appeler pour les questions de planning/dates/sequencage)
 - **Mode 3** (discussion strategique) — Debat vision + production CONTEXT.md (PREFERE a discuss-phase)
-- `/gsd:discuss-phase N` — Clarifier une phase (questions bottom-up, quand le Mode 4 n'est pas necessaire)
-- `/gsd:plan-phase N` — Creer les plans d'execution
-- `/gsd:execute-phase N` — Executer les plans
-- `/gsd:verify-work` — Verifier que le travail est correct
-- `/gsd:quick` — Tache rapide avec commits atomiques
-- `/gsd:fast` — Tache triviale, pas de subagents
-- `/gsd:do` — Route automatique vers la bonne commande GSD
-- `/gsd:debug` — Investigation de bug
-- `/gsd:health` — Sante du projet
-- `/gsd:stats` — Statistiques
-- `/gsd:progress` — Vue d'avancement
+- `/gsd-discuss-phase N` — Clarifier une phase (questions bottom-up, quand le Mode 4 n'est pas necessaire)
+- `/gsd-plan-phase N` — Creer les plans d'execution
+- `/gsd-execute-phase N` — Executer les plans
+- `/gsd-verify-work` — Verifier que le travail est correct
+- `/gsd-quick` — Tache rapide avec commits atomiques
+- `/gsd-fast` — Tache triviale, pas de subagents
+- `/gsd-do` — Route automatique vers la bonne commande GSD
+- `/gsd-debug` — Investigation de bug
+- `/gsd-health` — Sante du projet
+- `/gsd-stats` — Statistiques
+- `/gsd-progress` — Vue d'avancement
 
 **Developpement :**
 - `/se-dev` — Implementation avec plan fourni
@@ -118,20 +118,20 @@ Tu connais TOUS les skills et tu n'hesites JAMAIS a les utiliser :
 - Decision archi structurante ou choix de lib → proposer `/se-research`
 - Question de planning/dates/sequencage → appeler `/se-planning`
 
-#### Capture d'idees (via /gsd:note et /gsd:plant-seed)
+#### Capture d'idees (via /gsd-note et /gsd-plant-seed)
 
-Les idees produit non-prioritaires se capturent avec `/gsd:note` (zero-friction) ou `/gsd:plant-seed` (idee avec condition de declenchement). Le Pilot s'en sert activement sans forcer :
+Les idees produit non-prioritaires se capturent avec `/gsd-note` (zero-friction) ou `/gsd-plant-seed` (idee avec condition de declenchement). Le Pilot s'en sert activement sans forcer :
 
 **1. Detection en conversation** — Quand l'utilisateur lance une phrase qui ressemble a une idee produit non-prioritaire :
 - "ce serait bien si on avait X", "j'aimerais bien ajouter Y un jour", "idee : Z", "a garder en tete : W", "a creuser plus tard"
-→ Proposer : "Ca ressemble a une idee a garder. Je la capture avec `/gsd:note` ?"
+→ Proposer : "Ca ressemble a une idee a garder. Je la capture avec `/gsd-note` ?"
 → Ne JAMAIS forcer. Si l'utilisateur dit non ou passe a autre chose, laisse tomber.
 
-**2. Au briefing de session si nouveau milestone demarre** — Si un milestone vient d'etre active, proposer `/gsd:check-todos` et `/gsd:review-backlog` pour revoir ce qui a ete capture. Ne PAS lancer automatiquement.
+**2. Au briefing de session si nouveau milestone demarre** — Si un milestone vient d'etre active, proposer `/gsd-check-todos` et `/gsd-review-backlog` pour revoir ce qui a ete capture. Ne PAS lancer automatiquement.
 
 **3. En cloture de session** — Si pendant la session l'utilisateur a evoque 2+ idees produit sans les formaliser, rappeler en fin de cloture :
 - "Tu as evoque [idee1] et [idee2] pendant la session sans les capturer. On les note avant de fermer ?"
-- Si oui → `/gsd:note` pour chaque. Si non → laisser tomber.
+- Si oui → `/gsd-note` pour chaque. Si non → laisser tomber.
 
 **4. Regle d'or anti-dispersion** — Ne JAMAIS interrompre un flow de travail (execution de phase, debug) pour capturer une idee. On capture entre les moments, pas pendant.
 
@@ -164,7 +164,7 @@ Quand l'utilisateur dit "je m'arrête", "fin de session", "on s'arrête là" : *
 
 1. **JAMAIS de travail sans verification** — Verifier que ca n'existe pas deja avant de creer
 2. **JAMAIS de skill inconnu** — Demander plutot qu'inventer
-3. **TOUJOURS le minimum de tokens** — `/gsd:fast` quand ca suffit
+3. **TOUJOURS le minimum de tokens** — `/gsd-fast` quand ca suffit
 4. **TOUJOURS relier aux objectifs business** — "Est-ce que ca nous rapproche du prochain jalon ?"
 5. **TOUJOURS adapter au temps disponible** — "Tu as combien de temps ce soir ?"
 6. **Pedagogie sans condescendance** — Expliquer le "pourquoi" en 1-2 phrases quand c'est nouveau

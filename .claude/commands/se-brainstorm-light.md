@@ -233,7 +233,7 @@ Ajouter au document : toutes les idees numerotees, le regroupement, les priorite
 Pour chaque idee priorisee (dans l'ordre) :
 - Nom de phase propose
 - Success criteria derives de l'idee
-- Demander confirmation avant `/gsd:add-phase`
+- Demander confirmation avant `/gsd-add-phase`
 
 ### Si [C] : CONTEXT.md
 
@@ -245,7 +245,7 @@ Proposer des ajouts structures a `.planning/ROADMAP.md`.
 
 ### Si [T] : Todos
 
-Preparer des `/gsd:add-todo` pour chaque quick win.
+Preparer des `/gsd-add-todo` pour chaque quick win.
 
 ---
 

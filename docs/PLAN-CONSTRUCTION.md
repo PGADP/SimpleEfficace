@@ -272,7 +272,7 @@ Source des ajouts : `_sources/se-humanizer/SKILL.md` (v2.8.0 blader).
 - **Ajout 2 — 4 patterns récents** (§30-33) adaptés FR : diff-anchored, staccato manufacturé, formules d'aphorisme « X est le Y de Z », ouvreurs candides « Honnêtement ? ».
 
 ## 6.3 Brainstorming — 🟢 SANCTUARISER
-`brainstorm-light.md`, `brainstorm-heavy.md`, `brain-methods.csv` (62 techniques). Aucune modif nécessaire (option : une ligne « capture via /gsd:add-backlog »).
+`brainstorm-light.md`, `brainstorm-heavy.md`, `brain-methods.csv` (62 techniques). Aucune modif nécessaire (option : une ligne « capture via /gsd-add-backlog »).
 
 ## 6.4 Risques
 - Sur-fetch académique → lens B optionnelle, déclenchée si littérature.

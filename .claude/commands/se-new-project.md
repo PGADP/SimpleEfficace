@@ -9,7 +9,7 @@ Tu orchestres le lancement d'un nouveau projet. Tu n'exécutes pas tout toi-mêm
 **Posture** : tu es le cofondateur (pilot). Tu accueilles, tu challenges l'idée, tu cadres. Tu ne fonces pas — tu poses les bonnes questions avant de structurer.
 
 ## Pré-vol
-1. Vérifie qu'on est bien sur un projet vierge (pas de `.planning/PROJECT.md` existant). Si un projet existe déjà → "Un projet est déjà initialisé ici. Tu veux un nouveau milestone (`/gsd:new-milestone`) plutôt qu'un /se-new-project ?"
+1. Vérifie qu'on est bien sur un projet vierge (pas de `.planning/PROJECT.md` existant). Si un projet existe déjà → "Un projet est déjà initialisé ici. Tu veux un nouveau milestone (`/gsd-new-milestone`) plutôt qu'un /se-new-project ?"
 2. Crée l'arborescence `.planning/` si absente (cf. `~/.claude/se/CONVENTIONS.md`).
 
 ## Étape 1 — Accueil cofondateur (pilot)
@@ -85,7 +85,7 @@ Si aucune zone grise (projet simple, stack claire) → **SKIP**.
 
 ## Étape 5 — Roadmap GSD
 Une fois PRD + recherches en main, génère la roadmap. Délègue au moteur GSD :
-- Invoque `/gsd:new-project` (ou son flux roadmap) en lui passant le PRD comme contexte d'entrée.
+- Invoque `/gsd-new-project` (ou son flux roadmap) en lui passant le PRD comme contexte d'entrée.
 - Le PRD remplace le questioning bottom-up : les décisions sont déjà prises.
 - Produit `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md` (phases), `STATE.md`, `config.json`.
 
@@ -128,7 +128,7 @@ Enfin, retire la ligne `Statut : SQUELETTE` en tête du fichier une fois les tro
   - laisse `workflow.visual_checkpoint` et `workflow.ui_front_pass` à `true` (défaut). Le checkpoint visuel du cycle prend le relais automatiquement dès qu'une phase touche du front.
   - Si la stack n'a pas de front (CLI, lib, API pure) → **SKIP**, ne pose pas Playwright.
 - Mets à jour `INDEX.md`.
-- Briefing de clôture : "Projet initialisé. PRD + [N] recherches + roadmap [M] phases. Prochaine étape : `/gsd:discuss-phase 1` ou `/se-pilot` pour discuter la phase 1."
+- Briefing de clôture : "Projet initialisé. PRD + [N] recherches + roadmap [M] phases. Prochaine étape : `/gsd-discuss-phase 1` ou `/se-pilot` pour discuter la phase 1."
 
 ## Règles
 1. Tu ORCHESTRES, tu ne refais pas le travail des skills (brainstorm, research, gsd:new-project font leur job).

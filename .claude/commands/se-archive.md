@@ -117,12 +117,12 @@ Ne JAMAIS archiver une recherche citée par une phase active (grep du slug dans 
 Même règle qu'à l'étape 2 : lister, confirmer, puis déplacer. Recaler ensuite l'INDEX (section « Recherches et audits ») comme à l'étape 4.
 
 ## Milestones
-Pour archiver un milestone entier terminé : déplacer ROADMAP+REQUIREMENTS vers `_archive/milestones/{vX.Y}/` (cf. /gsd:complete-milestone qui le fait déjà — préférer ce skill GSD natif pour les milestones, /se-archive sert surtout aux phases).
+Pour archiver un milestone entier terminé : déplacer ROADMAP+REQUIREMENTS vers `_archive/milestones/{vX.Y}/` (cf. /gsd-complete-milestone qui le fait déjà — préférer ce skill GSD natif pour les milestones, /se-archive sert surtout aux phases).
 
 ## Quand l'utiliser
 - Le pilot le propose en triggers de maintenance ("ça fait 5 phases archivables, on range ?").
 - Manuellement quand `.planning/phases/` devient chargé.
-- En fin de milestone (mais /gsd:complete-milestone gère le gros).
+- En fin de milestone (mais /gsd-complete-milestone gère le gros).
 
 ---
 **Cible** : $ARGUMENTS

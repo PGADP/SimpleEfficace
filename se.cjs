@@ -24,7 +24,7 @@ const SETTINGS_FILENAME = 'settings.json';
 const VERSION_FILENAME = 'VERSION';
 const CHANGELOG_FILENAME = 'CHANGELOG.md';
 const MIGRATIONS_DIRNAME = 'migrations';
-const GSD_DIRNAME = 'get-shit-done';
+const GSD_DIRNAME = 'gsd-core';
 const GSD_MANIFEST_FILENAME = 'se-patches-manifest.json';
 const EXPECTED_REPO_LOCATION = ['.claude', 'se'];
 const JSON_INDENT = 2;
@@ -611,7 +611,7 @@ function collectDoctorChecks() {
   // GSD engine + patch manifest.
   const gsdDir = path.join(claudeDir(), GSD_DIRNAME);
   if (!fs.existsSync(gsdDir)) {
-    checks.push(check(CHECK_KO, 'GSD absent (~/.claude/get-shit-done) — installe get-shit-done puis relance `se install`'));
+    checks.push(check(CHECK_KO, 'GSD absent (~/.claude/gsd-core) : installe gsd-core (npx @opengsd/gsd-core@latest --claude --global) puis relance `se install`'));
   } else if (!fs.existsSync(path.join(gsdDir, GSD_MANIFEST_FILENAME))) {
     checks.push(check(CHECK_KO, `GSD présent mais patches SE non appliqués (${GSD_MANIFEST_FILENAME} absent) — lance \`se install\``));
   } else {

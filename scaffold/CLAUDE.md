@@ -13,11 +13,11 @@ Ne **jamais** inventer une architecture ou un CLAUDE.md détaillé tant qu'il n'
 
 ## Prérequis (une fois par machine)
 
-Le système s'appuie sur **GSD installé globalement** (`~/.claude/get-shit-done/`) + les patches SE :
+Le système s'appuie sur **GSD Core installé globalement** (`~/.claude/gsd-core/`, paquet `@opengsd/gsd-core`) + les patches SE :
 
 ```bash
 node "$HOME/.claude/se/scripts/install-gsd-patches.cjs"   # applique les enrichissements SE au moteur global
-                                       # (à relancer après chaque /gsd:update)
+                                       # (à relancer après chaque /gsd-update)
 ```
 
 ## Ce qui est actif dans ce projet
