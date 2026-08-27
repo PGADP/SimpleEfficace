@@ -2,20 +2,20 @@
 // install-gsd-patches — applies the Simple & Efficace enrichments to the GLOBAL
 // GSD engine (~/.claude/gsd-core/ and ~/.claude/agents/).
 //
-// Why global: /gsd:* commands are user-level and user-level always shadows
+// Why global: /gsd-* commands are user-level and user-level always shadows
 // project-level, so project-local copies of workflows/agents are never loaded.
 // The only reliable wiring is to patch the engine itself.
 //
 // Safe by design:
 // - every patched file is backed up as <name>.md.orig; a manifest of applied
 //   patch hashes distinguishes "target = our previous patch" (backup kept as is)
-//   from "target = fresh upstream after /gsd:update" (backup refreshed + warning,
+//   from "target = fresh upstream after /gsd-update" (backup refreshed + warning,
 //   so upstream improvements are never silently shadowed by a stale .orig)
 // - idempotent: re-running only copies files whose content differs
 // - enriched workflows are config-gated (.planning/config.json toggles), so
 //   other projects using the global engine are unaffected unless they opt in
 //
-// Run after: cloning this template, and after every /gsd:update.
+// Run after: cloning this template, and after every /gsd-update.
 //   node scripts/install-gsd-patches.cjs
 
 const fs = require('fs');
@@ -45,7 +45,7 @@ if (!fs.existsSync(versionFile)) {
 }
 const installed = fs.readFileSync(versionFile, 'utf8').trim();
 if (installed !== EXPECTED_GSD_VERSION) {
-  console.warn(`⚠ GSD ${installed} installé, patches écrits pour ${EXPECTED_GSD_VERSION}. Ils s'appliquent quand même — vérifie le comportement après un /gsd:update majeur.`);
+  console.warn(`⚠ GSD ${installed} installé, patches écrits pour ${EXPECTED_GSD_VERSION}. Ils s'appliquent quand même — vérifie le comportement après un /gsd-update majeur.`);
 }
 
 // Manifest: target path → sha256 of the last patch content we wrote there.
@@ -69,7 +69,7 @@ for (const { src, dst, ext } of TARGETS) {
       if (!fs.existsSync(backup)) {
         fs.copyFileSync(to, backup);
       } else if (manifest[to] && sha(current) !== manifest[to]) {
-        // target changed since our last install (e.g. /gsd:update wrote a fresh
+        // target changed since our last install (e.g. /gsd-update wrote a fresh
         // upstream) → re-archive it, otherwise .orig would go stale and the
         // update's improvements would be lost without trace
         fs.writeFileSync(backup, current);

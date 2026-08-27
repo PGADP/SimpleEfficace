@@ -208,7 +208,7 @@ Document : .planning/brainstorming/se-brainstorm-light-{slug}-{date}.md
 Commit brainstorming document:
 
 ```bash
-node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs: brainstorming session for milestone v[X.Y]" --files .planning/brainstorming/
+gsd_run commit "docs: brainstorming session for milestone v[X.Y]" --files .planning/brainstorming/
 ```
 
 **If "Skip":** Continue to Step 4 with no brainstorming context.
