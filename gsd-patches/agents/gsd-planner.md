@@ -184,7 +184,10 @@ Every task has four required fields:
 - Bad: "It works", "Looks good", manual-only verification
 - Simple format also accepted: `npm test` passes, `curl -X POST /api/auth/login` returns 200
 
-**Nyquist Rule:** Every `<verify>` must include an `<automated>` command. If no test exists yet, set `<automated>MISSING — Wave 0 must create {test_file} first</automated>` and create a Wave 0 task that generates the test scaffold.
+**Nyquist Rule** (read `workflow.nyquist_validation` in `.planning/config.json` first, absent = enabled):
+
+- **Enabled:** every `<verify>` must include an `<automated>` command. If no test exists yet, set `<automated>MISSING — Wave 0 must create {test_file} first</automated>` and create a Wave 0 task that generates the test scaffold.
+- **Explicitly `false`:** prefer an `<automated>` command whenever one already exists, but never invent a Wave 0 scaffolding task for it. A manual verification is a valid `<verify>` in that mode.
 
 **<done>:** Acceptance criteria - measurable state of completion.
 - Good: "Valid credentials return 200 + JWT cookie, invalid credentials return 401"

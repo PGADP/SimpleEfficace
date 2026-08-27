@@ -6,7 +6,7 @@
     "research": true,
     "plan_check": true,
     "verifier": true,
-    "nyquist_validation": true,
+    "nyquist_validation": false,
     "auto_advance": false,
 
     "simplify_gate": true,
