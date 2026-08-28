@@ -41,7 +41,7 @@ const REPO_TEST_SUITES = [
   path.join('scripts', 'ui-verdict.test.cjs'),
   path.join('scripts', 'se-serve.test.cjs'),
 ];
-const SCAFFOLD_REQUIRED_FILES = ['CLAUDE.md', '.gitignore', path.join('.planning', 'config.json'), path.join('.planning', 'INDEX.md')];
+const SCAFFOLD_REQUIRED_FILES = ['CLAUDE.md', '.gitignore', path.join('.planning', 'config.json'), path.join('.planning', 'INDEX.md'), path.join('.planning', 'PHASES.md')];
 
 // ---------------------------------------------------------------------------
 // Path & IO helpers
@@ -533,6 +533,17 @@ function cmdSyncProject(dirArg) {
     todo.push('Remplir INDEX.md : lister les phases actives et les phases déjà archivées (sections "Phases actives" et "Phases archivées").');
   }
 
+  // 3bis. PHASES.md : le registre du livré. Un projet créé avant qu'il existe n'en a pas,
+  //    et /se-archive n'aurait nulle part où transférer les empreintes. Copie non destructive.
+  const phasesRegistryPath = path.join(planning, 'PHASES.md');
+  if (fs.existsSync(phasesRegistryPath)) {
+    log('✓ PHASES.md : présent');
+  } else {
+    fs.copyFileSync(path.join(scaffold, '.planning', 'PHASES.md'), phasesRegistryPath);
+    log('✓ PHASES.md : créé depuis le scaffold (registre vide)');
+    todo.push('Remplir PHASES.md : y transférer les empreintes des phases déjà livrées (section "## Phases livrées" de ROADMAP.md, si elle existe) et les quicks du tableau de STATE.md.');
+  }
+
   // 4. _templates/ : gabarits ajoutés au système APRÈS la création du projet (un projet
   //    d'avant n'a jamais eu CHECKPOINTS.template.md). Copie non destructive : un gabarit
   //    déjà présent a pu être adapté par le projet, on ne le touche pas.
@@ -639,7 +650,7 @@ function collectRepoChecks() {
 
   // Scaffold completeness.
   const missingScaffold = SCAFFOLD_REQUIRED_FILES.filter((rel) => !fs.existsSync(path.join(REPO_ROOT, 'scaffold', rel)));
-  if (missingScaffold.length === 0) checks.push(check(CHECK_OK, 'scaffold complet (CLAUDE.md, .gitignore, .planning/config.json, .planning/INDEX.md)'));
+  if (missingScaffold.length === 0) checks.push(check(CHECK_OK, 'scaffold complet (CLAUDE.md, .gitignore, .planning/config.json, .planning/INDEX.md, .planning/PHASES.md)'));
   else checks.push(check(CHECK_KO, `scaffold incomplet : ${missingScaffold.map(toPosix).join(', ')}`));
 
   // Vendored corpora present.

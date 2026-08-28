@@ -232,7 +232,7 @@ La contrainte qui les rend utilisables : ils sont chargés **à la demande**, un
 - **Un artefact lié à une phase vit DANS la phase.** Il part à l'archive avec elle : `phases/` reste propre par construction, sans ménage manuel.
 - **Un rapport ne s'écrit que s'il sera relu.** La plupart des verdicts (`/se-deploy`, `/se-review`, `/se-test`) sont consommés en séance et ne laissent aucun fichier. C'est ce qui évite le repo noyé sous les rapports après 200 h d'usage.
 - **Noms de fichiers FIXES en majuscules dans une phase** — un parser les trouve sans grep.
-- **Trois mécanismes d'anti-entropie** : plafonds durs (`size-gate`, bloquant), archivage des phases shippées (`/se-archive`, avec confirmation), et `INDEX.md` maintenu en continu à la clôture de chaque phase.
+- **Quatre mécanismes d'anti-entropie** : plafonds durs (`size-gate`, bloquant), archivage des phases shippées (`/se-archive`, avec confirmation), `INDEX.md` maintenu en continu à la clôture de chaque phase, et `PHASES.md`, registre sans plafond où l'empreinte du livré (phases et quicks) atterrit pour que `ROADMAP.md` ne porte que l'à-venir.
 - **Un garde-fou d'emplacement** (`placement-guard`, advisory) alerte dès qu'un `.md` atterrit à la racine du repo, à la racine de `.planning/`, dans un dossier non déclaré, ou porte un nom de rapport hors de sa destination.
 
 ---

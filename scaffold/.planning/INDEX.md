@@ -13,7 +13,8 @@
 ## Suivi
 
 - [STATE.md](STATE.md) : position courante, présent only
-- [ROADMAP.md](ROADMAP.md) : 3 horizons + empreinte des phases livrées
+- [ROADMAP.md](ROADMAP.md) : 3 horizons, phases à venir et en cours uniquement
+- [PHASES.md](PHASES.md) : registre des phases et quicks livrés, une ligne par entrée
 - [PROJECT.md](PROJECT.md) : produit + Key Decisions
 - [REQUIREMENTS.md](REQUIREMENTS.md) : exigences du milestone courant
 
@@ -23,7 +24,7 @@
 
 ## Phases archivées
 
-> Le détail de chaque phase livrée vit dans son SUMMARY archivé. L'empreinte d'une ligne est dans ROADMAP.md.
+> Le détail de chaque phase livrée vit dans son SUMMARY archivé. L'empreinte d'une ligne est dans PHASES.md.
 
 - ⚠ NON RENSEIGNÉ
 

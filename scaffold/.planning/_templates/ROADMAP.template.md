@@ -1,6 +1,7 @@
-<!-- TEMPLATE ROADMAP.md. PLAFONDS DURS (size-gate) : 300 lignes, 20 000 caractères, 300 caractères par ligne. -->
+<!-- TEMPLATE ROADMAP.md. PLAFONDS DURS (size-gate) : 500 lignes, 33 000 caractères, 300 caractères par ligne. -->
 <!-- 3 horizons. Court = détaillé. Moyen + long = une ligne chacun. -->
-<!-- Une phase livrée sort de l'horizon court et devient UNE ligne d'empreinte. Son détail vit dans -->
+<!-- ROADMAP ne contient QUE l'à-venir et l'en-cours. Une phase livrée en SORT : /se-archive -->
+<!-- transfère son empreinte d'une ligne vers PHASES.md. Le détail vit dans -->
 <!-- _archive/phases/{NN}-{slug}/{NN}-SUMMARY.md. L'archivage des milestones repart propre. -->
 
 # Roadmap
@@ -22,11 +23,9 @@
 - [le bloqueur qui conditionne la deadline, une ligne]
 
 ## Phases livrées
-> UNE ligne par phase, 80 caractères max : `{NN}-{slug} · {vX.Y} · {ce que ça a livré, 6 mots}`.
-> Jamais de détail ici. Le détail est dans `_archive/phases/{NN}-{slug}/{NN}-SUMMARY.md`,
-> et l'entrée cliquable est dans `INDEX.md` (section « Phases archivées »).
-
-- [NN]-[slug] · [vX.Y] · [livré, 6 mots max]
+> Rien ici : le registre du livré est `PHASES.md`. `/se-archive` y transfère
+> l'empreinte d'une ligne quand la phase sort de l'horizon court.
+- voir `PHASES.md`
 
 ## Milestones archivés
 - voir `_archive/milestones/`

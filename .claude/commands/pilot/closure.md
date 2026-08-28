@@ -32,6 +32,6 @@ Procédure lourde du Mode 3, chargée à la demande. Toutes les étapes sont obl
 
 8. **Commit doc** :
    ```bash
-   git add .planning/STRATEGY.md .planning/STRATEGY-ARCHIVE.md .planning/STATE.md .planning/ROADMAP.md
+   git add .planning/STRATEGY.md .planning/STRATEGY-ARCHIVE.md .planning/STATE.md .planning/ROADMAP.md .planning/PHASES.md
    git commit -m "docs(pilot): cloture session — [resume 1 ligne]"
    ```

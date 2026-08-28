@@ -327,10 +327,12 @@ For each directory moved:
 - Rewrite its link target to `milestones/${OUTGOING_MILESTONE}-phases/{NN}-{slug}/`.
 - Update the date at the top of the INDEX.
 
-Also add a one-line footprint per phase under `## Phases livrées` in ROADMAP.md
-(`{NN}-{slug} · {vX.Y} · {what it shipped, 6 words}`, 80 characters max) if the phase does
-not already have one. Same format as `/se-archive` step 5: one identifier per phase, no
-invented code name.
+Also add a one-line footprint per phase under `## Phases` in `.planning/PHASES.md`
+(`- {YYYY-MM-DD} · {NN}-{slug} · {vX.Y} · {what it shipped, 10 words max} · [SUMMARY](<archived path>)`)
+if the phase does not already have one. Same format as `/se-archive` step 5: one identifier
+per phase, no invented code name. The SUMMARY link points at the milestone archive path
+(`milestones/${OUTGOING_MILESTONE}-phases/{NN}-{slug}/...`). Create `PHASES.md` from the
+scaffold if it does not exist.
 
 
 Stage the phase archive move + source removal so they land in the same commit as the milestone start (atomic — no orphaned uncommitted deletions, no un-archived dirs carried forward). `phases.clear` archives each non-999 dir to `milestones/<version>-phases/`; staging both dirs captures the new archive and the removals together (#1871).

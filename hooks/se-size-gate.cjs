@@ -2,8 +2,8 @@
 // se-size-gate : PreToolUse hook BLOQUANT pour l'anti-entropie.
 // Refuse d'écrire STATE.md ou ROADMAP.md au-delà de trois plafonds (cf. CONVENTIONS) :
 // lignes, caractères du fichier, largeur d'une ligne.
-// Le plafond de lignes seul se contourne trivialement : 300 lignes de 1000 caractères
-// coûtent autant de contexte que 3000 lignes normales. Le plafond de caractères mesure
+// Le plafond de lignes seul se contourne trivialement : 500 lignes de 1000 caractères
+// coûtent autant de contexte que 5000 lignes normales. Le plafond de caractères mesure
 // le coût réel ; la largeur max attrape la ligne fourre-tout qui remplace un paragraphe.
 // Avertit (sans bloquer) dès 90% d'un plafond.
 //
@@ -33,8 +33,8 @@ const { isSeProject } = require('./guard-lib.cjs');
 // pour que le contrôle se lise sans table de correspondance. `width` ne s'applique
 // qu'aux lignes hors tableau.
 const CAPS = [
-  { match: /(^|[\\/])STATE\.md$/i, lines: 300, chars: 20000, width: 300, label: 'STATE.md' },
-  { match: /(^|[\\/])ROADMAP\.md$/i, lines: 300, chars: 20000, width: 300, label: 'ROADMAP.md' },
+  { match: /(^|[\\/])STATE\.md$/i, lines: 500, chars: 33000, width: 300, label: 'STATE.md' },
+  { match: /(^|[\\/])ROADMAP\.md$/i, lines: 500, chars: 33000, width: 300, label: 'ROADMAP.md' },
 ];
 
 // Projette le contenu du fichier APRÈS l'opération. null = pas mesurable → laisse passer.
@@ -129,7 +129,7 @@ process.stdin.on('end', () => {
     if (busts('lines')) {
       deny(
         `size-gate: ${cap.label} ferait ${after.lines} lignes (plafond ${cap.lines}). ` +
-        `Archive le contenu passe dans _archive/ ou PROJECT.md avant d'ecrire. ` +
+        `Archive le contenu passe dans _archive/, PHASES.md ou PROJECT.md avant d'ecrire. ` +
         `${cap.label} ne doit contenir que le present vivant.`
       );
     }

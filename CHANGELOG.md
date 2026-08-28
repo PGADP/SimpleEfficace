@@ -3,6 +3,18 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.9.0] - 2026-08-28
+
+Les empreintes des phases livrées s'accumulaient dans `ROADMAP.md`, qui portait donc deux rôles contradictoires : le planning de l'à-venir et l'archive du passé. Le second rongeait le plafond du premier.
+
+### Ajouté
+- **`PHASES.md`, registre du livré.** Nouveau document de suivi à la racine de `.planning/` : une ligne formatée par phase ou quick livré (`{date} · {NN}-{slug} · {vX.Y} · {livré} · lien SUMMARY`), sans plafond de taille — il grandit avec le projet, c'est sa fonction. Semé par le scaffold (`se init`), créé sur les projets antérieurs par `se sync-project`, exigé par `se doctor --repo`, déclaré dans `CONVENTIONS.md` §2-3-7 et `placement-rules.json`.
+
+### Modifié
+- **Plafonds `size-gate` relevés : 500 lignes et 33 000 caractères** (même densité qu'avant, largeur de ligne inchangée à 300) pour `STATE.md` et `ROADMAP.md`.
+- **`ROADMAP.md` ne contient plus que l'à-venir et l'en-cours.** `/se-archive` sort la phase livrée de l'horizon court et écrit son empreinte dans `PHASES.md` ; il y transfère aussi les quicks du tableau « Quick Tasks Completed » de `STATE.md`. La section `## Phases livrées` du template devient un simple renvoi.
+- **Recâblage des consommateurs** : `/se-planning` lit `PHASES.md` (jamais n'y écrit) pour l'avancement ; le patch `new-milestone` y écrit les empreintes de masse ; `INDEX.md` (scaffold) le référence ; README et `scaffold/CLAUDE.md` recalés.
+
 ## [1.5.1] - 2026-08-19
 
 `placement-guard` refusait `.continue-here.md` dans un dossier de phase, alors que c'est le nom que `/gsd:pause-work` écrit et que le gabarit `STATE.template.md` du scaffold cite lui-même. La loi de rangement contredisait la pratique livrée par le système, sur un fichier produit à chaque pause de session.

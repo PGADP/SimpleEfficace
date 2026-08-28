@@ -51,8 +51,8 @@ Quand l'utilisateur parle, discute, demande conseil :
 - **Honnetete** : Si une idee est mauvaise, le dire clairement avec une alternative
 
 #### Avant de lancer quoi que ce soit
-1. **Verifier si c'est deja fait** : Lire `.planning/INDEX.md` (phases actives ET archivees). `phases/` ne contient que l'actif : une phase livree puis archivee n'y est plus. Si l'INDEX est absent ou porte « ⚠ NON RENSEIGNE », lister aussi `.planning/_archive/phases/` avant de conclure.
-2. **Verifier si c'est deja planifie** : Chercher dans ROADMAP.md et STATE.md
+1. **Verifier si c'est deja fait** : Lire `.planning/PHASES.md` (registre du livre, une ligne par phase/quick) puis `.planning/INDEX.md` (phases actives ET archivees). `phases/` ne contient que l'actif : une phase livree puis archivee n'y est plus. Si les deux sont absents ou portent « ⚠ NON RENSEIGNE », lister aussi `.planning/_archive/phases/` avant de conclure.
+2. **Verifier si c'est deja planifie** : Chercher dans ROADMAP.md (a-venir + en cours uniquement) et STATE.md
 3. **Evaluer l'impact planning** : Si ca ajoute du travail, dire clairement ce que ca decale
 4. **Evaluer la taille** :
    - Trivial (< 30 min) → `/gsd-fast` ou `/gsd-quick`

@@ -1,4 +1,4 @@
-<!-- TEMPLATE STATE.md. PLAFONDS DURS (size-gate) : 300 lignes, 20 000 caractères, 300 caractères par ligne. -->
+<!-- TEMPLATE STATE.md. PLAFONDS DURS (size-gate) : 500 lignes, 33 000 caractères, 300 caractères par ligne. -->
 <!-- Présent only. Le passé ne vit PAS ici : il est en _archive/ ou dans PROJECT.md (décisions). -->
 
 # État du projet

@@ -16,8 +16,9 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ```
 .planning/
 ├── INDEX.md              carte de tout
-├── STATE.md              présent only, ≤ 300 lignes / 20 000 car. / 300 car. par ligne (size-gate)
-├── ROADMAP.md            3 horizons + empreinte des phases livrées, mêmes plafonds (size-gate)
+├── STATE.md              présent only, ≤ 500 lignes / 33 000 car. / 300 car. par ligne (size-gate)
+├── ROADMAP.md            phases à venir + en cours (3 horizons), mêmes plafonds (size-gate)
+├── PHASES.md             registre des phases et quicks LIVRÉS, une ligne par entrée, sans plafond
 ├── STRATEGY.md           vision, deadlines business
 ├── STRATEGY-ARCHIVE.md   décisions stratégiques sorties de STRATEGY.md
 ├── PROJECT.md            description produit + Key Decisions
@@ -57,7 +58,8 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 | Tu cherches… | C'est ici, et nulle part ailleurs |
 |---|---|
 | L'état du jour | `.planning/STATE.md` |
-| Les jalons / planning | `.planning/ROADMAP.md` |
+| Les jalons / planning (à venir, en cours) | `.planning/ROADMAP.md` |
+| La trace courte d'une phase ou d'un quick livré | `.planning/PHASES.md` |
 | La vision / deadlines business | `.planning/STRATEGY.md` |
 | La description produit + décisions | `.planning/PROJECT.md` |
 | Une phase active | `.planning/phases/{NN}-{slug}/` |
@@ -132,9 +134,11 @@ Déclaré dans `hooks/rules/placement-rules.json` sous `phaseTransientAllow`, su
 
 | Plafond | Valeur | Pourquoi |
 |---|---|---|
-| Lignes | 300 | La mesure historique. |
-| Caractères | 20 000 | Le compte de lignes se contourne : 300 lignes de 1000 caractères coûtent autant que 3000 lignes normales. C'est le coût de contexte réel. |
+| Lignes | 500 | La mesure historique. |
+| Caractères | 33 000 | Le compte de lignes se contourne : 500 lignes de 1000 caractères coûtent autant que 5000 lignes normales. C'est le coût de contexte réel. |
 | Largeur d'une ligne | 300 | Attrape le paragraphe entassé sur une ligne. **Les lignes de tableau markdown en sont exemptées** : leur largeur est mécanique, la contraindre reviendrait à interdire les tableaux. |
+
+`PHASES.md` n'a **pas** de plafond : c'est le registre append-only des phases et quicks livrés, une ligne courte par entrée. Il grandit avec le projet, c'est sa fonction. Le format d'une entrée est fixé dans son en-tête de template (scaffold).
 
 Deux règles de fonctionnement :
 
@@ -143,8 +147,8 @@ Deux règles de fonctionnement :
 
 Le reste :
 
-- `STATE.md` : présent only. `ROADMAP.md` : horizon court détaillé, moyen+long en une ligne.
-- Phase `complete` + `SUMMARY.md` → migrée en `_archive/phases/` par `/se-archive`. `phases/` ne contient QUE l'actif, et la phase laisse UNE ligne d'empreinte (80 caractères) sous `## Phases livrées` dans `ROADMAP.md` plus une entrée dans `INDEX.md`. Déplacer sans laisser ces deux traces rend la phase introuvable.
+- `STATE.md` : présent only. `ROADMAP.md` : horizon court détaillé, moyen+long en une ligne, phases à venir et en cours UNIQUEMENT (le livré vit dans `PHASES.md`).
+- Phase `complete` + `SUMMARY.md` → migrée en `_archive/phases/` par `/se-archive`. `phases/` ne contient QUE l'actif, et la phase sort de `ROADMAP.md` en laissant UNE ligne d'empreinte dans `PHASES.md` plus une entrée dans `INDEX.md`. Déplacer sans laisser ces deux traces rend la phase introuvable.
 - `research/` et `audits/` de plus d'un milestone → `_archive/research/`, `_archive/audits/`.
 - Binaires (screenshots) : jamais commités (cf. `.gitignore`).
 

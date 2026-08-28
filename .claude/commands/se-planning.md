@@ -25,10 +25,12 @@ Tu peux aussi être appelé directement par l'utilisateur via `/se-planning` pou
 
 Tu lis ET écris dans ces fichiers exclusivement :
 - `.planning/STRATEGY.md` — Objectifs business, deadlines, risques, décisions
-- `.planning/ROADMAP.md` — Milestones, phases code, planning semaine
+- `.planning/ROADMAP.md` — Milestones, phases à venir et en cours, planning semaine
 - `.planning/STATE.md` — Position courante, dernière activité
 
-**JAMAIS de fichier supplémentaire.** Pas de TASKS.md, pas de PLANNING.md. Tout est dans ces 3 fichiers.
+Tu **lis** aussi `.planning/PHASES.md` (registre du livré, écrit par /se-archive) pour calculer l'avancement. Tu n'y écris jamais.
+
+**JAMAIS de fichier supplémentaire.** Pas de TASKS.md, pas de PLANNING.md. Tout est dans ces 3 fichiers d'écriture.
 
 ## Structure du planning semaine dans ROADMAP.md
 
@@ -135,13 +137,13 @@ Quand /se-pilot te dit "on ajoute/décale/change X" :
    - Prochaine priorité: Phase/Action
    ```
 
-## La section `## Phases livrées` de ROADMAP.md
+## Le registre `PHASES.md`
 
-C'est l'empreinte des phases archivées : UNE ligne par phase, 80 caractères max, écrite par /se-archive.
+C'est l'empreinte des phases et quicks livrés : UNE ligne par entrée, format fixe, écrite par /se-archive.
 
-- Tu la **lis** pour calculer l'avancement du milestone : elle est la liste exhaustive de ce qui a shippé.
-- Tu ne la réécris pas et tu ne la rallonges jamais. Le détail vit dans `_archive/phases/{NN}-{slug}/{NN}-SUMMARY.md`, dont l'INDEX donne le chemin.
-- Une phase qui apparaît là ne doit plus figurer dans l'horizon court ni dans la vue semaine : si c'est le cas, c'est une incohérence à signaler.
+- Tu le **lis** pour calculer l'avancement du milestone : il est la liste exhaustive de ce qui a shippé.
+- Tu ne le réécris pas et tu ne le rallonges jamais. Le détail vit dans `_archive/phases/{NN}-{slug}/{NN}-SUMMARY.md`, dont chaque entrée donne le lien.
+- Une phase qui apparaît là ne doit plus figurer dans l'horizon court ni dans la vue semaine de ROADMAP.md : si c'est le cas, c'est une incohérence à signaler.
 
 ## Principes
 

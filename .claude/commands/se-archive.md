@@ -1,12 +1,12 @@
 ---
-description: Anti-entropie — archive les phases terminées vers .planning/_archive/phases/ pour garder phases/ propre. Déplace seulement ce qui est vraiment shippé (status complete + SUMMARY présent), puis recale les trois documents de suivi : INDEX.md, ROADMAP.md (empreinte d'une ligne) et STATE.md (chemins). Confirmation avant tout déplacement (opération sur dossiers).
+description: Anti-entropie — archive les phases terminées vers .planning/_archive/phases/ pour garder phases/ propre. Déplace seulement ce qui est vraiment shippé (status complete + SUMMARY présent), puis recale les quatre documents de suivi : INDEX.md, ROADMAP.md (la phase en sort), PHASES.md (empreinte d'une ligne) et STATE.md (chemins + quicks). Confirmation avant tout déplacement (opération sur dossiers).
 ---
 
 # /se-archive — anti-entropie des phases
 
 Tu déplaces les phases TERMINÉES de `.planning/phases/` vers `.planning/_archive/phases/` pour que le dossier de travail ne contienne que l'actif. Tu ne perds rien, tu ranges.
 
-**Déplacer un dossier ne suffit pas.** Trois documents pointent vers les phases : `INDEX.md` (la carte), `ROADMAP.md` (le suivi) et `STATE.md` (la position). Une phase déplacée sans les recaler devient un chemin mort : les agents cherchent dans `phases/`, ne trouvent rien, et concluent que le travail n'a jamais eu lieu. Les étapes 4 à 6 sont donc aussi obligatoires que le déplacement lui-même.
+**Déplacer un dossier ne suffit pas.** Quatre documents pointent vers les phases : `INDEX.md` (la carte), `ROADMAP.md` (l'à-venir et l'en-cours), `PHASES.md` (le registre du livré) et `STATE.md` (la position). Une phase déplacée sans les recaler devient un chemin mort : les agents cherchent dans `phases/`, ne trouvent rien, et concluent que le travail n'a jamais eu lieu. Les étapes 4 à 6 sont donc aussi obligatoires que le déplacement lui-même.
 
 **Règle de sécurité** : déplacer des dossiers est irréversible à la légère. Tu confirmes TOUJOURS avant de déplacer, et tu listes exactement ce qui bouge.
 
@@ -18,8 +18,9 @@ Une phase est archivable si TOUTES ces conditions sont vraies :
 4. Elle n'est PAS la phase active courante.
 
 ```bash
-# Phases marquées complete dans l'horizon court (s'arrêter avant `## Phases livrées` :
-# cette section ne liste que des phases DÉJÀ archivées, les reprendre ferait boucler)
+# Phases marquées complete dans l'horizon court (s'arrêter avant `## Phases livrées` si la
+# section existe encore : c'est un simple renvoi vers PHASES.md, ou d'anciennes empreintes
+# sur un projet antérieur au registre — dans les deux cas, déjà archivé, les reprendre ferait boucler)
 sed '/^## Phases livrées/,$d' .planning/ROADMAP.md | grep -iE "complete|✓|shipped"
 # Pour chaque candidate, vérifier la présence d'un SUMMARY (le nom réel est
 # {phase}-{plan}-SUMMARY.md côté GSD : globber, ne jamais deviner le préfixe)
@@ -66,24 +67,33 @@ Note : l'INDEX est maintenu en continu à la clôture de chaque phase via le ste
 
 Si `INDEX.md` n'existe pas, le créer depuis le scaffold avant d'archiver quoi que ce soit (`se sync-project` le fait) : sans la carte, une phase archivée est introuvable.
 
-## Étape 5 — Condenser la phase dans ROADMAP.md
-La phase sort de l'horizon court et laisse **une seule ligne d'empreinte** sous `## Phases livrées`.
+## Étape 5 — Sortir la phase de ROADMAP.md, écrire l'empreinte dans PHASES.md
+`ROADMAP.md` ne contient que l'à-venir et l'en-cours. La phase livrée en **sort entièrement** et laisse **une seule ligne d'empreinte** dans `.planning/PHASES.md`, section `## Phases`.
 
-Format, 80 caractères maximum, jamais plus :
+Format d'une entrée :
 ```
-- {NN}-{slug} · {vX.Y} · {ce que ça a livré, 6 mots max}
+- {YYYY-MM-DD} · {NN}-{slug} · {vX.Y} · {ce que ça a livré, 10 mots max} · [SUMMARY](_archive/phases/{NN}-{slug}/{fichier réel})
 ```
 Exemple :
 ```
-- 02-extraction · v0.1 · parseur PDF vers JSON
+- 2026-08-28 · 02-extraction · v0.1 · parseur PDF vers JSON · [SUMMARY](_archive/phases/02-extraction/02-01-SUMMARY.md)
 ```
 
 Règles :
 - **Pas de nom de code inventé.** L'identifiant est `{NN}-{slug}`, le même que le dossier archivé : un seul identifiant par phase, et il sert de chemin.
-- Supprimer la ligne correspondante du tableau de l'horizon court, ainsi que tout bloc de détail (plans, gates, checklists) que la phase y avait laissé.
-- Ne jamais rallonger l'empreinte pour « garder le contexte » : le contexte est dans le SUMMARY archivé, dont le chemin se déduit du slug.
+- Le nom du SUMMARY est celui observé à l'étape 1, jamais reconstruit.
+- Dans `ROADMAP.md` : supprimer la ligne du tableau de l'horizon court, ainsi que tout bloc de détail (plans, gates, checklists) que la phase y avait laissé.
+- Ne jamais rallonger l'empreinte pour « garder le contexte » : le contexte est dans le SUMMARY archivé.
+- Si `PHASES.md` n'existe pas, le créer depuis le scaffold (`scaffold/.planning/PHASES.md`) avant d'écrire.
 
-Le size-gate refuse `ROADMAP.md` au-delà de 300 lignes, 20 000 caractères, ou 300 caractères sur une seule ligne. Une empreinte de 80 caractères tient 40 phases sans approcher aucun plafond ; un paragraphe par phase les fait tous sauter.
+`PHASES.md` n'a pas de plafond : il grandit avec le projet, c'est sa fonction. `ROADMAP.md` et `STATE.md`, eux, restent sous size-gate (500 lignes, 33 000 caractères, 300 caractères par ligne) : le transfert des empreintes est précisément ce qui les maintient sous les plafonds.
+
+### Quicks réalisés
+Même mouvement pour les quicks : les lignes du tableau « Quick Tasks Completed » de `STATE.md` (écrites par `/gsd-quick`) migrent vers la section `## Quicks` de `PHASES.md`, une ligne par quick :
+```
+- {YYYY-MM-DD} · quick {id} · {ce que ça a livré, 10 mots max} · [dossier](quick/{id}-{slug}/)
+```
+Le lien pointe vers `.planning/quick/{id}-{slug}/` (ces dossiers ne sont pas déplacés). Supprimer les lignes transférées de `STATE.md`.
 
 ## Étape 6 — Corriger les chemins dans STATE.md
 Les phases déplacées laissent des chemins morts. Réécrire chaque occurrence :
