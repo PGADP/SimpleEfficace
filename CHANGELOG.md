@@ -3,6 +3,20 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.10.0] - 2026-08-31
+
+Un prompt était le seul artefact que le système laissait passer sans grille. L'UI a `/se-ui` et son contrat, le texte visible a `/se-humanizer`, le code a trois gates : le texte lu par un modèle, lui, se relisait à vue.
+
+### Ajouté
+- **`/se-prompt`, deux modes.** `audit` (défaut) rend un verdict mesuré sans rien modifier ; `implémentation` écrit ou refond le prompt, puis se relit. Une invocation traite **une seule famille** : prompt d'instruction d'agent (`SKILL.md`, `CLAUDE.md`, commande markdown, description d'outil ou de sous-agent) ou prompt applicatif assemblé dans du code (schéma de sortie, caching, few-shots, contexte injecté). Les leviers des deux familles ne se recouvrent pas, une grille hybride jugerait à côté.
+- **`references/prompt/`** : `README.md` (routage), `grid-agent.md` (18 anti-patterns + 10 checks déterministes), `grid-app.md` (16 anti-patterns + 10 checks). Chaque item porte sa mesure et distingue `[M]` (mesuré) de `[R]` (recommandation d'éditeur) : un `[R]` ne justifie jamais un CRITICAL seul.
+- **Recherche source** : `.planning/research/2026-08-31-prompt-engineering-generique.md`, volet multi-fournisseurs et instruction d'agent, complémentaire du volet applicatif mesuré côté pipeline Mistral.
+- **Gate PROMPT** dans `quick` et `execute-phase` : rejoint le batch parallèle SIMPLIFY / JANITOR / SECURITY, même checkpoint unique (§11), déclenchée par un prompt modifié dans la tâche. Détection en deux temps, chemin puis contenu : un prompt assemblé dans du code ne se voit pas au nom de fichier. Clé `workflow.prompt_gate`, défaut `true`.
+
+### Décidé
+- **Pas de hook bloquant au commit.** Le gate `/se-ui` bloque parce qu'il dispose d'un détecteur déterministe et d'un GO humain sur un rendu réel. L'équivalent pour un prompt est un banc d'évaluation, qui n'existe dans aucun projet : un blocage sans banc serait un tampon administratif. Le verdict PROMPT est consultatif, l'humain tranche.
+- **`prompt` entre dans le type d'audit transverse** (`CONVENTIONS.md` §4) : un audit complet s'écrit dans `.planning/audits/{date}-prompt-{slug}.md`, un verdict de gate reste dans le `CHECKPOINTS.md` de la phase, un audit de séance ne s'écrit pas.
+
 ## [1.9.0] - 2026-08-28
 
 Les empreintes des phases livrées s'accumulaient dans `ROADMAP.md`, qui portait donc deux rôles contradictoires : le planning de l'à-venir et l'archive du passé. Le second rongeait le plafond du premier.

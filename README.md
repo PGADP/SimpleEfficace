@@ -168,13 +168,14 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 </details>
 
 <details>
-<summary><b>Conception &amp; interface</b> — 3 skills</summary>
+<summary><b>Conception &amp; interface</b> — 4 skills</summary>
 
 | Skill | Rôle |
 |---|---|
 | `/se-ui` | Design-system, 10 piliers, cycle craft → critique → polish, verdict mesuré |
 | `/se-ux` | Parcours E2E, personas, JTBD, heuristiques de Nielsen |
 | `/se-humanizer` | Anti-AI-slop sur tout contenu qu'un humain verra |
+| `/se-prompt` | Prompts lus par un modèle : audit mesuré ou écriture. Deux grilles, agent et applicatif |
 
 </details>
 
@@ -314,8 +315,8 @@ La règle qui pèse le plus lourd sur la durée : **un rapport ne s'écrit sur d
 | Durée de vie | Qui | Où |
 |---|---|---|
 | Éphémère — verdict consommé en séance | `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`… | **Rien.** Chat + `TodoWrite` |
-| Liée à une phase | gates SIMPLIFY, JANITOR, SECURITY, checkpoint visuel | `phases/{NN}-{slug}/CHECKPOINTS.md`, qui part à l'archive avec la phase |
-| Transverse et persistante | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review` | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
+| Liée à une phase | gates SIMPLIFY, JANITOR, SECURITY, PROMPT, checkpoint visuel | `phases/{NN}-{slug}/CHECKPOINTS.md`, qui part à l'archive avec la phase |
+| Transverse et persistante | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review`, `/se-prompt` (audit complet) | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
 Quatre mécanismes d'anti-entropie complètent le dispositif : les plafonds durs de `size-gate`, l'archivage des phases shippées par `/se-archive`, `INDEX.md` maintenu en continu à la clôture de chaque phase, et `PHASES.md`, registre sans plafond du livré (phases et quicks). On lit `INDEX.md` pour s'orienter, jamais un `grep` à l'aveugle.
 

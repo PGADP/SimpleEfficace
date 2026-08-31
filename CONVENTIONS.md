@@ -88,10 +88,10 @@ Un rapport ne s'écrit sur disque **que s'il sera relu**. Trois classes, une des
 | Classe | Qui | Où |
 |---|---|---|
 | **Éphémère** — verdict consommé en séance | `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`, `/se-fix`, `/se-plan`, `/se-explain`, `/se-refactor` | **Rien sur disque.** Réponse en chat + `TodoWrite`. Fichier seulement si l'utilisateur le demande explicitement → `.planning/audits/` |
-| **Liée à une phase** | gates SIMPLIFY / JANITOR / SECURITY / visuel, `/se-debug` en phase | `.planning/phases/{NN}-{slug}/CHECKPOINTS.md` — part à l'archive avec la phase |
-| **Transverse persistante** | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review`, `/se-refactor` (stratégie globale demandée) | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
+| **Liée à une phase** | gates SIMPLIFY / JANITOR / SECURITY / PROMPT / visuel, `/se-debug` en phase | `.planning/phases/{NN}-{slug}/CHECKPOINTS.md` — part à l'archive avec la phase |
+| **Transverse persistante** | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review`, `/se-prompt` (audit complet), `/se-refactor` (stratégie globale demandée) | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
-`{type}` ∈ `security` · `ux` · `ui` · `refactor` · `review` · `health`.
+`{type}` ∈ `security` · `ux` · `ui` · `prompt` · `refactor` · `review` · `health`.
 
 Pourquoi pas un dossier par type : trois dossiers à trois fichiers, c'est de l'entropie. Un dossier unique trié par date se lit d'un `ls`.
 

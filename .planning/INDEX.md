@@ -8,6 +8,7 @@
 - [../CONVENTIONS.md](../CONVENTIONS.md) — loi de rangement et de nommage (source unique)
 - `../rules/ui-rules.json` — règles UI par défaut (un projet peut les surcharger dans son `.planning/rules/`)
 - `../references/design/` — savoir design du système (heuristics, routage corpus)
+- `../references/prompt/` — grilles d'audit de prompts (`grid-agent.md`, `grid-app.md`) + routage, lues par `/se-prompt`
 - `../templates/` — templates copiés dans les projets (playwright.config, ui-verify, checkpoint-shots)
 - `../hooks/`, `../scripts/`, `../vendor/`, `../gsd-patches/` — moteur du système
 

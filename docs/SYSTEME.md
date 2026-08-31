@@ -291,7 +291,7 @@ Paul a noté « on a beaucoup moins de skills, mais c'est pas mal ». C'est volo
 
 **Cycle (C)** : commandes GSD enrichies (scout, discuss, research, plan, check, execute, verify, simplify, janitor, ship) + gestion (insert-phase, complete-milestone, archive auto).
 
-**Spécialistes (E)** : `/se-ux` (personas + parcours E2E), `/se-ui`, `/se-humanizer` v2, `/se-research`, skills projet.
+**Spécialistes (E)** : `/se-ux` (personas + parcours E2E), `/se-ui`, `/se-humanizer` v2, `/se-prompt` (prompts lus par un modèle, audit ou écriture), `/se-research`, skills projet.
 
 **Détail exhaustif des skills retenus / fusionnés / supprimés : à produire au chantier dédié.**
 
