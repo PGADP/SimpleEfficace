@@ -35,3 +35,7 @@ coverage/
 
 # Process longs lancés par se-serve.cjs (PID + logs) — jamais commités
 .planning/_servers/
+
+# Recherches du repo SE : matière première locale, pas du système livré.
+# Ce qui doit voyager est distillé dans references/ (grilles, règles), jamais le rapport brut.
+.planning/research/
