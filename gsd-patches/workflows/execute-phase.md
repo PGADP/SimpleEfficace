@@ -1282,19 +1282,30 @@ If `section_manifest` is `null` or `"regression-gate"` is in its `included` list
 <step name="quality_gates">
 **SIMPLE & EFFICACE gates** — quality + cleanup + security before goal verification. Advisory: they surface opportunities, the human decides (GO/NO-GO). They never block the flow.
 
-**The three gates read the same diff and write nothing until the human says GO.** So they run in ONE parallel batch and produce ONE checkpoint. Running them in sequence triples the wall-clock and, worse, wakes the human three times for the same diff (loi : `~/.claude/se/CONVENTIONS.md` §11).
+**The gates read the same diff and write nothing until the human says GO.** So they run in ONE parallel batch and produce ONE checkpoint. Running them in sequence multiplies the wall-clock and, worse, wakes the human once per gate for the same diff (loi : `~/.claude/se/CONVENTIONS.md` §11).
 
 **Config gates:**
 ```bash
 SIMPLIFY_ENABLED=$(gsd_run config-get workflow.simplify_gate 2>/dev/null || echo "false")
 JANITOR_ENABLED=$(gsd_run config-get workflow.janitor_gate 2>/dev/null || echo "false")
 SECURITY_ENABLED=$(gsd_run config-get workflow.security_gate 2>/dev/null || echo "false")
+# Défaut `true` : une clé absente veut dire « projet créé avant que la gate existe »,
+# pas « l'humain n'en veut pas ». Même convention que le checkpoint visuel.
+PROMPT_ENABLED=$(gsd_run config-get workflow.prompt_gate 2>/dev/null || echo "true")
+
+PHASE_FILES=$(git log --name-only --grep="${PHASE_NUMBER}" --pretty="" | sort -u)
 
 # SECURITY trigger: sensitive surface OR dependencies touched by this phase.
-DEPS_CHANGED=$(git log --name-only --grep="${PHASE_NUMBER}" --pretty="" | grep -E '^(package\.json|package-lock\.json|pnpm-lock\.yaml|bun\.lock)$' | sort -u)
+DEPS_CHANGED=$(echo "$PHASE_FILES" | grep -E '^(package\.json|package-lock\.json|pnpm-lock\.yaml|bun\.lock)$')
+
+# PROMPT trigger: a prompt touched by this phase. Two detections, path then content: a prompt
+# assembled inside code carries no telltale filename.
+PROMPT_BY_PATH=$(echo "$PHASE_FILES" | grep -E '(^|/)(prompts?|skills|commands|agents)/|\.prompt\.[jt]sx?$|(^|/)(CLAUDE|AGENTS|SKILL)\.md$')
+PROMPT_IN_CODE=$(echo "$PHASE_FILES" | grep -E '\.(ts|tsx|js|mjs|cjs|py)$' | xargs -r grep -lE "systemPrompt|system_instruction|role: ?['\"]system|\.messages\.create|\.chat\.complete" 2>/dev/null)
+PROMPT_TOUCHED=$(printf '%s\n%s\n' "$PROMPT_BY_PATH" "$PROMPT_IN_CODE" | grep -v '^$' | sort -u)
 ```
 
-All default to `"false"`: these gates are opt-in. Enable per project in `.planning/config.json` under `workflow.simplify_gate` / `workflow.janitor_gate` / `workflow.security_gate`.
+SIMPLIFY, JANITOR and SECURITY default to `"false"`: they are opt-in, enabled per project in `.planning/config.json` under `workflow.simplify_gate` / `workflow.janitor_gate` / `workflow.security_gate`. PROMPT defaults to `"true"` and gates itself on `PROMPT_TOUCHED`: empty → display `Gate PROMPT skipped (aucun prompt modifié)` and do not spawn it.
 
 SECURITY also needs a trigger: a modified file matching `/api/`, `route.(ts|js)`, `middleware.*`, `auth`, `login`, `session`, `*.sql`, `migrations/`, `prisma/schema.prisma`, `next.config.*`, or code calling Supabase/DB clients — **or** a non-empty `DEPS_CHANGED`. Neither → "Gate SECURITY skipped (surface non sensible)".
 
@@ -1311,6 +1322,9 @@ Task(subagent_type="general-purpose", model="opus",
 
 Task(subagent_type="general-purpose", model="opus",
      prompt="Invoke Skill(se-security) with args 'phase ${PHASE_NUMBER} --report-only — fichiers sensibles modifies de la phase'. ${DEPS_CHANGED:+Dependencies changed in this phase (${DEPS_CHANGED}): also run the supply-chain grid (§5 of the skill) — audit, install scripts of NEW deps, pinning, provenance.} If this phase exposes the project's first public route and next.config.* declares no headers(), report 'Headers de sécurité absents — template : .planning/_templates/security-headers.md'. Return findings and verdict, nothing else. Modify no file, ask no question.")
+
+Task(subagent_type="general-purpose", model="opus",
+     prompt="Invoke Skill(se-prompt) with args 'audit phase ${PHASE_NUMBER}, prompts modifiés : ${PROMPT_TOUCHED}'. Return its verdict block verbatim and nothing else. Modify no file, ask no question.")
 ```
 
 A disabled or untriggered gate is simply not spawned: display `Gate {name} skipped ({reason})` and move on. Model per `~/.claude/se/CONVENTIONS.md` §9: these gates judge, so `opus`.
@@ -1324,6 +1338,7 @@ Fait        {n} fichiers modifiés · gates lancées en parallèle : {liste}
 Mesuré      SIMPLIFY  P0 {a} · P1 {b}
             JANITOR   DEAD {c} · VIOLATION {d} · SUSPECT {e}
             SECURITY  CRITICAL {f} · HIGH {g}
+            PROMPT    CRITICAL {h} · MAJEUR {i} · MINEUR {j}
 À juger     1. [SUSPECT] fichier:ligne · <pourquoi le doute>
             2. [CRITICAL] fichier:ligne · <attaque> · fix : <...>
             (4 maximum — ce qui est mesuré ne se juge pas, il passe avec le GO)
@@ -1337,8 +1352,11 @@ Ce qui est déjà tranché par la mesure (P0, DEAD, VIOLATION) n'entre pas dans 
 **Step 3 — Apply sequentially, after the GO.** Writing is never parallel (§11). Order matters:
 
 1. CRITICAL security fixes,
-2. SIMPLIFY P0,
-3. JANITOR DEAD + VIOLATION (cleaning last: it must not delete code a simplification just moved).
+2. PROMPT CRITICAL (same nature: a prompt that can produce a false fact or let an abuse through),
+3. SIMPLIFY P0,
+4. JANITOR DEAD + VIOLATION (cleaning last: it must not delete code a simplification just moved).
+
+A PROMPT fix that turns out to belong in code (a verification, an authorization check, a stop condition) is written in code, never in the prompt text.
 
 Atomic commits separated by category, then `npm run build && npm run type-check` **once for the whole batch**, not once per gate.
 

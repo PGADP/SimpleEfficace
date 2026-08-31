@@ -4,7 +4,7 @@ Execute small, ad-hoc tasks with GSD guarantees (atomic commits, STATE.md tracki
 **SIMPLE & EFFICACE, what a quick task always runs:**
 - `Skill(se-interview)` before planning. The human decides, Claude recommends. It self-limits: nothing left to decide means no question asked.
 - a focused research pass. A discussion cannot check an API contract.
-- the SIMPLIFY / JANITOR / SECURITY gates on the resulting diff, in ONE parallel batch and ONE checkpoint.
+- the SIMPLIFY / JANITOR / SECURITY / PROMPT gates on the resulting diff, in ONE parallel batch and ONE checkpoint. PROMPT only fires when the task touched a prompt (`/se-prompt`, advisory, no commit hook).
 - the measured visual checkpoint (`/se-ui` ritual) **when the task touched frontend files**. It is also what unblocks the `se-ui-gate` commit hook.
 - `Skill(se-humanizer)` **when the task touched user-facing text**: inside the visual checkpoint when there is a screen, standalone otherwise.
 - `gsd-verifier` on the task goal.
@@ -744,24 +744,35 @@ If `section_manifest` is `null` or `"quick-verification"` is in its `included` l
 
 ---
 
-**Step 6.5: Quality gates (SIMPLIFY + JANITOR + SECURITY)**
+**Step 6.5: Quality gates (SIMPLIFY + JANITOR + SECURITY + PROMPT)**
 
 **SIMPLE & EFFICACE gates**: quality + cleanup + security before goal verification. Advisory: they surface opportunities, the human decides (GO/NO-GO). They never block the flow.
 
 **A quick task gets the same three gates as a phase.** Short is not an excuse: dead code and a missing auth check cost the same whatever the size of the task that introduced them.
 
-**The three gates read the same diff and write nothing until the human says GO.** So they run in ONE parallel batch and produce ONE checkpoint. Running them in sequence triples the wall-clock and, worse, wakes the human three times for the same diff (loi : `~/.claude/se/CONVENTIONS.md` §11).
+**The gates read the same diff and write nothing until the human says GO.** So they run in ONE parallel batch and produce ONE checkpoint. Running them in sequence multiplies the wall-clock and, worse, wakes the human once per gate for the same diff (loi : `~/.claude/se/CONVENTIONS.md` §11).
 
 **Config gates** (same keys and same defaults as `execute-phase`: one source of truth, no second dialect):
 ```bash
 SIMPLIFY_ENABLED=$(gsd_run config-get workflow.simplify_gate 2>/dev/null || echo "false")
 JANITOR_ENABLED=$(gsd_run config-get workflow.janitor_gate 2>/dev/null || echo "false")
 SECURITY_ENABLED=$(gsd_run config-get workflow.security_gate 2>/dev/null || echo "false")
+# Défaut `true` : une clé absente veut dire « projet créé avant que la gate existe »,
+# pas « l'humain n'en veut pas ». Même convention que le checkpoint visuel.
+PROMPT_ENABLED=$(gsd_run config-get workflow.prompt_gate 2>/dev/null || echo "true")
 
 DEPS_CHANGED=$(echo "$CHANGED" | grep -E '^(package\.json|package-lock\.json|pnpm-lock\.yaml|bun\.lock)$' | sort -u)
+
+# Prompt touché par CETTE tâche ? Deux détections, le chemin puis le contenu : un prompt
+# assemblé dans du code ne se voit pas au nom de fichier.
+PROMPT_BY_PATH=$(echo "$CHANGED" | grep -E '(^|/)(prompts?|skills|commands|agents)/|\.prompt\.[jt]sx?$|(^|/)(CLAUDE|AGENTS|SKILL)\.md$')
+PROMPT_IN_CODE=$(echo "$CHANGED" | grep -E '\.(ts|tsx|js|mjs|cjs|py)$' | xargs -r grep -lE "systemPrompt|system_instruction|role: ?['\"]system|\.messages\.create|\.chat\.complete" 2>/dev/null)
+PROMPT_TOUCHED=$(printf '%s\n%s\n' "$PROMPT_BY_PATH" "$PROMPT_IN_CODE" | grep -v '^$' | sort -u)
 ```
 
 Unlike `execute-phase`, SECURITY here has **no sensitive-surface condition**: an enabled gate always runs. A quick task is exactly where a lone route or a lone dependency slips in without anyone calling it a security change.
+
+PROMPT, itself, needs its trigger: empty `PROMPT_TOUCHED` → display `Gate PROMPT skipped (aucun prompt modifié)` and do not spawn it.
 
 **Step 6.5a, spawn every enabled gate IN PARALLEL, in a SINGLE message.**
 
@@ -776,6 +787,9 @@ Task(subagent_type="general-purpose", model="opus",
 
 Task(subagent_type="general-purpose", model="opus",
      prompt="Invoke Skill(se-security) with args 'quick ${quick_id} --report-only, fichiers modifiés : ${CHANGED}'. ${DEPS_CHANGED:+Dependencies changed (${DEPS_CHANGED}): also run the supply-chain grid (§5 of the skill), audit, install scripts of NEW deps, pinning, provenance.} If this task exposes the project's first public route and next.config.* declares no headers(), report 'Headers de sécurité absents, template : .planning/_templates/security-headers.md'. Return findings and verdict, nothing else. Modify no file, ask no question.")
+
+Task(subagent_type="general-purpose", model="opus",
+     prompt="Invoke Skill(se-prompt) with args 'audit quick ${quick_id}, prompts modifiés : ${PROMPT_TOUCHED}'. Return its verdict block verbatim and nothing else. Modify no file, ask no question.")
 ```
 
 A disabled gate is simply not spawned: display `Gate {name} skipped (désactivée dans config.json)` and move on. Model per `~/.claude/se/CONVENTIONS.md` §9: these gates judge, so `opus`.
@@ -789,6 +803,7 @@ Fait        {n} fichiers modifiés · gates lancées en parallèle : {liste}
 Mesuré      SIMPLIFY  P0 {a} · P1 {b}
             JANITOR   DEAD {c} · VIOLATION {d} · SUSPECT {e}
             SECURITY  CRITICAL {f} · HIGH {g}
+            PROMPT    CRITICAL {h} · MAJEUR {i} · MINEUR {j}
 À juger     1. [SUSPECT] fichier:ligne · <pourquoi le doute>
             2. [CRITICAL] fichier:ligne · <attaque> · fix : <...>
             (4 maximum, ce qui est mesuré ne se juge pas, il passe avec le GO)
@@ -802,8 +817,11 @@ Ce qui est déjà tranché par la mesure (P0, DEAD, VIOLATION) n'entre pas dans 
 **Step 6.5c, apply sequentially, after the GO.** Writing is never parallel (§11). Order matters:
 
 1. CRITICAL security fixes,
-2. SIMPLIFY P0,
-3. JANITOR DEAD + VIOLATION (cleaning last: it must not delete code a simplification just moved).
+2. PROMPT CRITICAL (they carry the same nature: a prompt that can produce a false fact or let an abuse through),
+3. SIMPLIFY P0,
+4. JANITOR DEAD + VIOLATION (cleaning last: it must not delete code a simplification just moved).
+
+A PROMPT fix that turns out to belong in code (a verification, an authorization check, a stop condition) is written in code, never in the prompt text.
 
 Atomic commits separated by category, then `npm run build && npm run type-check` **once for the whole batch**, not once per gate.
 
