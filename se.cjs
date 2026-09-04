@@ -584,9 +584,12 @@ function collectDoctorChecks() {
   else if (state.version === version) checks.push(check(CHECK_OK, `version installée = version repo (${version})`));
   else checks.push(check(CHECK_KO, `version installée ${state.version} ≠ repo ${version} — lance \`se update\``));
 
-  // Repo location (warning only).
+  // Repo location (warning only). Compared on the REAL path: ~/.claude/se is often a junction
+  // (or symlink) to the repo checkout, which is exactly the recommended setup — comparing the
+  // literal paths would then warn about a repo that is precisely where it should be.
   const expected = path.join(seHome(), ...EXPECTED_REPO_LOCATION);
-  if (path.resolve(REPO_ROOT) === path.resolve(expected)) {
+  const realPath = (p) => { try { return fs.realpathSync(p); } catch { return path.resolve(p); } };
+  if (realPath(REPO_ROOT) === realPath(expected)) {
     checks.push(check(CHECK_OK, `repo au bon endroit (${toPosix(expected)})`));
   } else {
     checks.push(check(CHECK_WARN, `repo hors de l'emplacement conseillé (${toPosix(expected)}) — fonctionne, mais les docs supposent ce chemin`));
