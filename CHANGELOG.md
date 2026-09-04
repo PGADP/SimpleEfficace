@@ -3,6 +3,26 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.11.0] - 2026-09-04
+
+Le système interrogeait bien et ne retenait rien. `/se-interview` vidait l'arbre de décision round après round, puis le vocabulaire tranché pendant la séance repartait avec elle. La session suivante réinventait ses mots, et l'humain relisait des explications qui ne parlaient pas la langue de son projet. Symétriquement, une conversation hors phase (sparring, debug, exploration) n'avait aucun endroit où déposer son état : `/gsd-pause-work` est couplé à un dossier de phase, et sans phase il n'y a rien à quoi accrocher un fichier.
+
+### Ajouté
+- **`.planning/GLOSSARY.md`, le vocabulaire du projet.** Un concept, le mot retenu, les synonymes explicitement bannis sous `_Éviter_`, plus les invariants et les pièges connus. Semé par le scaffold (`se init`), posé sur les projets antérieurs par `se sync-project`, déclaré dans `CONVENTIONS.md` §3 et `placement-rules.json`. À ne pas confondre avec `phases/{NN}-{slug}/CONTEXT.md`, qui fige les décisions d'une seule phase.
+- **Volet vocabulaire dans `/se-interview`.** Quatre gestes pendant les rounds, jamais après : opposer le glossaire quand un terme le contredit, remplacer un mot fourre-tout par le terme canonique, éprouver la frontière entre deux concepts par un cas limite, croiser une affirmation avec le code. Un terme tranché s'écrit dans la foulée, pas en lot : ce qui est repoussé à la fin est ce qui se perd.
+- **Lecture câblée** : `pilot:briefing` lit le glossaire en ouverture de séance, `gsd-executor` avant d'écrire. Les termes s'emploient tels quels dans les identifiants, les commentaires, les messages de commit et les SUMMARY.
+- **`/se-handoff`, passation hors phase.** Compacte la conversation en un document qu'un agent neuf reprend sans rien deviner : objet de la prochaine session, état réel, ce qui est tranché, ce qui reste ouvert, pointeurs, skills à appeler. Écrit dans le répertoire temporaire de l'OS, jamais dans le dépôt.
+
+### Modifié
+- **`se update` rappelle `sync-project`** dès qu'il monte de version. Le scaffold n'est copié qu'au `se init` : une évolution de scaffold n'atteignait donc pas les projets déjà créés, et le README affirmait le contraire (« rien à faire dans les projets »). Le rappel est générique, il vaut pour toute évolution future.
+- **`se sync-project` pose `GLOSSARY.md`** sur un projet qui n'en a pas, comme il le fait déjà pour `INDEX.md` et `PHASES.md`. Copie non destructive, avec un À FAIRE affiché.
+- **`se doctor --repo`** vérifie que le scaffold embarque bien `GLOSSARY.md`.
+
+### Décidé
+- **`GLOSSARY.md` et non `CONTEXT.md`.** Le nom `CONTEXT.md` est déjà pris par les décisions figées d'une phase (`phaseFileAllow`). Deux fichiers homonymes de sens différents auraient cassé la règle de destination unique.
+- **Pas d'ADR séparés.** Les décisions structurantes restent dans les Key Decisions de `PROJECT.md`. En revanche le critère de tri entre dans `/se-interview` : une décision ne se consigne que si elle est dure à inverser, incompréhensible sans son contexte, et issue d'un vrai arbitrage entre options réelles. Deux sur trois, on n'écrit rien.
+- **`/se-handoff` ne double pas `/gsd-pause-work`.** En phase, la passation reste `.continue-here.md` dans le dossier de phase, commitée en WIP et relue par `/gsd-resume-work`. Le skill déclare cette frontière en tête et bascule de lui-même. Il ne garde que le périssable : un terme tranché part au glossaire, une décision structurante dans `PROJECT.md`, et le handoff les référence.
+
 ## [1.10.0] - 2026-08-31
 
 Un prompt était le seul artefact que le système laissait passer sans grille. L'UI a `/se-ui` et son contrat, le texte visible a `/se-humanizer`, le code a trois gates : le texte lu par un modèle, lui, se relisait à vue.
