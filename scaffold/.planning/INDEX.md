@@ -16,6 +16,7 @@
 - [ROADMAP.md](ROADMAP.md) : 3 horizons, phases à venir et en cours uniquement
 - [PHASES.md](PHASES.md) : registre des phases et quicks livrés, une ligne par entrée
 - [PROJECT.md](PROJECT.md) : produit + Key Decisions
+- [GLOSSARY.md](GLOSSARY.md) : vocabulaire du projet, un concept un mot
 - [REQUIREMENTS.md](REQUIREMENTS.md) : exigences du milestone courant
 
 ## Phases actives

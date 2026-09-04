@@ -11,6 +11,8 @@ allowed-tools:
 
 Procédure lourde du Mode 1, chargée à la demande pour garder /se-pilot mince.
 
+0. **Lis `.planning/GLOSSARY.md`** s’il existe. C’est le vocabulaire du projet : tu emploies ces mots-là pendant toute la séance et tu bannis les synonymes listés sous `_Éviter_`. Fichier absent ou encore « ⚠ NON RENSEIGNÉ » : ne bloque pas, mais propose de l’ouvrir au premier terme flou de la session.
+
 1. **Demande ce qui a ete fait** depuis la derniere session (taches manuelles, avancees hors code).
 
 2. **OBLIGATOIRE : invoque `/se-planning`** via Skill, argument "Point planning debut de session — verifier etat reel des phases, recaler vue semaine si necessaire, alertes". /se-planning lit STRATEGY/ROADMAP/STATE (+ PHASES.md pour l'avancement), verifie la coherence, retourne un PLANNING STATUS structure. **Ne lis pas les fichiers toi-meme** — /se-planning garantit la verification systematique.

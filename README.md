@@ -87,13 +87,13 @@ Le skill déroule le cadrage complet : accueil, brainstorming, PRD, recherches, 
 node ~/.claude/se/se.cjs update
 ```
 
-`update` tire la dernière version, réinstalle, rejoue les migrations de structure en attente et affiche les nouveautés du changelog entre ta version et la nouvelle. Il n'y a **rien à faire dans les projets** : ils utilisent le système global, ils sont à jour dès la commande terminée. Sur une autre machine, la même commande.
+`update` tire la dernière version, réinstalle, rejoue les migrations de structure en attente et affiche les nouveautés du changelog entre ta version et la nouvelle. Les skills, les hooks et le moteur sont globaux : les projets en profitent dès la commande terminée. Une évolution du **scaffold**, en revanche, ne les atteint pas toute seule (il n'est copié qu'au `se init`) : `update` te le rappelle en fin de course, `sync-project` ci-dessous fait le rattrapage. Sur une autre machine, la même commande.
 
 ```bash
 cd mon-projet && node ~/.claude/se/se.cjs sync-project
 ```
 
-`sync-project` rattrape un projet **créé avant** une évolution du scaffold : il ajoute les clés de config manquantes et insère les sections de contrat de design apparues depuis. Il n'écrase jamais un choix explicite (une gate coupée reste coupée, elle est seulement signalée). Nécessaire parce que `scaffold/` n'est copié qu'au `se init` : sans cette commande, un projet garde ses trous pour toujours.
+`sync-project` rattrape un projet **créé avant** une évolution du scaffold : il ajoute les clés de config manquantes, les documents de suivi apparus depuis (`INDEX.md`, `PHASES.md`, `GLOSSARY.md`) et les sections de contrat de design. Il n'écrase jamais un choix explicite (une gate coupée reste coupée, elle est seulement signalée). Nécessaire parce que `scaffold/` n'est copié qu'au `se init` : sans cette commande, un projet garde ses trous pour toujours.
 
 ```bash
 node ~/.claude/se/se.cjs doctor    # quelque chose cloche ? diagnostic complet, exit 1 si problème
@@ -155,7 +155,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 | Skill | Rôle |
 |---|---|
 | `/se-pilot` | Cofondateur : sparring, challenge, orchestration du cycle |
-| `/se-interview` | Primitif d'interview : arbre de décision vidé par rounds, avant d'écrire quoi que ce soit |
+| `/se-interview` | Primitif d'interview : arbre de décision vidé par rounds, et le glossaire du projet écrit au passage |
 | `/se-checkpoint` | Primitif de checkpoint : la forme unique de toute demande de GO, 4 points à juger maximum |
 | `/se-new-project` | Démarrage complet d'un projet vierge, contrat de design inclus |
 | `/se-planning` | Chef de projet : STATE/ROADMAP, briefings, arbitrages de séquençage |
@@ -319,6 +319,8 @@ La règle qui pèse le plus lourd sur la durée : **un rapport ne s'écrit sur d
 | Transverse et persistante | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review`, `/se-prompt` (audit complet) | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
 Quatre mécanismes d'anti-entropie complètent le dispositif : les plafonds durs de `size-gate`, l'archivage des phases shippées par `/se-archive`, `INDEX.md` maintenu en continu à la clôture de chaque phase, et `PHASES.md`, registre sans plafond du livré (phases et quicks). On lit `INDEX.md` pour s'orienter, jamais un `grep` à l'aveugle.
+
+Un cinquième document ne range pas des fichiers mais des mots : `GLOSSARY.md`, le vocabulaire du projet. Un concept, le mot retenu, les synonymes bannis. `/se-interview` l'oppose et l'enrichit à chaque round, le briefing du pilot et chaque executor le lisent avant d'écrire. C'est ce qui empêche un agent de réinventer ses termes à chaque session.
 
 Ranger n'est pas oublier. Une phase archivée laisse trois traces, sans quoi elle deviendrait un chemin mort : son entrée passe de « Phases actives » à « Phases archivées » dans `INDEX.md`, elle se condense en une ligne d'empreinte dans `PHASES.md` (le registre du livré, sans plafond), et les chemins qui la citaient sont réécrits dans `STATE.md`. Les agents qui cherchent le passé lisent `INDEX.md` et fouillent `_archive/phases/`, jamais `phases/` seul, qui ne contient que l'actif.
 

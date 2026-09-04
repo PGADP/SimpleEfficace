@@ -62,6 +62,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 | La trace courte d'une phase ou d'un quick livré | `.planning/PHASES.md` |
 | La vision / deadlines business | `.planning/STRATEGY.md` |
 | La description produit + décisions | `.planning/PROJECT.md` |
+| Le vocabulaire du projet (un concept, un mot) | `.planning/GLOSSARY.md` |
 | Une phase active | `.planning/phases/{NN}-{slug}/` |
 | Une phase terminée | `.planning/_archive/phases/{NN}-{slug}/` |
 | Une recherche | `.planning/research/{YYYY-MM-DD}-{slug}.md` |

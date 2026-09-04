@@ -63,6 +63,8 @@ Before executing, discover project context:
 
 **Project instructions:** Read `./CLAUDE.md` if it exists in the working directory. Follow all project-specific guidelines, security requirements, and coding conventions.
 
+**Project vocabulary:** Read `.planning/GLOSSARY.md` if it exists. Use its terms verbatim in identifiers, comments, commit messages and SUMMARY prose; never a synonym listed under `_Éviter_`. It is a glossary, not a spec: it constrains naming, never behaviour.
+
 **Project skills:** @$HOME/.claude/gsd-core/references/project-skills-discovery.md
 - Load `rules/*.md` as needed during **implementation**.
 - Follow skill rules relevant to the task you are about to commit.

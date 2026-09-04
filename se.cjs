@@ -41,7 +41,7 @@ const REPO_TEST_SUITES = [
   path.join('scripts', 'ui-verdict.test.cjs'),
   path.join('scripts', 'se-serve.test.cjs'),
 ];
-const SCAFFOLD_REQUIRED_FILES = ['CLAUDE.md', '.gitignore', path.join('.planning', 'config.json'), path.join('.planning', 'INDEX.md'), path.join('.planning', 'PHASES.md')];
+const SCAFFOLD_REQUIRED_FILES = ['CLAUDE.md', '.gitignore', path.join('.planning', 'config.json'), path.join('.planning', 'INDEX.md'), path.join('.planning', 'PHASES.md'), path.join('.planning', 'GLOSSARY.md')];
 
 // ---------------------------------------------------------------------------
 // Path & IO helpers
@@ -544,6 +544,17 @@ function cmdSyncProject(dirArg) {
     todo.push('Remplir PHASES.md : y transférer les empreintes des phases déjà livrées (section "## Phases livrées" de ROADMAP.md, si elle existe) et les quicks du tableau de STATE.md.');
   }
 
+  // 3ter. GLOSSARY.md : le vocabulaire du projet. Un projet créé avant qu'il existe n'en a pas,
+  //    et /se-interview n'aurait aucun glossaire à opposer ni à enrichir. Copie non destructive.
+  const glossaryPath = path.join(planning, 'GLOSSARY.md');
+  if (fs.existsSync(glossaryPath)) {
+    log('✓ GLOSSARY.md : présent');
+  } else {
+    fs.copyFileSync(path.join(scaffold, '.planning', 'GLOSSARY.md'), glossaryPath);
+    log('✓ GLOSSARY.md : créé depuis le scaffold (glossaire vide)');
+    todo.push('Ouvrir GLOSSARY.md au prochain /se-interview : y noter les termes du projet au fil des rounds, un concept, un mot, les synonymes bannis sous _Éviter_.');
+  }
+
   // 4. _templates/ : gabarits ajoutés au système APRÈS la création du projet (un projet
   //    d'avant n'a jamais eu CHECKPOINTS.template.md). Copie non destructive : un gabarit
   //    déjà présent a pu être adapté par le projet, on ne le touche pas.
@@ -653,7 +664,7 @@ function collectRepoChecks() {
 
   // Scaffold completeness.
   const missingScaffold = SCAFFOLD_REQUIRED_FILES.filter((rel) => !fs.existsSync(path.join(REPO_ROOT, 'scaffold', rel)));
-  if (missingScaffold.length === 0) checks.push(check(CHECK_OK, 'scaffold complet (CLAUDE.md, .gitignore, .planning/config.json, .planning/INDEX.md, .planning/PHASES.md)'));
+  if (missingScaffold.length === 0) checks.push(check(CHECK_OK, 'scaffold complet (CLAUDE.md, .gitignore, .planning/config.json, .planning/INDEX.md, .planning/PHASES.md, .planning/GLOSSARY.md)'));
   else checks.push(check(CHECK_KO, `scaffold incomplet : ${missingScaffold.map(toPosix).join(', ')}`));
 
   // Vendored corpora present.
