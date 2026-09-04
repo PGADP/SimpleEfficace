@@ -3,6 +3,10 @@
 > Carte du repo SE lui-même (le système, pas un projet applicatif).
 > Ce `.planning/` accueille les éventuels dossiers de phases du développement du système.
 
+## Suivi
+
+- [GLOSSARY.md](GLOSSARY.md) : le vocabulaire du système, un concept, le mot retenu, les synonymes bannis
+
 ## Système (racine — mis à jour via git pull)
 
 - [../CONVENTIONS.md](../CONVENTIONS.md) — loi de rangement et de nommage (source unique)
