@@ -76,6 +76,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 | Une banque de règles | `.planning/rules/{nom}.json` (données typées) |
 | Une idée capturée | `.planning/todos/pending/` puis `done/` |
 | Un handoff de session en pause | `.planning/HANDOFF.json` (machine) + `.planning/phases/{NN}-{slug}/.continue-here.md` (humain) |
+| Un handoff hors phase | répertoire temporaire de l'OS, jamais dans le dépôt (`/se-handoff`) |
 | Un milestone archivé | `.planning/_archive/milestones/{vX.Y}/` |
 | Une spec de chantier système | `docs/_design/{NN}-{nom}.md` |
 | La conception du système | `docs/SYSTEME.md` |

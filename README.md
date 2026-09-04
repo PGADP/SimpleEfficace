@@ -150,7 +150,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 ## Les skills
 
 <details>
-<summary><b>Cadrage &amp; pilotage</b> — 10 skills</summary>
+<summary><b>Cadrage &amp; pilotage</b> — 11 skills</summary>
 
 | Skill | Rôle |
 |---|---|
@@ -162,6 +162,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 | `/se-research` | Recherche web approfondie (quick/deep), rapport persistant et citable |
 | `/se-brainstorm-light` | 20 idées ciblées en 10 minutes |
 | `/se-brainstorm-heavy` | 60-80 idées, 61 techniques créatives, multi-session |
+| `/se-handoff` | Passation de session hors phase (sparring, debug, exploration) : ce qui est tranché, ce qui reste ouvert, quels skills appeler |
 | `/se-archive` | Sort les phases shippées du chemin de travail et recale INDEX, ROADMAP et STATE, avec confirmation |
 | `/se-migrate` | Migre un projet de l'ancien modèle (système cloné) vers l'installation globale — dry-run, zéro perte |
 

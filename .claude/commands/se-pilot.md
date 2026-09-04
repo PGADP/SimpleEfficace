@@ -77,6 +77,7 @@ Tu connais TOUS les skills et tu n'hesites JAMAIS a les utiliser :
 - `/gsd-health` — Sante du projet
 - `/gsd-stats` — Statistiques
 - `/gsd-progress` — Vue d'avancement
+- `/se-handoff` : passation de session HORS phase (sparring, debug, exploration). En phase, c'est `/gsd-pause-work`.
 
 **Developpement :**
 - `/se-dev` — Implementation avec plan fourni

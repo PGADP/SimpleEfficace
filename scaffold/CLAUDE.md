@@ -22,7 +22,7 @@ node "$HOME/.claude/se/scripts/install-gsd-patches.cjs"   # applique les enrichi
 
 ## Ce qui est actif dans ce projet
 
-- **Skills** (`.claude/commands/`) : `/se-pilot`, `/se-interview`, `/se-new-project`, `/se-ui`, `/se-ux`, `/se-prompt`, `/se-research`, `/se-humanizer`, `/se-dev`, `/se-review` (+ modes `lint`/`perf`), `/se-security`, `/se-test`, `/se-gate-simplify`, `/se-gate-janitor`, etc.
+- **Skills** (`.claude/commands/`) : `/se-pilot`, `/se-interview`, `/se-handoff`, `/se-new-project`, `/se-ui`, `/se-ux`, `/se-prompt`, `/se-research`, `/se-humanizer`, `/se-dev`, `/se-review` (+ modes `lint`/`perf`), `/se-security`, `/se-test`, `/se-gate-simplify`, `/se-gate-janitor`, etc.
 - **Garde-fous** (`.claude/settings.json` → `~/.claude/se/hooks/`) — actifs au démarrage de session :
   - advisory (dispatcher `se-guard.cjs`) : `humanizer-guard` (contenu user-facing), `ui-guard` (front), `hardcode-guard`, `hygiene-guard`, `monolith-guard`, `security-guard` (secrets, XSS, eval, Zod manquant), `placement-guard` (fichier de suivi rangé hors de sa destination unique)
   - bloquants : `size-gate` (STATE.md / ROADMAP.md > 500 lignes ou 33 000 caractères), `slop-gate` (commit de contenu AI-slop), `secret-gate` (commit de secrets — insensible au `--no-verify`), `ui-contract-gate` (écriture front refusée tant que DESIGN-SYSTEM.md §0 et §2.1 hiérarchie visuelle ne sont pas remplis ; injecte le plancher de qualité impeccable à la première édition front de la session), `ui-gate` (commit de fichiers front refusé sans passe `/se-ui` validée : anti-patterns mesurés + GO humain avec URL, registre `.planning/design/ui-passes.json`)
