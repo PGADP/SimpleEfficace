@@ -67,6 +67,17 @@ git('checkout -q -b vraiment-neuve main');
 commit('d.txt', 'd\n', 'feat: d');
 git('checkout -q main');
 
+// 5. fusionnée PUIS reprise : un commit posé sur la branche APRÈS son merge.
+//    Le signal « PR fusionnée » dit ce que la PR contenait, jamais ce qui a été
+//    poussé ensuite. Sans contrôle du contenu, ce commit serait détruit.
+git('checkout -q -b reprise-apres-merge main');
+commit('e.txt', 'e\n', 'feat: e');
+git('checkout -q main');
+git('merge -q --no-ff reprise-apres-merge -m "merge e"');
+git('checkout -q reprise-apres-merge');
+commit('e2.txt', 'e2\n', 'feat: e2 apres le merge');
+git('checkout -q main');
+
 git('push -q origin main');
 
 function runSweep(cwd = work) {
@@ -83,6 +94,7 @@ check('détecte la branche fusionnée par merge commit', /merged-commit/.test(dr
 check('détecte la branche rebasée (patch déjà en amont)', /rebased/.test(dry.stdout));
 check('détecte la branche squashée', /squashed \(squash-merge\)/.test(dry.stdout));
 check('ne propose PAS la branche qui porte du travail neuf', !/vraiment-neuve/.test(dry.stdout));
+check('ne propose PAS une branche fusionnée mais reprise depuis', !/reprise-apres-merge/.test(dry.stdout));
 check('annonce qu\'il n\'a rien supprimé', /Mode annonce/.test(dry.stdout));
 const branchesAfterDry = git('branch --format=%(refname:short)').split('\n').filter(Boolean);
 check('mode annonce : aucune branche supprimée', branchesAfterDry.includes('merged-commit'));
@@ -95,6 +107,7 @@ const live = runSweep();
 const branchesAfter = git('branch --format=%(refname:short)').split('\n').filter(Boolean);
 check('supprime la branche fusionnée par merge commit', !branchesAfter.includes('merged-commit'));
 check('conserve la branche qui porte du travail neuf', branchesAfter.includes('vraiment-neuve'));
+check('conserve la branche fusionnée puis reprise', branchesAfter.includes('reprise-apres-merge'));
 check('conserve main', branchesAfter.includes('main'));
 check('journalise le SHA dans ARCHIVE.log',
   fs.existsSync(path.join(work, '.planning', 'ARCHIVE.log'))

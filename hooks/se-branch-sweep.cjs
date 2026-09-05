@@ -70,13 +70,20 @@ function squashedInto(cwd, base, branch) {
 }
 
 // Returns the reason the branch is considered integrated, or null.
+//
+// A merged pull request says what the PR CONTAINED, never what was pushed onto the
+// branch afterwards — and a commit added after the merge is exactly the work a
+// forced delete would destroy. So content is checked first, always: the PR signal
+// only names the reason, and authorises the `-D` that git itself refuses on a
+// squash or rebase merge.
 function integrationReason(cwd, base, branch, mergedPrs, mergedList) {
+  const cherry = tryGit(cwd, `cherry ${base} ${branch}`);
+  const allUpstream = cherry !== null && !cherry.split('\n').some((l) => l.startsWith('+'));
+  if (!allUpstream && !squashedInto(cwd, base, branch)) return null;
+
   if (mergedPrs && mergedPrs.has(branch)) return 'PR fusionnée';
   if (mergedList.has(branch)) return 'merge commit';
-  const cherry = tryGit(cwd, `cherry ${base} ${branch}`);
-  if (cherry !== null && !cherry.split('\n').some((l) => l.startsWith('+'))) return 'patchs déjà en amont';
-  if (squashedInto(cwd, base, branch)) return 'squash-merge';
-  return null;
+  return allUpstream ? 'patchs déjà en amont' : 'squash-merge';
 }
 
 function logDeletion(cwd, line) {
