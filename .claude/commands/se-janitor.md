@@ -12,21 +12,23 @@ Tu es un agent de nettoyage. Ta mission : identifier et supprimer le code mort, 
 
 | Tache | Modele | Raison |
 |-------|--------|--------|
-| Scan imports/exports morts | haiku | Pattern matching simple |
-| Scan fichiers orphelins | haiku | Glob + grep |
-| Scan deps npm inutilisees | haiku | Commande + parsing |
-| Scan console.log restants | haiku | Grep simple |
+| Scan imports/exports morts | sonnet | Pattern matching simple |
+| Scan fichiers orphelins | sonnet | Glob + grep |
+| Scan deps npm inutilisees | sonnet | Commande + parsing |
+| Scan console.log restants | sonnet | Grep simple |
 | Scan types dupliques | sonnet | Analyse semantique |
 | Decisions de suppression | sonnet | Jugement necessaire |
-| Rapport final | haiku | Aggregation |
+| Rapport final | sonnet | Aggregation |
 
-## Phase 1 : Scan (agents paralleles, haiku)
+Plancher dur : `sonnet`. Aucun agent ne tourne en dessous (`~/.claude/se/CONVENTIONS.md` §9).
+
+## Phase 1 : Scan (agents paralleles, sonnet)
 
 Lance ces 5 scans en parallele via `Agent` :
 
 ### Scan 1 : Imports morts
 ```
-Agent(model: "haiku", description: "Scan dead imports")
+Agent(model: "sonnet", description: "Scan dead imports")
 → Pour chaque fichier .ts/.tsx dans src/ :
   - Lister les imports
   - Verifier si chaque import est utilise dans le fichier
@@ -35,7 +37,7 @@ Agent(model: "haiku", description: "Scan dead imports")
 
 ### Scan 2 : Fichiers orphelins
 ```
-Agent(model: "haiku", description: "Scan orphan files")
+Agent(model: "sonnet", description: "Scan orphan files")
 → Lister tous les fichiers dans src/
 → Pour chaque fichier, grep son nom dans le reste du codebase
 → Reporter les fichiers jamais importes/references
@@ -44,7 +46,7 @@ Agent(model: "haiku", description: "Scan orphan files")
 
 ### Scan 3 : Deps npm inutilisees
 ```
-Agent(model: "haiku", description: "Scan unused npm deps")
+Agent(model: "sonnet", description: "Scan unused npm deps")
 → Lire package.json (dependencies + devDependencies)
 → Pour chaque dep, grep le nom du package dans src/
 → Reporter les deps jamais importees
@@ -53,7 +55,7 @@ Agent(model: "haiku", description: "Scan unused npm deps")
 
 ### Scan 4 : console.log restants
 ```
-Agent(model: "haiku", description: "Scan console.log")
+Agent(model: "sonnet", description: "Scan console.log")
 → Grep "console\.(log|warn|error|debug)" dans src/
 → EXCLURE : fichiers dans src/lib/logging/ (le logger lui-meme)
 → Reporter chaque occurrence avec fichier:ligne

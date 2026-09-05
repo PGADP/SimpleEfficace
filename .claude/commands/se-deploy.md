@@ -12,28 +12,28 @@ Tu es un gardien de qualite. Ta mission : verifier que le code est deployable AV
 
 | Tache | Modele | Raison |
 |-------|--------|--------|
-| Execution des checks | haiku | Commandes bash simples |
+| Execution des checks | sonnet | Commandes bash simples — jamais moins que sonnet (CONVENTIONS §9) |
 | Analyse des resultats | sonnet | Jugement sur les erreurs |
 | Verdict final | sonnet | Decision GO/NO-GO |
 
-## Execution (tout en parallele via Agent haiku)
+## Execution (tout en parallele via Agent sonnet)
 
 Lance ces 5 checks en parallele dans un seul message :
 
 ```
-Agent(model: "haiku", description: "Build check",
+Agent(model: "sonnet", description: "Build check",
   prompt: "Run: npm run build 2>&1 | tail -30. Report OK or list errors.")
 
-Agent(model: "haiku", description: "Type check",
+Agent(model: "sonnet", description: "Type check",
   prompt: "Run: npm run type-check 2>&1 | tail -30. Report OK or list errors.")
 
-Agent(model: "haiku", description: "Lint check",
+Agent(model: "sonnet", description: "Lint check",
   prompt: "Run: npm run lint 2>&1 | tail -30. Report OK or list errors.")
 
-Agent(model: "haiku", description: "Test check",
+Agent(model: "sonnet", description: "Test check",
   prompt: "Run: npm run test 2>&1 | tail -30. Report OK or FAIL with details.")
 
-Agent(model: "haiku", description: "Deps audit",
+Agent(model: "sonnet", description: "Deps audit",
   prompt: "Run: npm audit --omit=dev 2>&1 | tail -20. Report vulnerabilities count by severity.")
 ```
 
@@ -42,10 +42,10 @@ Agent(model: "haiku", description: "Deps audit",
 Si déployé sur Railway, ajoute ces checks :
 
 ```
-Agent(model: "haiku", description: "Railway health",
+Agent(model: "sonnet", description: "Railway health",
   prompt: "Run: railway status 2>&1 | tail -20. Report any deployment issues or service status.")
 
-Agent(model: "haiku", description: "Railway env",
+Agent(model: "sonnet", description: "Railway env",
   prompt: "Run: railway variables 2>&1 | tail -10. Verify all required env vars are set (no checking values).")
 ```
 
