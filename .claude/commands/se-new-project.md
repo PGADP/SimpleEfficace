@@ -123,7 +123,7 @@ Enfin, retire la ligne `Statut : SQUELETTE` en tête du fichier une fois les tro
 ## Étape 7 — Cadrage des toggles + clôture
 - Propose d'activer les gates qualité du cycle : "On active simplify-gate / janitor-gate / wiring-gate / security-gate pour ce projet ? (recommandé pour un projet où tu connais peu le code)". Si oui, confirme-les dans `.planning/config.json` (`workflow.simplify_gate`, `workflow.janitor_gate`, `workflow.wiring_gate`, `workflow.security_gate`). (Le TDD se pilote par tâche via `tdd="true"` au plan, pas par un toggle global.)
 - **Setup Playwright (si stack front + Playwright)** : pose les templates de vision dès maintenant pour que la phase fondations n'ait plus qu'à installer la dépendance :
-  - copie `$HOME/.claude/se/templates/playwright.config.template.ts` → `playwright.config.ts` et `$HOME/.claude/se/templates/checkpoint-shots.template.ts` → `tests/e2e/checkpoint-shots.ts` ;
+  - copie `$HOME/.claude/se/templates/playwright.config.template.ts` → `playwright.config.ts` et `$HOME/.claude/se/templates/ui-verify.template.ts` → `tests/e2e/ui-verify.spec.ts` ;
   - inscris dans la phase fondations de la roadmap la tâche `npm i -D @playwright/test` (la dépendance ne peut s'installer qu'une fois le `package.json` créé au scaffolding) ;
   - laisse `workflow.visual_checkpoint` et `workflow.ui_front_pass` à `true` (défaut). Le checkpoint visuel du cycle prend le relais automatiquement dès qu'une phase touche du front.
   - Si la stack n'a pas de front (CLI, lib, API pure) → **SKIP**, ne pose pas Playwright.
