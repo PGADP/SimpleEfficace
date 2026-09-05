@@ -2,6 +2,12 @@
   "_comment": "Config du système SIMPLE & EFFICACE (active dès le clone). Gates qualité (simplify_gate, janitor_gate, security_gate, visual_checkpoint) lues par execute-phase.md ; ui_phase/ui_front_pass/ui_safety_gate par ui-phase.md et gsd-ui-checker. ui_gate_blocking décide si un BLOCK mesuré par ~/.claude/se/scripts/ui-verdict.cjs arrête la livraison (true) ou reste consultatif (false) — le passer à false si la gate devient trop rigide au quotidien. ui_contract_gate refuse toute écriture front tant que DESIGN-SYSTEM.md §0 (plateforme, public cible, direction, molettes) et §2.1 (hiérarchie visuelle) ne sont pas remplis (hook se-ui-contract-gate) ; ui_commit_gate refuse un commit de fichiers front sans passe /se-ui validée par un GO humain + URL (hook se-ui-gate, registre .planning/design/ui-passes.json). Ajuste selon ton projet.",
   "mode": "interactive",
   "granularity": "standard",
+  "_comment_git": "Loi de branche (CONVENTIONS.md §13) : une phase = une branche forkée d'origin/main = une PR. branching_strategy 'none' ferait tomber tous les commits sur la branche courante, donc sur main. Les hooks branch-gate (bloquant) et branch-sweep (annonce) sont réglés par workflow.branch_gate et workflow.branch_sweep.",
+  "git": {
+    "branching_strategy": "phase",
+    "phase_branch_template": "feat/{phase}-{slug}",
+    "quick_branch_template": "fix/{slug}"
+  },
   "workflow": {
     "research": true,
     "plan_check": true,
@@ -15,6 +21,8 @@
     "ui_gate_blocking": true,
     "ui_contract_gate": true,
     "ui_commit_gate": true,
+    "branch_gate": true,
+    "branch_sweep": false,
     "ui_phase": true,
     "ui_front_pass": true,
     "ui_safety_gate": true

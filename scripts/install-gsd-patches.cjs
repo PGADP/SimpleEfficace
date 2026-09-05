@@ -54,7 +54,7 @@ const sha = (s) => crypto.createHash('sha256').update(s).digest('hex');
 let manifest = {};
 try { manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); } catch { /* first run */ }
 
-let applied = 0, unchanged = 0;
+let applied = 0, unchanged = 0, refused = 0;
 for (const { src, dst, ext } of TARGETS) {
   if (!fs.existsSync(src)) continue;
   fs.mkdirSync(dst, { recursive: true });
@@ -69,11 +69,19 @@ for (const { src, dst, ext } of TARGETS) {
       if (!fs.existsSync(backup)) {
         fs.copyFileSync(to, backup);
       } else if (manifest[to] && sha(current) !== manifest[to]) {
-        // target changed since our last install (e.g. /gsd-update wrote a fresh
-        // upstream) → re-archive it, otherwise .orig would go stale and the
-        // update's improvements would be lost without trace
+        // Target changed since our last install (typically /gsd-update wrote a fresh
+        // upstream). Re-archive it, otherwise .orig goes stale and the update's
+        // improvements are lost without trace — then REFUSE the file.
+        //
+        // Overwriting here would silently replace a newer engine with a patch built
+        // against an older one, reintroducing whatever upstream has fixed since.
+        // MIGRATION-GSD-CORE.md risk #3 already settled the rule: do not re-apply,
+        // rebuild the patch from the new upstream file.
         fs.writeFileSync(backup, current);
-        console.warn(`⚠ upstream modifié depuis le dernier install: ${path.relative(HOME, to)} — .orig rafraîchi. Vérifie que le patch SE intègre les nouveautés (diff ${name}.orig vs gsd-patches/).`);
+        console.warn(`⛔ ${path.relative(HOME, to)} : upstream modifié depuis le dernier install — fichier NON patché.`);
+        console.warn(`   .orig rafraîchi. Reconstruis le patch depuis le nouvel upstream : diff ${name}.orig vs gsd-patches/, puis relance.`);
+        refused++;
+        continue;
       }
     }
     fs.writeFileSync(to, next);
@@ -86,3 +94,7 @@ for (const { src, dst, ext } of TARGETS) {
 try { fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2)); } catch { /* non bloquant */ }
 
 console.log(applied ? `\n${applied} fichier(s) patché(s), ${unchanged} déjà à jour. Backups upstream en *.orig.` : `Tout est déjà à jour (${unchanged} fichiers).`);
+if (refused) {
+  console.warn(`\n⛔ ${refused} fichier(s) NON patché(s) : l'upstream a bougé depuis le dernier install.`);
+  console.warn(`   Reconstruis ces patches avant de relancer, sinon les enrichissements SE ne sont pas actifs sur eux.`);
+}

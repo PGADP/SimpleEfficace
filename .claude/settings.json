@@ -39,6 +39,24 @@
             "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-secret-gate.cjs\"",
             "timeout": 5,
             "statusMessage": "se-secret-gate"
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-branch-gate.cjs\"",
+            "timeout": 5,
+            "statusMessage": "se-branch-gate"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/hooks/se-branch-sweep.cjs\"",
+            "timeout": 30,
+            "statusMessage": "se-branch-sweep"
           }
         ]
       }

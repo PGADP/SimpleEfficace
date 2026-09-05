@@ -30,7 +30,7 @@ Procédure lourde du Mode 3, chargée à la demande. Toutes les étapes sont obl
 
 7. **Prochaines actions** : 3-5 items clairs pour la prochaine session.
 
-8. **Commit doc** :
+8. **Commit doc** — branche : cf. `~/.claude/se/CONVENTIONS.md` §13, `branch-gate` refuse ce commit sur `main` ou `production` :
    ```bash
    git add .planning/STRATEGY.md .planning/STRATEGY-ARCHIVE.md .planning/STATE.md .planning/ROADMAP.md .planning/PHASES.md
    git commit -m "docs(pilot): cloture session — [resume 1 ligne]"
