@@ -61,7 +61,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ├── decisions/            ADR : une décision technique durable par fichier, jamais rééditée
 ├── todos/                capture zéro-friction (pending/ + done/)
 ├── _templates/           gabarits du système
-└── _archive/             tout le validé migre ici
+└── _archive/             ce qui survit au tri de /se-archive (le reste est supprimé, git le garde)
     ├── milestones/{vX.Y}/
     ├── phases/{NN}-{slug}/
     ├── research/
@@ -128,15 +128,18 @@ Pourquoi pas un dossier par type : trois dossiers à trois fichiers, c'est de l'
 
 Noms invariants pour qu'un parser les trouve sans grep :
 
-| Fichier | Contenu |
-|---|---|
-| `CONTEXT.md` | décisions figées par DISCUSS |
-| `RESEARCH.md` | recherche de la phase |
-| `PLAN.md` | tâches, vagues, dépendances |
-| `SUMMARY.md` | le document de la phase qui lui survit : le pourquoi, ce qu'on a refusé, ce qui a résisté, ce que le plan n'avait pas vu, la dette laissée sciemment. Gabarit : `~/.claude/se/templates/SUMMARY.template.md` |
-| `VERIFICATION.md` | vérif goal-backward |
-| `UI-SPEC.md` | contrat de design (si front) |
-| `CHECKPOINTS.md` | journal des gates (simplify, janitor, security, visuel) + verdicts |
+| Fichier | Contenu | Durée de vie |
+|---|---|---|
+| `SUMMARY.md` | le pourquoi, ce qu'on a refusé, ce qui a résisté, ce que le plan n'avait pas vu, la dette laissée sciemment. Gabarit : `~/.claude/se/templates/SUMMARY.template.md` | **conservé** |
+| `CHECKPOINTS.md` | journal des gates (simplify, janitor, security, visuel) + verdicts | **conservé** |
+| `HUMAN-UAT.md` | verdict humain d'UAT | **conservé** |
+| `CONTEXT.md` | décisions figées par DISCUSS | jetable au SHIP |
+| `RESEARCH.md` | recherche de la phase | jetable au SHIP |
+| `PLAN.md` | tâches, vagues, dépendances | jetable au SHIP |
+| `VERIFICATION.md` | vérif goal-backward | jetable au SHIP |
+| `UI-SPEC.md` | contrat de design (si front) | jetable au SHIP |
+
+**Jetable ne veut pas dire perdu.** `/se-archive` supprime ces fichiers du chemin de travail et consigne dans `ARCHIVE.log` le sha où ils vivaient encore : `git show {sha}:{chemin}` les rend intégralement. Ce qu'on retire, ce n'est pas le contenu, c'est la possibilité qu'un agent relise en 2027 un `PLAN.md` de 2026 en croyant y lire le code d'aujourd'hui. Le verrou : rien n'est supprimé si le `SUMMARY.md` de la phase est incomplet.
 
 Les workflows GSD préfixent : `{phase}-{plan}-PLAN.md`, `{phase}-{plan}-SUMMARY.md`. Le suffixe reste invariant.
 
