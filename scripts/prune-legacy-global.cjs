@@ -7,7 +7,9 @@
 // Les doublons (pilot + se-pilot, dev + se-dev…) coûtent du contexte et créent
 // de l'ambiguïté. Règle générique, pas de liste en dur :
 //   ~/.claude/commands/<name>.md est archivé SSI .claude/commands/se-<name>.md
-//   existe dans ce repo. Idem pour un dossier <name>/ si le repo a le même.
+//   existe dans ce repo. Les DOSSIERS sont laisses en place : `se install` copie
+//   ceux du repo (pilot/, brainstorming/) sous le meme nom, les archiver casserait
+//   les skills qui les chargent.
 //
 //   node scripts/prune-legacy-global.cjs           → dry-run (montre ce qui partirait)
 //   node scripts/prune-legacy-global.cjs --apply   → archive réellement
@@ -19,10 +21,12 @@ const os = require('os');
 const REPO_CMDS = path.resolve(__dirname, '..', '.claude', 'commands');
 const GLOBAL_CMDS = path.join(os.homedir(), '.claude', 'commands');
 const APPLY = process.argv.includes('--apply');
+const JSON_OUT = process.argv.includes('--json');
 const stamp = new Date().toISOString().slice(0, 10);
 const BACKUP = path.join(os.homedir(), '.claude', `_backup-legacy-skills-${stamp}`);
 
 if (!fs.existsSync(GLOBAL_CMDS)) {
+  if (JSON_OUT) { console.log(JSON.stringify({ count: 0, entries: [] })); process.exit(0); }
   console.log('Pas de ~/.claude/commands — rien à faire.');
   process.exit(0);
 }
@@ -32,10 +36,12 @@ for (const entry of fs.readdirSync(GLOBAL_CMDS, { withFileTypes: true })) {
   if (entry.isFile() && entry.name.endsWith('.md')) {
     const base = entry.name.replace(/\.md$/, '');
     if (fs.existsSync(path.join(REPO_CMDS, `se-${base}.md`))) toArchive.push(entry.name);
-  } else if (entry.isDirectory() && entry.name !== 'gsd') {
-    // dossier support (ex: brainstorming/) archivé si le repo embarque sa propre copie
-    if (fs.existsSync(path.join(REPO_CMDS, entry.name))) toArchive.push(entry.name);
   }
+}
+
+if (JSON_OUT) {
+  console.log(JSON.stringify({ count: toArchive.length, entries: toArchive }));
+  process.exit(0);
 }
 
 if (!toArchive.length) {

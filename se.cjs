@@ -646,6 +646,16 @@ function collectDoctorChecks() {
     checks.push(check(CHECK_OK, 'GSD présent, patches SE appliqués (manifest trouvé)'));
   }
 
+  // Skills globaux non préfixés supersédés par un se-*. La règle vit dans le script,
+  // jamais dupliquée ici : `prune-legacy-global --json` en est la source unique.
+  const pruneScript = path.join(REPO_ROOT, 'scripts', 'prune-legacy-global.cjs');
+  const prune = spawnSync(process.execPath, [pruneScript, '--json'], { encoding: 'utf8' });
+  let legacyCount = null;
+  try { legacyCount = JSON.parse(prune.stdout).count; } catch { legacyCount = null; }
+  if (legacyCount === null) checks.push(check(CHECK_WARN, 'doublons de skills globaux non vérifiables (prune-legacy-global muet)'));
+  else if (legacyCount === 0) checks.push(check(CHECK_OK, 'aucun skill global supersédé par un se-*'));
+  else checks.push(check(CHECK_WARN, `${legacyCount} skill(s) global(aux) supersédé(s) par un se-* — \`node ${toPosix(pruneScript)}\` pour voir, \`--apply\` pour archiver`));
+
   // Vendored design corpora.
   if (fs.existsSync(path.join(REPO_ROOT, 'vendor', 'design', 'VERSIONS.json'))) {
     checks.push(check(CHECK_OK, 'vendor/design présent avec VERSIONS.json'));
