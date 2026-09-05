@@ -404,6 +404,21 @@ check('branch-gate: --no-verify ne change rien au refus', denies(bgate('git comm
 check('branch-gate: flag global avant le verbe → refus quand même',
   denies(bgate('git -c core.hooksPath=/dev/null commit -m "x"')));
 
+// `cd <autre depot> && git commit` : le harness remet le repertoire de session a
+// zero entre deux appels, donc cette forme est la plus courante de toutes.
+const elsewhere = fs.mkdtempSync(path.join(os.tmpdir(), 'se-branch-cd-'));
+execSync('git init -q -b feat-ailleurs', { cwd: elsewhere, stdio: 'ignore' });
+execSync('git remote add origin https://example.invalid/z.git', { cwd: elsewhere, stdio: 'ignore' });
+check('branch-gate: cd vers un depot sur une branche de feature → laisse passer',
+  !denies(bgate(`cd "${elsewhere}" && git commit -m "x"`)));
+check('branch-gate: cd vers un depot sur main → refusé même si la session est ailleurs',
+  denies(runHook('se-branch-gate.cjs',
+    { ...bash(`cd "${brepo}" && git commit -m "x"`), cwd: elsewhere }, elsewhere)));
+check('branch-gate: -C l\'emporte sur un cd precedent',
+  !denies(runHook('se-branch-gate.cjs',
+    { ...bash(`cd "${brepo}" && git -C "${elsewhere}" commit -m "x"`), cwd: brepo }, brepo)));
+fs.rmSync(elsewhere, { recursive: true, force: true });
+
 // `git -C <autre depot>` doit etre juge sur CE depot-la, pas sur celui de la session.
 const other = fs.mkdtempSync(path.join(os.tmpdir(), 'se-branch-other-'));
 execSync('git init -q -b feat-ailleurs', { cwd: other, stdio: 'ignore' });
