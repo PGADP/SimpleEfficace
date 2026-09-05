@@ -66,26 +66,39 @@ function operationInProgress(cwd) {
 const GIT_OPTS_WITH_VALUE = new Set(['-C', '-c', '--git-dir', '--work-tree', '--namespace', '--exec-path']);
 const WATCHED_VERBS = ['commit', 'merge', 'push'];
 
-// Which git verb is this? Returns 'commit' | 'merge' | 'push' | null.
+// Which git verb is this, and on which repository? Returns {verb, dir} or null.
 // Tokenised rather than matched by regex: the verb is the first non-option token
 // after `git`, which is the only reading that survives `git -c k=v commit` and
 // refuses to see a verb inside a commit message.
+//
+// `dir` matters as much as the verb: `git -C <path> commit` acts on ANOTHER
+// repository than the session's. Reading the branch of the session's cwd would
+// both refuse harmless commands and miss a real commit on that repo's main.
 function gitVerb(cmd) {
   for (const segment of cmd.split(/(?:&&|\|\||[;|\n])/)) {
     const tokens = segment.trim().split(/\s+/).filter(Boolean);
     const start = tokens.findIndex((t) => t === 'git' || t.endsWith('/git'));
     if (start === -1) continue;
+    let dir = null;
     for (let j = start + 1; j < tokens.length; j++) {
       const token = tokens[j];
       if (token.startsWith('-')) {
+        if (token === '-C') dir = unquote(tokens[j + 1]);
+        else if (token.startsWith('--work-tree=')) dir = unquote(token.slice('--work-tree='.length));
         if (GIT_OPTS_WITH_VALUE.has(token)) j++;
         continue;
       }
-      if (WATCHED_VERBS.includes(token)) return token;
+      if (WATCHED_VERBS.includes(token)) return { verb: token, dir };
       break; // first non-option token is the verb, watched or not
     }
   }
   return null;
+}
+
+function unquote(value) {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.replace(/^["']/, '').replace(/["']$/, '');
+  return trimmed || null;
 }
 
 function isFastForwardOnly(cmd) {
@@ -130,10 +143,14 @@ process.stdin.on('end', () => {
     if (data.tool_name !== 'Bash') process.exit(0);
 
     const cmd = data.tool_input?.command || '';
-    const verb = gitVerb(cmd);
-    if (!verb) process.exit(0);
+    const parsed = gitVerb(cmd);
+    if (!parsed) process.exit(0);
+    const { verb, dir } = parsed;
 
-    const cwd = data.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const sessionCwd = data.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    // `git -C <path>` retargets the command: judge that repository, not this one.
+    const cwd = dir ? path.resolve(sessionCwd, dir) : sessionCwd;
+    if (!fs.existsSync(cwd)) process.exit(0);
 
     // A repo with no `origin` has no PR workflow to protect: scratch clones and
     // local-only experiments must stay usable.

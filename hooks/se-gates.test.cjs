@@ -404,6 +404,17 @@ check('branch-gate: --no-verify ne change rien au refus', denies(bgate('git comm
 check('branch-gate: flag global avant le verbe → refus quand même',
   denies(bgate('git -c core.hooksPath=/dev/null commit -m "x"')));
 
+// `git -C <autre depot>` doit etre juge sur CE depot-la, pas sur celui de la session.
+const other = fs.mkdtempSync(path.join(os.tmpdir(), 'se-branch-other-'));
+execSync('git init -q -b feat-ailleurs', { cwd: other, stdio: 'ignore' });
+execSync('git remote add origin https://example.invalid/y.git', { cwd: other, stdio: 'ignore' });
+check('branch-gate: git -C vers un depot sur une branche de feature → laisse passer',
+  !denies(bgate(`git -C "${other}" commit -m "x"`)));
+check('branch-gate: git -C vers un depot sur main → refusé même si la session est ailleurs',
+  denies(runHook('se-branch-gate.cjs',
+    { ...bash(`git -C "${brepo}" commit -m "x"`), cwd: other }, other)));
+fs.rmSync(other, { recursive: true, force: true });
+
 bgit('checkout -q -b feat/sujet');
 check('branch-gate: commit sur une branche de feature → laisse passer', !denies(bgate('git commit -m "x"')));
 check('branch-gate: push sur une branche de feature → laisse passer', !denies(bgate('git push -u origin HEAD')));

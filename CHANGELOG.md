@@ -3,6 +3,12 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.14.1] - 2026-09-05
+
+### Corrigé
+- **`branch-gate` jugeait le mauvais dépôt.** Il lisait la branche du répertoire de la session, alors que `git -C <chemin> commit` agit sur un AUTRE dépôt. Il refusait donc des commandes inoffensives, et aurait laissé passer un vrai commit sur le `main` du dépôt visé. Le répertoire cible est désormais extrait de `-C` et de `--work-tree=`. Trouvé en s'en servant, au premier rattrapage réel.
+
+
 ## [1.14.0] - 2026-09-05
 
 Le système savait ouvrir une branche et n'en ouvrait jamais. Le moteur amont livre `branching_strategy: "none"` par défaut, le scaffold ne déclarait aucune clé `git`, et l'étape de branchement était donc sautée à chaque phase : tout commit tombait sur la branche courante, c'est-à-dire sur `main`. Mesuré sur le projet principal : 401 commits jamais fusionnés, 111 000 lignes hors de toute PR, 46 branches d'agents et 25 worktrees abandonnés. Les gates de qualité tournaient sur ces diffs, où elles ne trouvaient plus rien.
