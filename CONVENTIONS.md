@@ -133,7 +133,7 @@ Noms invariants pour qu'un parser les trouve sans grep :
 | `CONTEXT.md` | décisions figées par DISCUSS |
 | `RESEARCH.md` | recherche de la phase |
 | `PLAN.md` | tâches, vagues, dépendances |
-| `SUMMARY.md` | ce qui a réellement été fait |
+| `SUMMARY.md` | le document de la phase qui lui survit : le pourquoi, ce qu'on a refusé, ce qui a résisté, ce que le plan n'avait pas vu, la dette laissée sciemment. Gabarit : `~/.claude/se/templates/SUMMARY.template.md` |
 | `VERIFICATION.md` | vérif goal-backward |
 | `UI-SPEC.md` | contrat de design (si front) |
 | `CHECKPOINTS.md` | journal des gates (simplify, janitor, security, visuel) + verdicts |
