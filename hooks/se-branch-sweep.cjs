@@ -144,9 +144,11 @@ function sweep(cwd) {
   for (const { branch, reason, sha } of integrated) {
     logDeletion(root, `${new Date().toISOString()} branch ${branch} ${sha} supprimée (${reason})`);
     if (tryGit(cwd, `branch -d ${branch}`) !== null) { removed.push(branch); continue; }
-    // -d refuse dès que git ne voit pas le merge (squash, rebase). On ne force que
-    // sur le signal autoritaire : une PR fusionnée sur GitHub.
-    if (reason === 'PR fusionnée' && tryGit(cwd, `branch -D ${branch}`) !== null) removed.push(branch);
+    // -d refuse dès que git ne VOIT pas le merge : c'est le cas de tout squash et de
+    // tout rebase, précisément les branches qui s'accumulent le plus. Forcer est
+    // légitime ici parce qu'integrationReason ne rend un motif qu'après avoir prouvé
+    // le contenu (patch-id, ou squash reconstruit) : rien de non intégré n'y arrive.
+    if (tryGit(cwd, `branch -D ${branch}`) !== null) removed.push(branch);
     else kept.push(branch);
   }
   if (!removed.length && !kept.length) return null;

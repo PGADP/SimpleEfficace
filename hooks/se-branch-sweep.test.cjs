@@ -106,6 +106,10 @@ fs.writeFileSync(path.join(work, '.planning', 'config.json'),
 const live = runSweep();
 const branchesAfter = git('branch --format=%(refname:short)').split('\n').filter(Boolean);
 check('supprime la branche fusionnée par merge commit', !branchesAfter.includes('merged-commit'));
+// git -d refuse ces deux-la (il ne VOIT pas le merge) : sans le -D elles resteraient
+// pour toujours, or ce sont justement les formes qui s'accumulent le plus.
+check('supprime la branche rebasée', !branchesAfter.includes('rebased'));
+check('supprime la branche squashée', !branchesAfter.includes('squashed'));
 check('conserve la branche qui porte du travail neuf', branchesAfter.includes('vraiment-neuve'));
 check('conserve la branche fusionnée puis reprise', branchesAfter.includes('reprise-apres-merge'));
 check('conserve main', branchesAfter.includes('main'));

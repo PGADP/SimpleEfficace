@@ -3,6 +3,12 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.14.4] - 2026-09-05
+
+### Corrigé
+- **`branch-sweep` laissait derrière lui les branches rebasées et squashées.** Il ne forçait la suppression que sur le signal « PR fusionnée », or `git branch -d` refuse tout ce que git ne voit pas comme fusionné : c'est-à-dire tout squash et tout rebase, précisément les formes qui s'accumulent le plus. Le forçage est maintenant permis pour tout motif, ce qui est sûr depuis que `integrationReason` prouve le contenu avant de rendre un motif.
+
+
 ## [1.14.3] - 2026-09-05
 
 ### Corrigé
