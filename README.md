@@ -324,6 +324,8 @@ Quatre mécanismes d'anti-entropie complètent le dispositif : les plafonds durs
 
 Un cinquième document ne range pas des fichiers mais des mots : `GLOSSARY.md`, le vocabulaire du projet. Un concept, le mot retenu, les synonymes bannis. `/se-interview` l'oppose et l'enrichit à chaque round, le briefing du pilot et chaque executor le lisent avant d'écrire. C'est ce qui empêche un agent de réinventer ses termes à chaque session.
 
+Un sixième ne range pas non plus des fichiers, mais des pourquoi : `.planning/decisions/`, les ADR. Une décision technique durable, le problème qui l'a forcée, les options écartées et ce qui la rendrait fausse. Un ADR ne se réédite jamais : on le remplace par un suivant qui le marque « remplacé par », et l'ancien reste. Avec `GLOSSARY.md`, ce sont les deux seuls documents qui survivent à une phase sans périmer, parce qu'aucun des deux ne décrit le code.
+
 Ranger n'est pas oublier. Une phase archivée laisse trois traces, sans quoi elle deviendrait un chemin mort : son entrée passe de « Phases actives » à « Phases archivées » dans `INDEX.md`, elle se condense en une ligne d'empreinte dans `PHASES.md` (le registre du livré, sans plafond), et les chemins qui la citaient sont réécrits dans `STATE.md`. Les agents qui cherchent le passé lisent `INDEX.md` et fouillent `_archive/phases/`, jamais `phases/` seul, qui ne contient que l'actif.
 
 ## Anatomie

@@ -21,6 +21,8 @@ Trois lois. Elles priment sur tout le reste de ce document.
 
 Le primitif qui applique ces trois lois : **`/se-scout`**. Tout skill qui décide quelque chose à partir du code passe par lui d'abord.
 
+**Deux artefacts seulement survivent à une phase sans périmer** : `GLOSSARY.md` (les mots du projet) et `.planning/decisions/` (les pourquoi). Ni l'un ni l'autre ne décrit le code, donc le code ne peut pas les démentir. Tout le reste est daté, et se relit comme tel.
+
 ---
 
 ## 1. La carte (anti-grep)
@@ -56,7 +58,7 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ├── rules/                banques de règles typées (JSON)
 ├── codebase/             cartographie /gsd-map-codebase
 ├── debug/                sessions de debug (+ resolved/)
-├── decisions/            décisions techniques isolées (si le cycle en produit)
+├── decisions/            ADR : une décision technique durable par fichier, jamais rééditée
 ├── todos/                capture zéro-friction (pending/ + done/)
 ├── _templates/           gabarits du système
 └── _archive/             tout le validé migre ici
@@ -78,8 +80,9 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 | Les jalons / planning (à venir, en cours) | `.planning/ROADMAP.md` |
 | La trace courte d'une phase ou d'un quick livré | `.planning/PHASES.md` |
 | La vision / deadlines business | `.planning/STRATEGY.md` |
-| La description produit + décisions | `.planning/PROJECT.md` |
+| La description produit + les décisions **produit** | `.planning/PROJECT.md` |
 | Le vocabulaire du projet (un concept, un mot) | `.planning/GLOSSARY.md` |
+| Une décision **technique** durable (le pourquoi, les options écartées) | `.planning/decisions/{NNNN}-{slug}.md` |
 | Une phase active | `.planning/phases/{NN}-{slug}/` |
 | Une phase terminée | `.planning/_archive/phases/{NN}-{slug}/` |
 | Une recherche | `.planning/research/{YYYY-MM-DD}-{slug}.md` |
