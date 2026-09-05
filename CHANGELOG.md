@@ -3,6 +3,27 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.12.0] - 2026-09-05
+
+Le cycle savait dire si le code était simple, propre et sûr. Il ne savait pas dire s'il était **branché**. Une feature se développe, la suivante arrive, la première n'est jamais câblée : l'ancien chemin sert toujours le cas nominal, le neuf dort, rien ne casse, rien ne signale, la phase est déclarée finie. JANITOR ne voyait rien, parce qu'un fichier importé par son seul test est un fichier référencé.
+
+### Ajouté
+- **Gate WIRING (`/se-gate-wiring`), cinquième gate du cycle.** Elle part de la promesse de la phase, pas de l'arbre des fichiers, et remonte chaque livrable jusqu'à un point d'entrée réel (page, route, middleware, worker, cron, script, commande). Posture adverse imposée : tout lien est présumé cassé tant qu'un grep ne l'a pas prouvé de bout en bout. Une chaîne qui s'arrête au premier maillon (`formulaire → handler`) est une chaîne cassée : il faut `formulaire → handler → persistance → relecture → affichage`.
+- **Quatre verdicts qui ne se confondent pas** : `UNWIRED` (le code existe, rien ne l'atteint : à brancher, jamais à supprimer, c'est le travail que la phase a payé), `DUPLICATE` (le neuf et l'ancien coexistent, l'ancien sert encore le cas nominal : à basculer), `STALE` (ancien chemin sans appelant : part en `DEAD` chez JANITOR), `SUSPECT` (appel dynamique probable, jamais tranché sans l'humain).
+- **Détection des branchements muets** : feature flag resté à `false`, variable d'environnement déclarée et jamais lue, route sans consommateur, composant jamais monté, colonne écrite et jamais relue.
+- **Toggle `workflow.wiring_gate`**, semé à `true` dans le scaffold et dans le template de config.
+
+### Modifié
+- **`execute-phase` et `quick` lancent cinq gates dans le même message**, toujours un seul checkpoint (`CONVENTIONS.md` §11). La ligne `WIRING` entre dans le bloc `Mesuré`.
+- **Ordre d'application revu après le GO** : brancher (UNWIRED), basculer (DUPLICATE), puis seulement simplifier et nettoyer. Supprimer avant de brancher casse le produit entre deux commits.
+- **Plus aucun agent en `haiku`.** `/se-deploy`, `/se-janitor` et `/se-health-check` spawnaient des agents `haiku` en contradiction avec `CONVENTIONS.md` §9. Tous passent à `sonnet`, plancher dur rappelé sous chaque table de modèles.
+
+### Décidé
+- **Une gate séparée, pas un ajout à JANITOR.** Les deux ne posent pas la même question : JANITOR part des fichiers et demande « est-ce référencé ? », WIRING part de la promesse et demande « est-ce atteint depuis un point d'entrée réel ? ». Fondues, chacune diluerait l'autre ; séparées, elles se passent le relais (le `STALE` de l'une devient le `DEAD` de l'autre).
+- **Défaut `true`, comme PROMPT.** Une clé absente veut dire « projet créé avant que la gate existe », pas « l'humain n'en veut pas ». Aucune migration nécessaire pour les projets existants.
+- **Déclenchement sur `CODE_CHANGED`.** Une phase qui ne touche que de la documentation ou du `.planning/` ne câble rien : la gate n'est pas spawnée.
+- **`gsd-integration-checker` reste où il est.** L'agent GSD fait un raisonnement voisin mais n'est spawné qu'à l'audit de milestone, sans le volet suppression de l'ancien chemin. Sa posture adverse a été reprise dans la gate plutôt que l'agent détourné.
+
 ## [1.11.0] - 2026-09-04
 
 Le système interrogeait bien et ne retenait rien. `/se-interview` vidait l'arbre de décision round après round, puis le vocabulaire tranché pendant la séance repartait avec elle. La session suivante réinventait ses mots, et l'humain relisait des explications qui ne parlaient pas la langue de son projet. Symétriquement, une conversation hors phase (sparring, debug, exploration) n'avait aucun endroit où déposer son état : `/gsd-pause-work` est couplé à un dossier de phase, et sans phase il n'y a rien à quoi accrocher un fichier.
