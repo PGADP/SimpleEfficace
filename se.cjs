@@ -35,6 +35,9 @@ const SE_HOOK_COMMAND_RE = /\/hooks\/se-[\w.-]+\.cjs/;
 const SEMVER_RE = /^\d+\.\d+\.\d+$/;
 const CHANGELOG_HEADING_RE = /^## \[(\d+\.\d+\.\d+)\]/;
 const MIGRATION_FILE_RE = /^(\d+)-[\w-]+\.cjs$/;
+// scripts/se.test.cjs n'est PAS dans cette liste : il lance lui-meme `doctor --repo`,
+// qui relancerait la suite, en boucle. Le CI l'execute a part (.github/workflows/ci.yml),
+// et CLAUDE.md demande de la lancer a la main avant de rendre une modification.
 const REPO_TEST_SUITES = [
   path.join('hooks', 'se-guard.test.cjs'),
   path.join('hooks', 'se-gates.test.cjs'),

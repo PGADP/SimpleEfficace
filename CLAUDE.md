@@ -14,6 +14,7 @@ node hooks/se-guard.test.cjs
 node hooks/se-gates.test.cjs
 node scripts/ui-verdict.test.cjs
 node scripts/se-serve.test.cjs
+node scripts/se.test.cjs
 ```
 
 ## Conventions
