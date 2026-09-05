@@ -3,6 +3,12 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.15.0] - 2026-09-05
+
+### Ajouté
+- **`CONVENTIONS.md` §13, « Où va un document ».** La loi de branche disait où va le code, pas où vont les documents. Un seul test tranche : ce changement a-t-il un sens sans le code de la phase ? Non, il voyage sur la branche et part avec sa PR (CONTEXT, RESEARCH, PLAN, SUMMARY, avancement de STATE). Oui, il part en petite PR à part, fusionnée dans la minute (insertion d'une phase dans la roadmap, décision de projet, terme de glossaire, réglage de config). Mesuré sur un projet réel : STATE.md et ROADMAP.md changent plus d'une fois par commit, ce sont eux qui conflictent dès que deux branches vivent en parallèle.
+
+
 ## [1.14.4] - 2026-09-05
 
 ### Corrigé

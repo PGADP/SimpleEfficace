@@ -284,6 +284,19 @@ Ce que le worktree n'apporte pas et qu'il faut refaire dans chaque dossier : les
 
 Il **annonce** par défaut et ne supprime rien. Le nettoyage automatique s'active par `workflow.branch_sweep: true`. Chaque SHA supprimé part dans `ARCHIVE.log` avant la suppression, parce que supprimer une branche détruit son reflog.
 
+### Où va un document
+
+Le code d'une phase va sur sa branche, ça ne se discute pas. Les documents, eux, se répartissent selon **un seul test : ce changement a-t-il un sens sans le code de la phase ?**
+
+| Réponse | Où | Exemples |
+|---|---|---|
+| **Non** | sur la branche de la phase, il part avec sa PR | `CONTEXT.md`, `RESEARCH.md`, `PLAN.md`, `SUMMARY.md`, `VERIFICATION.md`, `CHECKPOINTS.md`, la ligne de ROADMAP qui coche la phase livrée, l'avancement de STATE |
+| **Oui** | petite PR à part, ouverte et fusionnée dans la minute | insertion d'une phase dans `ROADMAP.md`, décision dans `PROJECT.md`, terme ajouté à `GLOSSARY.md`, réglage de `config.json`, entrée de `CONVENTIONS.md` |
+
+Pourquoi ça compte : `STATE.md`, `ROADMAP.md`, `INDEX.md` et `PHASES.md` décrivent le projet, donc **toutes** les phases les touchent. Sur un projet réel, ils changent plus d'une fois par commit. Tant qu'une seule branche vit à la fois, ça ne se voit pas. Dès que deux branches vivent en parallèle, la seconde fusion conflicte sur ces fichiers, à chaque fois.
+
+Conséquence pratique : **ajouter une phase à la roadmap ne demande pas d'ouvrir sa branche.** Ça n'a besoin d'aucun code, donc ça part en `chore(roadmap)` tout de suite. La branche de la phase naît plus tard, au premier commit de son travail réel (discuss, plan ou execute) — c'est le moteur qui la crée, pas la main.
+
 ### La taille d'une PR
 
 Une phase qui dépasse **2 000 lignes de code** ne se relit plus : elle se coupe en deux phases au planning, jamais après coup. Le seuil ne compte que le code, `.planning/` et `docs/` en sont exclus.
