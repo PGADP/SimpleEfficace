@@ -3,6 +3,12 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.14.2] - 2026-09-05
+
+### Corrigé
+- **`branch-gate` ne suivait pas le `cd`.** Quand le harness remet le répertoire de session à zéro entre deux appels, la forme dominante devient `cd <projet> && git commit`. Le garde-fou jugeait alors le dépôt de la session au lieu de celui visé : il refusait des commits légitimes sur un autre projet, et aurait laissé passer un vrai commit sur le `main` de ce projet. Le `cd` est désormais suivi, et `-C` l'emporte sur lui.
+
+
 ## [1.14.1] - 2026-09-05
 
 ### Corrigé

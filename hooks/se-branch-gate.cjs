@@ -71,24 +71,33 @@ const WATCHED_VERBS = ['commit', 'merge', 'push'];
 // after `git`, which is the only reading that survives `git -c k=v commit` and
 // refuses to see a verb inside a commit message.
 //
-// `dir` matters as much as the verb: `git -C <path> commit` acts on ANOTHER
-// repository than the session's. Reading the branch of the session's cwd would
-// both refuse harmless commands and miss a real commit on that repo's main.
+// `dir` matters as much as the verb. Two things retarget a command away from the
+// session's own repository, and missing either makes the gate judge the wrong one
+// — refusing harmless commands, and missing a real commit on the target's main:
+//   - `cd <path> && git commit`, the dominant shape when the harness resets the
+//     working directory between calls;
+//   - `git -C <path> commit` / `--work-tree=<path>`, which win over any prior cd.
 function gitVerb(cmd) {
+  let cdDir = null;
   for (const segment of cmd.split(/(?:&&|\|\||[;|\n])/)) {
     const tokens = segment.trim().split(/\s+/).filter(Boolean);
+    if (!tokens.length) continue;
+    if (tokens[0] === 'cd' && tokens.length > 1) {
+      cdDir = unquote(tokens.slice(1).join(' '));
+      continue;
+    }
     const start = tokens.findIndex((t) => t === 'git' || t.endsWith('/git'));
     if (start === -1) continue;
-    let dir = null;
+    let gitDir = null;
     for (let j = start + 1; j < tokens.length; j++) {
       const token = tokens[j];
       if (token.startsWith('-')) {
-        if (token === '-C') dir = unquote(tokens[j + 1]);
-        else if (token.startsWith('--work-tree=')) dir = unquote(token.slice('--work-tree='.length));
+        if (token === '-C') gitDir = unquote(tokens[j + 1]);
+        else if (token.startsWith('--work-tree=')) gitDir = unquote(token.slice('--work-tree='.length));
         if (GIT_OPTS_WITH_VALUE.has(token)) j++;
         continue;
       }
-      if (WATCHED_VERBS.includes(token)) return { verb: token, dir };
+      if (WATCHED_VERBS.includes(token)) return { verb: token, dir: gitDir || cdDir };
       break; // first non-option token is the verb, watched or not
     }
   }
