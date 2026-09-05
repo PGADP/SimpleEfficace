@@ -37,6 +37,14 @@ _Éviter_ : override, surcharge, fork
 
 ### Le cycle de travail
 
+**Milestone** :
+Un cycle de livraison versionné (`vX.Y`) : un lot d'exigences dans `REQUIREMENTS.md`, les phases qui les servent, et l'archive `_archive/milestones/{vX.Y}/` quand il se clôt. Ouvert par `/gsd-new-milestone`, fermé par `/gsd-complete-milestone`. Ce sont ses exigences qui le définissent, ni ses dates ni son nombre de phases. La numérotation des phases ne repart pas à 1 d'un milestone au suivant.
+_Éviter_ : release, version, sprint, lot
+
+**Jalon** :
+Une échéance datée du planning, que `/se-planning` surveille et qu'un retard menace. Un milestone peut en être un, une deadline business aussi : le mot ne dit pas laquelle, donc préciser dès que ça compte.
+_Éviter_ : milestone (les deux ne sont pas interchangeables), deadline
+
 **Phase** :
 Une unité de travail planifiée, numérotée, avec son dossier `.planning/phases/{NN}-{slug}/` et ses artefacts à noms fixes. Le format long : elle se discute, se planifie, s'exécute, se vérifie.
 _Éviter_ : sprint, ticket, chantier, epic
