@@ -1,5 +1,5 @@
 {
-  "_comment": "Config du système SIMPLE & EFFICACE (active dès le clone). Gates qualité (simplify_gate, janitor_gate, security_gate, visual_checkpoint) lues par execute-phase.md ; ui_phase/ui_front_pass/ui_safety_gate par ui-phase.md et gsd-ui-checker. Ajuste selon ton projet.",
+  "_comment": "Config du système SIMPLE & EFFICACE (active dès le clone). Gates qualité (simplify_gate, janitor_gate, wiring_gate, security_gate, visual_checkpoint) lues par execute-phase.md ; ui_phase/ui_front_pass/ui_safety_gate par ui-phase.md et gsd-ui-checker. Ajuste selon ton projet.",
   "mode": "interactive",
   "granularity": "standard",
   "workflow": {
@@ -10,6 +10,7 @@
     "auto_advance": false,
     "simplify_gate": true,
     "janitor_gate": true,
+    "wiring_gate": true,
     "security_gate": true,
     "visual_checkpoint": true,
     "ui_contract_gate": true,

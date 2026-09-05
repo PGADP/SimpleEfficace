@@ -68,7 +68,7 @@
                                    │ dispatche vers
 ┌─ STRATE C — LE CYCLE DE PHASE ──────────────────────────────────────┐
 │  SCOUT → DISCUSS → RESEARCH → PLAN(+TDD) → CHECK → EXECUTE →         │
-│  VERIFY → SIMPLIFY → JANITOR → SECURITY → SHIP                       │
+│  VERIFY → WIRING → SIMPLIFY → JANITOR → SECURITY → SHIP              │
 │  Chaque flèche = un artefact rangé. Checkpoints visuels aux gates.  │
 └──────────────────────────────────┬───────────────────────────────────┘
                                    │ s'appuie sur
@@ -141,10 +141,11 @@ L'archivage des phases shippées n'est pas un hook : c'est le skill **`/se-archi
 | 5 | **CHECK** | GSD | plan-checker, inchangé |
 | 6 | **EXECUTE** | GSD | vagues + gate MVP+TDD (bloque code sans test rouge) |
 | 7 | **VERIFY** | GSD (upgrade) | déterministe (exit 0/2) + LLM, isolés puis croisés |
-| 8 | **SIMPLIFY** | 🆕 gate | détecteur duplication/complexité + LLM |
-| 9 | **JANITOR** | 🆕 gate | code mort + hardcode, déterministe + LLM |
-| 10 | **SECURITY** | 🆕 gate | audit /se-security si la phase touche auth/API/DB — CRITICAL bloquant |
-| 11 | **SHIP** | GSD + slop-gate + secret-gate | commit propre → PR → archivage via /se-archive |
+| 8 | **WIRING** | 🆕 gate | ce que la phase promet est-il atteint depuis un point d'entrée réel, et l'ancien chemin est-il retiré : déterministe + LLM |
+| 9 | **SIMPLIFY** | 🆕 gate | détecteur duplication/complexité + LLM |
+| 10 | **JANITOR** | 🆕 gate | code mort + hardcode, déterministe + LLM |
+| 11 | **SECURITY** | 🆕 gate | audit /se-security si la phase touche auth/API/DB — CRITICAL bloquant |
+| 12 | **SHIP** | GSD + slop-gate + secret-gate | commit propre → PR → archivage via /se-archive |
 
 ---
 

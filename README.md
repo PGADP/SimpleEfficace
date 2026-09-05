@@ -193,7 +193,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 | `/se-security` | Audit sécurité, verdict GO/NO-GO |
 | `/se-deploy` · `/se-health-check` | Gate avant push · diagnostic global du projet |
 | `/se-clean-commit` | Découpe le travail en cours en commits atomiques |
-| `/se-gate-simplify` · `/se-gate-janitor` | Gates du cycle : détecteur déterministe × jugement LLM |
+| `/se-gate-simplify` · `/se-gate-janitor` · `/se-gate-wiring` | Gates du cycle : détecteur déterministe × jugement LLM |
 
 </details>
 

@@ -1,5 +1,5 @@
 {
-  "_comment": "Config du système SIMPLE & EFFICACE (active dès le clone). Gates qualité (simplify_gate, janitor_gate, security_gate, visual_checkpoint) lues par execute-phase.md ; ui_phase/ui_front_pass/ui_safety_gate par ui-phase.md et gsd-ui-checker. ui_gate_blocking décide si un BLOCK mesuré par ~/.claude/se/scripts/ui-verdict.cjs arrête la livraison (true) ou reste consultatif (false) — le passer à false si la gate devient trop rigide au quotidien. ui_contract_gate refuse toute écriture front tant que DESIGN-SYSTEM.md §0 (plateforme, public cible, direction, molettes) et §2.1 (hiérarchie visuelle) ne sont pas remplis (hook se-ui-contract-gate) ; ui_commit_gate refuse un commit de fichiers front sans passe /se-ui validée par un GO humain + URL (hook se-ui-gate, registre .planning/design/ui-passes.json). Ajuste selon ton projet.",
+  "_comment": "Config du système SIMPLE & EFFICACE (active dès le clone). Gates qualité (simplify_gate, janitor_gate, wiring_gate, security_gate, visual_checkpoint) lues par execute-phase.md ; ui_phase/ui_front_pass/ui_safety_gate par ui-phase.md et gsd-ui-checker. ui_gate_blocking décide si un BLOCK mesuré par ~/.claude/se/scripts/ui-verdict.cjs arrête la livraison (true) ou reste consultatif (false) — le passer à false si la gate devient trop rigide au quotidien. ui_contract_gate refuse toute écriture front tant que DESIGN-SYSTEM.md §0 (plateforme, public cible, direction, molettes) et §2.1 (hiérarchie visuelle) ne sont pas remplis (hook se-ui-contract-gate) ; ui_commit_gate refuse un commit de fichiers front sans passe /se-ui validée par un GO humain + URL (hook se-ui-gate, registre .planning/design/ui-passes.json). Ajuste selon ton projet.",
   "mode": "interactive",
   "granularity": "standard",
   "workflow": {
@@ -10,6 +10,7 @@
     "auto_advance": false,
     "simplify_gate": true,
     "janitor_gate": true,
+    "wiring_gate": true,
     "security_gate": true,
     "visual_checkpoint": true,
     "ui_gate_blocking": true,
