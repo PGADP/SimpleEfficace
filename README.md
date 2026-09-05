@@ -181,10 +181,11 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 </details>
 
 <details>
-<summary><b>Développement</b> — 15 skills</summary>
+<summary><b>Développement</b> — 16 skills</summary>
 
 | Skill | Rôle |
 |---|---|
+| `/se-scout` | Primitif de recherche dans le code : répond en `chemin:ligne`, jamais en prose, n’écrit rien |
 | `/se-plan` · `/se-dev` · `/se-fix` | Concevoir · implémenter · corriger |
 | `/se-review` (+ `lint`, `perf`) | Audit de code, rapport actionnable |
 | `/se-test` · `/se-debug` | Vitest et Playwright · investigation méthodique d'un bug |

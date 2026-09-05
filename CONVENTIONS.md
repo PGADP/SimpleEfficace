@@ -2,7 +2,24 @@
 
 > **Source unique.** Ce document fait autorité sur l'arborescence. `docs/SYSTEME.md` ne la duplique pas, il pointe ici.
 > Lu par les hooks (`placement-guard`, `size-gate`) et par tous les skills.
-> But : tout est rangé et lié, **jamais greppé**. Une destination unique par type d'artefact.
+> But : les documents de suivi sont rangés et liés, **jamais greppés**. Une destination unique par type d'artefact.
+> Sur le **code**, la loi est inverse : on cherche toujours, cf. §0.
+
+---
+
+## 0. Le code fait foi
+
+Trois lois. Elles priment sur tout le reste de ce document.
+
+1. **Un document et le code se contredisent : le code gagne.** Toujours, sans arbitrage. Le document se corrige dans la foulée, ou il se supprime. Un document qu'on laisse contredire le code est un piège qu'on arme pour la prochaine session.
+
+2. **Une affirmation sur le code sans `chemin:ligne` est une hypothèse, pas un fait.** Elle s'annonce comme telle (« je suppose que »), ou elle ne s'écrit pas. Vaut pour les skills, les sous-agents et les rapports de gate.
+
+3. **Une phrase au présent périme, une phrase ancrée à un commit reste vraie.** « L'auth vit dans `src/lib/auth.ts` » devient faux au premier refactor. « Au commit `abc123`, l'auth vivait dans `src/lib/auth.ts` » reste vrai pour toujours. Tout document qui survit à sa phase écrit au passé daté.
+
+**La règle « jamais greppé » du préambule ne vaut que pour les documents de suivi.** Sur le code, la loi est exactement inverse : on cherche toujours, à chaque fois, et on ne fait jamais confiance à un résumé. `INDEX.md` oriente dans `.planning/`, il ne dit rien de vrai sur `src/`. `.planning/codebase/` est une photo, pas le terrain.
+
+Le primitif qui applique ces trois lois : **`/se-scout`**. Tout skill qui décide quelque chose à partir du code passe par lui d'abord.
 
 ---
 
@@ -89,7 +106,7 @@ Un rapport ne s'écrit sur disque **que s'il sera relu**. Trois classes, une des
 
 | Classe | Qui | Où |
 |---|---|---|
-| **Éphémère** — verdict consommé en séance | `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`, `/se-fix`, `/se-plan`, `/se-explain`, `/se-refactor` | **Rien sur disque.** Réponse en chat + `TodoWrite`. Fichier seulement si l'utilisateur le demande explicitement → `.planning/audits/` |
+| **Éphémère** — verdict consommé en séance | `/se-scout`, `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`, `/se-fix`, `/se-plan`, `/se-explain`, `/se-refactor` | **Rien sur disque.** Réponse en chat + `TodoWrite`. Fichier seulement si l'utilisateur le demande explicitement → `.planning/audits/` |
 | **Liée à une phase** | gates SIMPLIFY / JANITOR / SECURITY / PROMPT / visuel, `/se-debug` en phase | `.planning/phases/{NN}-{slug}/CHECKPOINTS.md` — part à l'archive avec la phase |
 | **Transverse persistante** | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review`, `/se-prompt` (audit complet), `/se-refactor` (stratégie globale demandée) | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
