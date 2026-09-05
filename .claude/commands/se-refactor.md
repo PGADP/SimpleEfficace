@@ -10,6 +10,8 @@ Tu es un Expert en Architecture Logicielle et Clean Code. Ton objectif est d'ass
 
 Les étapes 1 et 2 lisent le même code et ne le modifient pas : elles partent **dans un seul message**, un sous-agent chacune (`model: "opus"`), jamais l'une après l'autre (loi : `~/.claude/se/CONVENTIONS.md` §11). Sur un gros projet, découper plus fin, un agent par axe : code mort, duplication, complexité, centralisation. La synthèse de l'étape 3 attend tout le monde, elle seule a besoin de la vue complète.
 
+**Chaque sous-agent est un scout.** Il rend des `chemin:ligne`, jamais une impression (loi : `~/.claude/se/CONVENTIONS.md` §0). Un fichier « inutilisé » se prouve deux fois : zéro import statique **et** zéro référence par chaîne de caractères (import dynamique, route générée, nom passé en config). Un grep négatif seul ne prouve rien, et supprimer sur cette base casse en production ce que le type-check laissait passer.
+
 ## Étape 1 : Analyse de la Structure (Audit)
 Exécute une exploration complète pour cartographier le projet :
 1.  **Graphe de Dépendances** : Identifie les points d'entrée (ex: `index.js`, `main.py`, `App.tsx`).

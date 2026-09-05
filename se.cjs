@@ -35,6 +35,9 @@ const SE_HOOK_COMMAND_RE = /\/hooks\/se-[\w.-]+\.cjs/;
 const SEMVER_RE = /^\d+\.\d+\.\d+$/;
 const CHANGELOG_HEADING_RE = /^## \[(\d+\.\d+\.\d+)\]/;
 const MIGRATION_FILE_RE = /^(\d+)-[\w-]+\.cjs$/;
+// scripts/se.test.cjs n'est PAS dans cette liste : il lance lui-meme `doctor --repo`,
+// qui relancerait la suite, en boucle. Le CI l'execute a part (.github/workflows/ci.yml),
+// et CLAUDE.md demande de la lancer a la main avant de rendre une modification.
 const REPO_TEST_SUITES = [
   path.join('hooks', 'se-guard.test.cjs'),
   path.join('hooks', 'se-gates.test.cjs'),
@@ -642,6 +645,16 @@ function collectDoctorChecks() {
   } else {
     checks.push(check(CHECK_OK, 'GSD présent, patches SE appliqués (manifest trouvé)'));
   }
+
+  // Skills globaux non préfixés supersédés par un se-*. La règle vit dans le script,
+  // jamais dupliquée ici : `prune-legacy-global --json` en est la source unique.
+  const pruneScript = path.join(REPO_ROOT, 'scripts', 'prune-legacy-global.cjs');
+  const prune = spawnSync(process.execPath, [pruneScript, '--json'], { encoding: 'utf8' });
+  let legacyCount = null;
+  try { legacyCount = JSON.parse(prune.stdout).count; } catch { legacyCount = null; }
+  if (legacyCount === null) checks.push(check(CHECK_WARN, 'doublons de skills globaux non vérifiables (prune-legacy-global muet)'));
+  else if (legacyCount === 0) checks.push(check(CHECK_OK, 'aucun skill global supersédé par un se-*'));
+  else checks.push(check(CHECK_WARN, `${legacyCount} skill(s) global(aux) supersédé(s) par un se-* — \`node ${toPosix(pruneScript)}\` pour voir, \`--apply\` pour archiver`));
 
   // Vendored design corpora.
   if (fs.existsSync(path.join(REPO_ROOT, 'vendor', 'design', 'VERSIONS.json'))) {

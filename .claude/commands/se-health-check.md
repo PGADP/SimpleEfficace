@@ -12,17 +12,19 @@ Tu es un medecin de projet. Ta mission : produire un diagnostic rapide et comple
 
 | Tache | Modele | Raison |
 |-------|--------|--------|
-| Build/type check | haiku | Execution commandes bash |
-| Test execution | haiku | Execution commandes bash |
-| npm audit + outdated | haiku | Commandes bash |
-| Railway status + logs | haiku | CLI railway ou mcp__railway__ |
+| Build/type check | sonnet | Execution commandes bash |
+| Test execution | sonnet | Execution commandes bash |
+| npm audit + outdated | sonnet | Commandes bash |
+| Railway status + logs | sonnet | CLI railway ou mcp__railway__ |
 | Synthese et scoring | sonnet | Jugement sur severite |
+
+Plancher dur : `sonnet`. Aucun agent ne tourne en dessous (`~/.claude/se/CONVENTIONS.md` §9).
 
 ## Execution — 4 agents paralleles
 
 Lance ces 4 agents en parallele dans un seul message :
 
-### Agent 1 : Build & Types (haiku)
+### Agent 1 : Build & Types (sonnet)
 ```
 Executer :
 1. npm run build 2>&1 | tail -20
@@ -30,7 +32,7 @@ Executer :
 Reporter OK ou nombre d'erreurs.
 ```
 
-### Agent 2 : Tests (haiku)
+### Agent 2 : Tests (sonnet)
 ```
 Executer :
 1. npm run test -- --run 2>&1 | tail -30
@@ -38,7 +40,7 @@ Executer :
 Reporter : X tests passed, Y failed, coverage if available
 ```
 
-### Agent 3 : Deps (haiku)
+### Agent 3 : Deps (sonnet)
 ```
 Executer :
 1. npm audit --production 2>&1 | tail -15
@@ -46,7 +48,7 @@ Executer :
 Reporter vulnerabilities count by severity + outdated packages.
 ```
 
-### Agent 4 : Railway (haiku)
+### Agent 4 : Railway (sonnet)
 ```
 Executer si Railway CLI disponible :
 1. railway status 2>&1 | tail -20

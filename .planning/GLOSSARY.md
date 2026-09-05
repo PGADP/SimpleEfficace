@@ -62,7 +62,7 @@ Le format court, une à deux heures, avec les garanties de commits atomiques et 
 _Éviter_ : petite tâche, hotfix
 
 **Gate** :
-Un point de passage qui peut arrêter le travail. Deux emplois à ne pas confondre, toujours qualifier lequel : une **gate de cycle** (SIMPLIFY, JANITOR, SECURITY, PROMPT) est une étape consultative entre VERIFY et SHIP ; une **gate de hook** (`slop-gate`, `secret-gate`, `size-gate`, `ui-gate`, `ui-contract-gate`) est mécanique et refuse l'outil.
+Un point de passage qui peut arrêter le travail. Deux emplois à ne pas confondre, toujours qualifier lequel : une **gate de cycle** (WIRING, SIMPLIFY, JANITOR, SECURITY, PROMPT) est une étape consultative entre VERIFY et SHIP ; une **gate de hook** (`slop-gate`, `secret-gate`, `size-gate`, `ui-gate`, `ui-contract-gate`) est mécanique et refuse l'outil.
 _Éviter_ : contrôle, validation, quality gate
 
 **Garde-fou** :

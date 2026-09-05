@@ -3,7 +3,7 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
-## [1.12.0] - 2026-09-05
+## [1.14.0] - 2026-09-05
 
 Le système savait ouvrir une branche et n'en ouvrait jamais. Le moteur amont livre `branching_strategy: "none"` par défaut, le scaffold ne déclarait aucune clé `git`, et l'étape de branchement était donc sautée à chaque phase : tout commit tombait sur la branche courante, c'est-à-dire sur `main`. Mesuré sur le projet principal : 401 commits jamais fusionnés, 111 000 lignes hors de toute PR, 46 branches d'agents et 25 worktrees abandonnés. Les gates de qualité tournaient sur ces diffs, où elles ne trouvaient plus rien.
 
@@ -23,6 +23,51 @@ Le système savait ouvrir une branche et n'en ouvrait jamais. Le moteur amont li
 - **L'unité de PR est la phase, pas le plan.** Mesuré : un plan pèse 770 à 6 400 lignes de code, une phase 1 700 à 12 000. Descendre au plan demanderait de réécrire le branchement du moteur amont. Le levier de taille remonte donc au planning : une phase qui dépasse 2 000 lignes de code se coupe en deux phases.
 - **Le verrou de session avertit, il ne bloque pas.** Épingler la branche du premier commit produit trop de faux positifs certains : `--amend`, hotfix décidé en séance, changement assumé, `session_id` partagé par les sous-agents et perdu au `/clear`. Le blocage dur ne porte que sur la règle stable.
 - **Un chat, un dossier.** Git ne garde qu'un HEAD par répertoire : deux chats au même endroit se déplacent mutuellement de branche, et le branchement seul aggraverait le problème. Seul le worktree sépare vraiment.
+## [1.13.0] - 2026-09-05
+
+Le système écrivait beaucoup de documents sur le code, et rien ne disait lequel gagne quand ils se contredisent. Un PLAN.md décrivait avec assurance un fichier qui n'existait plus, un CONTEXT.md archivé restait greppable, un rapport d'agent affirmait au présent ce qui était vrai la semaine d'avant. Cette version tranche : le code fait foi, une affirmation sans `chemin:ligne` est une hypothèse, et ce qui ne peut pas être ancré ne survit pas à la phase.
+
+### Ajouté
+- **`CONVENTIONS.md` §0, la loi qui prime sur le reste.** Le code gagne contre tout document. Une affirmation sans `chemin:ligne` est une hypothèse. Une phrase ancrée à un commit ne périme pas. La règle « jamais greppé » du préambule est recadrée : elle ne vaut que pour les documents de suivi.
+- **`/se-scout`, primitif de recherche dans le code.** Il répond en `chemin:ligne`, refuse de lire `.planning/codebase` comme une source, trace de bout en bout avant d'affirmer, nomme ses angles morts et n'écrit jamais sur disque. Six points d'entrée le consomment : `/se-plan`, `/se-dev`, `/se-review`, `/se-debug`, `/se-refactor` et `gsd-planner` à l'étape SCOUT du cycle.
+- **Les ADR sortent du flux de phase.** `.planning/decisions/` était déclaré dans l'arborescence et personne n'y écrivait : les décisions techniques vivaient dans les CONTEXT.md et partaient à l'archive avec eux. Gabarit au scaffold (le problème du jour, les options écartées avec leur raison de rejet, ce qui rendrait la décision fausse), et `/se-interview` route désormais la décision produit vers `PROJECT.md`, la décision technique vers un ADR.
+- **`se doctor` signale les skills globaux supersédés par un `se-*`.** En avertissement, jamais en erreur : c'est de l'hygiène, pas une panne. Le compte vient de `prune-legacy-global --json`, qui reste la source unique de la règle.
+
+### Modifié
+- **Le SUMMARY est refondu autour de ce que le code ne dira jamais.** Coupé, parce que git le dit mieux et sans périmer : la liste des commits, celle des fichiers touchés, les accomplissements, la durée. Ajouté : pourquoi c'est comme ça et quelle alternative a été écartée, ce qu'on a refusé, ce qui a résisté, ce que le plan n'avait pas vu, la dette laissée sciemment. Un champ `commits:` en tête sert d'ancre qui ne périme pas.
+- **`/se-archive` trie au lieu de tout déplacer.** On garde ce qu'un humain a jugé (SUMMARY, CHECKPOINTS, HUMAN-UAT), on supprime ce qui décrivait une intention avant l'implémentation ou un état du code après. Deux sécurités : rien n'est supprimé si le SUMMARY est incomplet, et le sha d'avant suppression est consigné dans `ARCHIVE.log`, donc `git show {ancre}:{chemin}` rend n'importe quel fichier.
+- **Un projet neuf reçoit le runner du checkpoint visuel, pas l'ancien helper.** `/se-new-project` posait `checkpoint-shots.ts`, que rien n'exécute, et pas `ui-verify.spec.ts`, dont la gate visuelle a besoin. La copie bascule, l'ancien template est supprimé.
+- **`CLAUDE.md` demande cinq suites de tests**, la cinquième étant `scripts/se.test.cjs` (56 tests sur le CLI), qui n'était lancée que par le CI.
+
+### Corrigé
+- **`/se-archive` supprimait zéro fichier en annonçant le contraire.** `git rm` est tout ou rien sur ses pathspecs : un seul motif sans correspondance (UI-SPEC.md sur une phase sans front, le cas courant) faisait échouer la commande entière, et le `2>/dev/null` masquait l'erreur. `ARCHIVE.log` consignait quand même « 4 jetables supprimés ». Corrigé par `--ignore-unmatch`, un compte mesuré au lieu de supposé, et un arrêt net si le verrou est passé mais que rien n'a disparu.
+- **`prune-legacy-global` aurait cassé `/se-pilot`.** Sa règle « dossier » archivait tout dossier global portant le nom d'un dossier du repo. Depuis que `se install` copie `pilot/` et `brainstorming/` sous ce même nom, un `--apply` aurait archivé les copies fraîches. La règle est retirée ; la règle fichier (`<name>.md` supersédé par `se-<name>.md`) reste.
+
+### Décidé
+- **`scripts/se.test.cjs` reste hors de `REPO_TEST_SUITES`.** La suite lance elle-même `doctor --repo`, qui relancerait la suite, en boucle. La liste porte maintenant cette raison écrite, pour que l'absence ne repasse pas pour un oubli.
+- **Un ADR ne se réédite jamais**, il se remplace par un suivant qui le marque « remplacé par ». Pas de section « conséquences » non plus : elle périme.
+- **`GLOSSARY.md` et `decisions/` sont les deux seuls artefacts qui survivent à une phase sans périmer**, parce qu'aucun des deux ne décrit le code.
+
+## [1.12.0] - 2026-09-05
+
+Le cycle savait dire si le code était simple, propre et sûr. Il ne savait pas dire s'il était **branché**. Une feature se développe, la suivante arrive, la première n'est jamais câblée : l'ancien chemin sert toujours le cas nominal, le neuf dort, rien ne casse, rien ne signale, la phase est déclarée finie. JANITOR ne voyait rien, parce qu'un fichier importé par son seul test est un fichier référencé.
+
+### Ajouté
+- **Gate WIRING (`/se-gate-wiring`), cinquième gate du cycle.** Elle part de la promesse de la phase, pas de l'arbre des fichiers, et remonte chaque livrable jusqu'à un point d'entrée réel (page, route, middleware, worker, cron, script, commande). Posture adverse imposée : tout lien est présumé cassé tant qu'un grep ne l'a pas prouvé de bout en bout. Une chaîne qui s'arrête au premier maillon (`formulaire → handler`) est une chaîne cassée : il faut `formulaire → handler → persistance → relecture → affichage`.
+- **Quatre verdicts qui ne se confondent pas** : `UNWIRED` (le code existe, rien ne l'atteint : à brancher, jamais à supprimer, c'est le travail que la phase a payé), `DUPLICATE` (le neuf et l'ancien coexistent, l'ancien sert encore le cas nominal : à basculer), `STALE` (ancien chemin sans appelant : part en `DEAD` chez JANITOR), `SUSPECT` (appel dynamique probable, jamais tranché sans l'humain).
+- **Détection des branchements muets** : feature flag resté à `false`, variable d'environnement déclarée et jamais lue, route sans consommateur, composant jamais monté, colonne écrite et jamais relue.
+- **Toggle `workflow.wiring_gate`**, semé à `true` dans le scaffold et dans le template de config.
+
+### Modifié
+- **`execute-phase` et `quick` lancent cinq gates dans le même message**, toujours un seul checkpoint (`CONVENTIONS.md` §11). La ligne `WIRING` entre dans le bloc `Mesuré`.
+- **Ordre d'application revu après le GO** : brancher (UNWIRED), basculer (DUPLICATE), puis seulement simplifier et nettoyer. Supprimer avant de brancher casse le produit entre deux commits.
+- **Plus aucun agent en `haiku`.** `/se-deploy`, `/se-janitor` et `/se-health-check` spawnaient des agents `haiku` en contradiction avec `CONVENTIONS.md` §9. Tous passent à `sonnet`, plancher dur rappelé sous chaque table de modèles.
+
+### Décidé
+- **Une gate séparée, pas un ajout à JANITOR.** Les deux ne posent pas la même question : JANITOR part des fichiers et demande « est-ce référencé ? », WIRING part de la promesse et demande « est-ce atteint depuis un point d'entrée réel ? ». Fondues, chacune diluerait l'autre ; séparées, elles se passent le relais (le `STALE` de l'une devient le `DEAD` de l'autre).
+- **Défaut `true`, comme PROMPT.** Une clé absente veut dire « projet créé avant que la gate existe », pas « l'humain n'en veut pas ». Aucune migration nécessaire pour les projets existants.
+- **Déclenchement sur `CODE_CHANGED`.** Une phase qui ne touche que de la documentation ou du `.planning/` ne câble rien : la gate n'est pas spawnée.
+- **`gsd-integration-checker` reste où il est.** L'agent GSD fait un raisonnement voisin mais n'est spawné qu'à l'audit de milestone, sans le volet suppression de l'ancien chemin. Sa posture adverse a été reprise dans la gate plutôt que l'agent détourné.
 
 ## [1.11.0] - 2026-09-04
 

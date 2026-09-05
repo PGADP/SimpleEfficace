@@ -2,7 +2,26 @@
 
 > **Source unique.** Ce document fait autorité sur l'arborescence. `docs/SYSTEME.md` ne la duplique pas, il pointe ici.
 > Lu par les hooks (`placement-guard`, `size-gate`) et par tous les skills.
-> But : tout est rangé et lié, **jamais greppé**. Une destination unique par type d'artefact.
+> But : les documents de suivi sont rangés et liés, **jamais greppés**. Une destination unique par type d'artefact.
+> Sur le **code**, la loi est inverse : on cherche toujours, cf. §0.
+
+---
+
+## 0. Le code fait foi
+
+Trois lois. Elles priment sur tout le reste de ce document.
+
+1. **Un document et le code se contredisent : le code gagne.** Toujours, sans arbitrage. Le document se corrige dans la foulée, ou il se supprime. Un document qu'on laisse contredire le code est un piège qu'on arme pour la prochaine session.
+
+2. **Une affirmation sur le code sans `chemin:ligne` est une hypothèse, pas un fait.** Elle s'annonce comme telle (« je suppose que »), ou elle ne s'écrit pas. Vaut pour les skills, les sous-agents et les rapports de gate.
+
+3. **Une phrase au présent périme, une phrase ancrée à un commit reste vraie.** « L'auth vit dans `src/lib/auth.ts` » devient faux au premier refactor. « Au commit `abc123`, l'auth vivait dans `src/lib/auth.ts` » reste vrai pour toujours. Tout document qui survit à sa phase écrit au passé daté.
+
+**La règle « jamais greppé » du préambule ne vaut que pour les documents de suivi.** Sur le code, la loi est exactement inverse : on cherche toujours, à chaque fois, et on ne fait jamais confiance à un résumé. `INDEX.md` oriente dans `.planning/`, il ne dit rien de vrai sur `src/`. `.planning/codebase/` est une photo, pas le terrain.
+
+Le primitif qui applique ces trois lois : **`/se-scout`**. Tout skill qui décide quelque chose à partir du code passe par lui d'abord.
+
+**Deux artefacts seulement survivent à une phase sans périmer** : `GLOSSARY.md` (les mots du projet) et `.planning/decisions/` (les pourquoi). Ni l'un ni l'autre ne décrit le code, donc le code ne peut pas les démentir. Tout le reste est daté, et se relit comme tel.
 
 ---
 
@@ -39,10 +58,10 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 ├── rules/                banques de règles typées (JSON)
 ├── codebase/             cartographie /gsd-map-codebase
 ├── debug/                sessions de debug (+ resolved/)
-├── decisions/            décisions techniques isolées (si le cycle en produit)
+├── decisions/            ADR : une décision technique durable par fichier, jamais rééditée
 ├── todos/                capture zéro-friction (pending/ + done/)
 ├── _templates/           gabarits du système
-└── _archive/             tout le validé migre ici
+└── _archive/             ce qui survit au tri de /se-archive (le reste est supprimé, git le garde)
     ├── milestones/{vX.Y}/
     ├── phases/{NN}-{slug}/
     ├── research/
@@ -61,8 +80,9 @@ Il est **maintenu en continu** par le step `update_planning_index` du workflow `
 | Les jalons / planning (à venir, en cours) | `.planning/ROADMAP.md` |
 | La trace courte d'une phase ou d'un quick livré | `.planning/PHASES.md` |
 | La vision / deadlines business | `.planning/STRATEGY.md` |
-| La description produit + décisions | `.planning/PROJECT.md` |
+| La description produit + les décisions **produit** | `.planning/PROJECT.md` |
 | Le vocabulaire du projet (un concept, un mot) | `.planning/GLOSSARY.md` |
+| Une décision **technique** durable (le pourquoi, les options écartées) | `.planning/decisions/{NNNN}-{slug}.md` |
 | Une phase active | `.planning/phases/{NN}-{slug}/` |
 | Une phase terminée | `.planning/_archive/phases/{NN}-{slug}/` |
 | Une recherche | `.planning/research/{YYYY-MM-DD}-{slug}.md` |
@@ -89,7 +109,7 @@ Un rapport ne s'écrit sur disque **que s'il sera relu**. Trois classes, une des
 
 | Classe | Qui | Où |
 |---|---|---|
-| **Éphémère** — verdict consommé en séance | `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`, `/se-fix`, `/se-plan`, `/se-explain`, `/se-refactor` | **Rien sur disque.** Réponse en chat + `TodoWrite`. Fichier seulement si l'utilisateur le demande explicitement → `.planning/audits/` |
+| **Éphémère** — verdict consommé en séance | `/se-scout`, `/se-review`, `/se-test`, `/se-deploy`, `/se-health-check`, `/se-fix`, `/se-plan`, `/se-explain`, `/se-refactor` | **Rien sur disque.** Réponse en chat + `TodoWrite`. Fichier seulement si l'utilisateur le demande explicitement → `.planning/audits/` |
 | **Liée à une phase** | gates SIMPLIFY / JANITOR / SECURITY / PROMPT / visuel, `/se-debug` en phase | `.planning/phases/{NN}-{slug}/CHECKPOINTS.md` — part à l'archive avec la phase |
 | **Transverse persistante** | `/se-security` (audit complet), `/se-ux` (audit), `/gsd-ui-review`, `/se-prompt` (audit complet), `/se-refactor` (stratégie globale demandée) | `.planning/audits/{YYYY-MM-DD}-{type}-{slug}.md` |
 
@@ -108,15 +128,18 @@ Pourquoi pas un dossier par type : trois dossiers à trois fichiers, c'est de l'
 
 Noms invariants pour qu'un parser les trouve sans grep :
 
-| Fichier | Contenu |
-|---|---|
-| `CONTEXT.md` | décisions figées par DISCUSS |
-| `RESEARCH.md` | recherche de la phase |
-| `PLAN.md` | tâches, vagues, dépendances |
-| `SUMMARY.md` | ce qui a réellement été fait |
-| `VERIFICATION.md` | vérif goal-backward |
-| `UI-SPEC.md` | contrat de design (si front) |
-| `CHECKPOINTS.md` | journal des gates (simplify, janitor, security, visuel) + verdicts |
+| Fichier | Contenu | Durée de vie |
+|---|---|---|
+| `SUMMARY.md` | le pourquoi, ce qu'on a refusé, ce qui a résisté, ce que le plan n'avait pas vu, la dette laissée sciemment. Gabarit : `~/.claude/se/templates/SUMMARY.template.md` | **conservé** |
+| `CHECKPOINTS.md` | journal des gates (simplify, janitor, security, visuel) + verdicts | **conservé** |
+| `HUMAN-UAT.md` | verdict humain d'UAT | **conservé** |
+| `CONTEXT.md` | décisions figées par DISCUSS | jetable au SHIP |
+| `RESEARCH.md` | recherche de la phase | jetable au SHIP |
+| `PLAN.md` | tâches, vagues, dépendances | jetable au SHIP |
+| `VERIFICATION.md` | vérif goal-backward | jetable au SHIP |
+| `UI-SPEC.md` | contrat de design (si front) | jetable au SHIP |
+
+**Jetable ne veut pas dire perdu.** `/se-archive` supprime ces fichiers du chemin de travail et consigne dans `ARCHIVE.log` le sha où ils vivaient encore : `git show {sha}:{chemin}` les rend intégralement. Ce qu'on retire, ce n'est pas le contenu, c'est la possibilité qu'un agent relise en 2027 un `PLAN.md` de 2026 en croyant y lire le code d'aujourd'hui. Le verrou : rien n'est supprimé si le `SUMMARY.md` de la phase est incomplet.
 
 Les workflows GSD préfixent : `{phase}-{plan}-PLAN.md`, `{phase}-{plan}-SUMMARY.md`. Le suffixe reste invariant.
 

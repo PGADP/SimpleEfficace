@@ -688,7 +688,31 @@ This file is the canonical output of this step. The orchestrator reads `.plannin
    - On the final section, replace the sentinel with the closing content and no trailing sentinel.
 5. **If writing still fails, surface the actual error in your return message.** **Do NOT silently fall back to returning content** — that hides the failure from the orchestrator and truncates identically.
 
-**Use template:** @$HOME/.claude/gsd-core/templates/summary.md
+**Use template:** @$HOME/.claude/se/templates/SUMMARY.template.md
+
+**Simple & Efficace contract: this SUMMARY is the phase's ONLY survivor.** `CONTEXT.md`,
+`RESEARCH.md` and `PLAN.md` are deleted at SHIP, so anything worth more than this phase
+lands here, in an ADR (`.planning/decisions/`), or in `GLOSSARY.md`. Three rules bind the prose:
+
+1. **Never assert anything about the code in the present tense.** Anchor every claim to the
+   commit range instead: not "auth lives in `src/lib/auth.ts`" but "at `abc123`, auth lived in
+   `src/lib/auth.ts`". A present-tense claim is false after the next refactor; an anchored one
+   stays true forever (law: `~/.claude/se/CONVENTIONS.md` §0).
+2. **Capture the anchor first.** Before writing, resolve the range and put it in the `commits:`
+   frontmatter field:
+   ```bash
+   git log --oneline --format=%h "$(git rev-parse HEAD)" | tail -1   # or the first task commit
+   git rev-parse --short HEAD
+   ```
+   It is the one reference in the file that never goes stale, and it is what replaces the commit
+   list and the file list.
+3. **Do not write what git already says.** No task-commit list (`git log`), no created/modified
+   file list (`git show --stat`), no duration, no timestamps. Write only what the diff cannot
+   show: why it is like this, what was refused, what resisted, what the plan had not foreseen,
+   and the debt left on purpose.
+
+A durable decision does NOT live in this file: write it as an ADR from
+`.planning/_templates/ADR.template.md` and list its path under the `adr:` frontmatter key.
 
 **Frontmatter:** phase, plan, subsystem, tags, dependency graph (requires/provides/affects), tech-stack (added/patterns), key-files (created/modified), decisions, metrics (duration, completed date), status (`status: complete` — required so the audit-open scanner recognises the summary as done), and `actuals` (#2632).
 
@@ -701,28 +725,25 @@ actuals:
 ```
 These pair with the plan's `estimate` to calibrate future estimates (ADR-2629). Do not round to look closer to the estimate — a flattering number corrupts every later projection.
 
-**Title:** `# Phase [X] Plan [Y]: [Name] Summary`
+**Title:** `# Phase {X} plan {Y} : {Nom}`. Body prose is written in French (this is a document a human rereads months later); frontmatter keys stay English because tooling parses them.
 
 **One-liner must be substantive:**
 - Good: "JWT auth with refresh rotation using jose library"
 - Bad: "Authentication implemented"
 
-**Deviation documentation:**
+**Deviation documentation** goes under `## Ce que le plan n'avait pas vu`, together with everything
+else the plan failed to anticipate. One entry per deviation:
 
 ```markdown
-## Deviations from Plan
-
-### Auto-fixed Issues
-
-**1. [Rule 1 - Bug] Fixed case-sensitive email uniqueness**
-- **Found during:** Task 4
-- **Issue:** [description]
-- **Fix:** [what was done]
-- **Files modified:** [files]
-- **Commit:** [hash]
+**1. [Règle 1 - Bug] Unicité d'email rendue insensible à la casse**
+- **Trouvé pendant** : tâche 4
+- **Le problème** : [description]
+- **Ce qui a été fait** : [correction]
+- **Commit** : [hash]
 ```
 
-Or: "None - plan executed exactly as written."
+Or: "Aucun, le plan a été suivi tel qu'écrit." Do not list the modified files here: the commit
+hash plus `git show --stat` covers that, and a file list written in prose goes stale.
 
 **Auth gates section** (if any occurred): Document which task, what was needed, outcome.
 
@@ -731,7 +752,7 @@ Or: "None - plan executed exactly as written."
 - Placeholder text: "not available", "coming soon", "placeholder", "TODO", "FIXME"
 - Components with no data source wired (props always receiving empty/mock data)
 
-If any stubs exist, add a `## Known Stubs` section to the SUMMARY listing each stub with its file, line, and reason. These are tracked for the verifier to catch. Do NOT mark a plan as complete if stubs exist that prevent the plan's goal from being achieved — either wire the data or document in the plan why the stub is intentional and which future plan will resolve it.
+If any stubs exist, fill the `## Dette laissée sciemment` table (what, where at the anchor commit, why, who clears it). These are tracked for the verifier to catch. Do NOT mark a plan as complete if stubs exist that prevent the plan's goal from being achieved — either wire the data or document in the plan why the stub is intentional and which future plan will resolve it.
 
 **Broken-windows ledger (issue #1950).** For each stub, skipped test, or unrun `<verify>` recorded above, ALSO append it to the cross-phase defect register at `.planning/WINDOWS.md`. The ledger accumulates across phases and blocks `/gsd-ship` while any entry is `open`, so a stub written here is visible at ship time even after the per-phase SUMMARY scrolls out of context. Append one entry per defect:
 

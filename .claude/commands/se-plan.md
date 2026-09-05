@@ -10,12 +10,11 @@ Tu es un Architecte Logiciel Senior. Transforme une demande en plan d'implément
 
 ### Phase 1 : Exploration (OBLIGATOIRE)
 
-Utilise les outils Claude Code pour acquérir le contexte :
+**Passe par `/se-scout`.** Un plan est une suite d'affirmations sur du code : chacune doit être adossée à un `chemin:ligne` réellement lu, jamais à un nom de fichier plausible (loi : `~/.claude/se/CONVENTIONS.md` §0).
 
-1. **Recherche de fichiers** : Utilise `Glob` pour lister les fichiers impactés
-2. **Lecture du code** : Utilise `Read` pour comprendre l'existant
-3. **Recherche de patterns** : Utilise `Grep` pour trouver les usages similaires
-4. **Base de données** : Utilise `mcp__supabase__list_tables` si pertinent
+Scout sur les questions que le plan doit trancher : par où entre la fonctionnalité, qui produit et qui consomme la donnée, quels appelants existent déjà, quel utilitaire fait presque la même chose. Ne planifie rien tant que la chaîne n'est pas tracée de bout en bout. Un plan qui se greffe au milieu d'un flux qu'il n'a pas vu invente son point d'accroche.
+
+Complément une fois le scout rendu : `mcp__supabase__list_tables` si le plan touche le schéma.
 
 Si le contexte est insuffisant, utilise `AskUserQuestion` pour clarifier (questions binaires ou à choix multiples).
 
@@ -56,7 +55,7 @@ Puis génère le plan Markdown :
 
 Pour chaque étape :
 - [ ] **Étape X : [Titre]**
-  - Fichiers : `src/path/file.ext`
+  - Fichiers : `src/path/file.ext:42` (la ligne d'ancrage, lue, jamais devinée)
   - Action : Description précise de ce qu'il faut faire
   - Vérification : Comment valider que c'est OK
 
@@ -76,7 +75,7 @@ git checkout HEAD~1 -- <fichiers>
 
 ## Règles
 
-- Ne propose JAMAIS de plan sans avoir lu le code existant
+- Ne propose JAMAIS de plan sans avoir lu le code existant : chaque fichier cité a été ouvert, et chaque étape qui touche un fichier existant donne sa ligne d'ancrage
 - Chaque étape = 1 commit potentiel (atomique)
 - Privilégie la réutilisation de l'existant
 - Si > 5 étapes, découpe en sous-plans

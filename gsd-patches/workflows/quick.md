@@ -753,7 +753,7 @@ If `section_manifest` is `null` or `"quick-verification"` is in its `included` l
 
 **SIMPLE & EFFICACE gates**: quality + cleanup + security before goal verification. Advisory: they surface opportunities, the human decides (GO/NO-GO). They never block the flow.
 
-**A quick task gets the same three gates as a phase.** Short is not an excuse: dead code and a missing auth check cost the same whatever the size of the task that introduced them.
+**A quick task gets the same gates as a phase.** Short is not an excuse: dead code and a missing auth check cost the same whatever the size of the task that introduced them.
 
 **The gates read the same diff and write nothing until the human says GO.** So they run in ONE parallel batch and produce ONE checkpoint. Running them in sequence multiplies the wall-clock and, worse, wakes the human once per gate for the same diff (loi : `~/.claude/se/CONVENTIONS.md` §11).
 
@@ -762,6 +762,7 @@ If `section_manifest` is `null` or `"quick-verification"` is in its `included` l
 SIMPLIFY_ENABLED=$(gsd_run config-get workflow.simplify_gate 2>/dev/null || echo "false")
 JANITOR_ENABLED=$(gsd_run config-get workflow.janitor_gate 2>/dev/null || echo "false")
 SECURITY_ENABLED=$(gsd_run config-get workflow.security_gate 2>/dev/null || echo "false")
+WIRING_ENABLED=$(gsd_run config-get workflow.wiring_gate 2>/dev/null || echo "true")
 # Défaut `true` : une clé absente veut dire « projet créé avant que la gate existe »,
 # pas « l'humain n'en veut pas ». Même convention que le checkpoint visuel.
 PROMPT_ENABLED=$(gsd_run config-get workflow.prompt_gate 2>/dev/null || echo "true")
@@ -773,11 +774,15 @@ DEPS_CHANGED=$(echo "$CHANGED" | grep -E '^(package\.json|package-lock\.json|pnp
 PROMPT_BY_PATH=$(echo "$CHANGED" | grep -E '(^|/)(prompts?|skills|commands|agents)/|\.prompt\.[jt]sx?$|(^|/)(CLAUDE|AGENTS|SKILL)\.md$')
 PROMPT_IN_CODE=$(echo "$CHANGED" | grep -E '\.(ts|tsx|js|mjs|cjs|py)$' | xargs -r grep -lE "systemPrompt|system_instruction|role: ?['\"]system|\.messages\.create|\.chat\.complete" 2>/dev/null)
 PROMPT_TOUCHED=$(printf '%s\n%s\n' "$PROMPT_BY_PATH" "$PROMPT_IN_CODE" | grep -v '^$' | sort -u)
+# WIRING trigger: the task touched source code. A doc-only or planning-only task wires nothing.
+CODE_CHANGED=$(echo "$CHANGED" | grep -vE '(\.(md|mdx|txt|ya?ml|json)$|^\.planning/|^docs/)' | grep -v '^$')
 ```
 
 Unlike `execute-phase`, SECURITY here has **no sensitive-surface condition**: an enabled gate always runs. A quick task is exactly where a lone route or a lone dependency slips in without anyone calling it a security change.
 
 PROMPT, itself, needs its trigger: empty `PROMPT_TOUCHED` → display `Gate PROMPT skipped (aucun prompt modifié)` and do not spawn it.
+
+WIRING defaults to `"true"` (`workflow.wiring_gate`), same convention as PROMPT: an absent key means "project created before the gate existed", not "the human refused it". It gates itself on `CODE_CHANGED`: empty -> display `Gate WIRING skipped (aucun code modifie)` and do not spawn it.
 
 **Step 6.5a, spawn every enabled gate IN PARALLEL, in a SINGLE message.**
 
@@ -795,6 +800,9 @@ Task(subagent_type="general-purpose", model="opus",
 
 Task(subagent_type="general-purpose", model="opus",
      prompt="Invoke Skill(se-prompt) with args 'audit quick ${quick_id}, prompts modifiés : ${PROMPT_TOUCHED}'. Return its verdict block verbatim and nothing else. Modify no file, ask no question.")
+
+Task(subagent_type="general-purpose", model="opus",
+     prompt="Invoke Skill(se-gate-wiring) with args 'quick ${quick_id} --report-only, fichiers modifiés : ${CHANGED}'. Trace every deliverable the task promised from a real entry point end to end, and check whether the path it replaces is still live. Return its report block verbatim and nothing else. Wire nothing, delete nothing, ask no question.")
 ```
 
 A disabled gate is simply not spawned: display `Gate {name} skipped (désactivée dans config.json)` and move on. Model per `~/.claude/se/CONVENTIONS.md` §9: these gates judge, so `opus`.
@@ -809,6 +817,7 @@ Mesuré      SIMPLIFY  P0 {a} · P1 {b}
             JANITOR   DEAD {c} · VIOLATION {d} · SUSPECT {e}
             SECURITY  CRITICAL {f} · HIGH {g}
             PROMPT    CRITICAL {h} · MAJEUR {i} · MINEUR {j}
+            WIRING    WIRED {w}/{t} · UNWIRED {u} · DUPLICATE {dp} · STALE {st}
 À juger     1. [SUSPECT] fichier:ligne · <pourquoi le doute>
             2. [CRITICAL] fichier:ligne · <attaque> · fix : <...>
             (4 maximum, ce qui est mesuré ne se juge pas, il passe avec le GO)
@@ -823,8 +832,9 @@ Ce qui est déjà tranché par la mesure (P0, DEAD, VIOLATION) n'entre pas dans 
 
 1. CRITICAL security fixes,
 2. PROMPT CRITICAL (they carry the same nature: a prompt that can produce a false fact or let an abuse through),
-3. SIMPLIFY P0,
-4. JANITOR DEAD + VIOLATION (cleaning last: it must not delete code a simplification just moved).
+3. WIRING UNWIRED then DUPLICATE (wire the new path, then switch the nominal case onto it), before any deletion so the product is never broken between two commits,
+4. SIMPLIFY P0,
+5. JANITOR DEAD + VIOLATION, plus the WIRING STALE findings (cleaning last: it must not delete code a simplification just moved, nor the path the wiring step just switched onto).
 
 A PROMPT fix that turns out to belong in code (a verification, an authorization check, a stop condition) is written in code, never in the prompt text.
 

@@ -8,7 +8,7 @@ Un système complet pour [Claude Code](https://claude.com/claude-code) : des gar
 
 [![CI](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml/badge.svg)](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml)
 
-`30 skills` · `15 garde-fous` · `273 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de branche`
+`32 skills` · `15 garde-fous` · `273 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de branche`
 
 </div>
 
@@ -200,10 +200,11 @@ Deux hooks tiennent la loi : `branch-gate` refuse le commit, `branch-sweep` ferm
 </details>
 
 <details>
-<summary><b>Développement</b> — 15 skills</summary>
+<summary><b>Développement</b> — 16 skills</summary>
 
 | Skill | Rôle |
 |---|---|
+| `/se-scout` | Primitif de recherche dans le code : répond en `chemin:ligne`, jamais en prose, n’écrit rien |
 | `/se-plan` · `/se-dev` · `/se-fix` | Concevoir · implémenter · corriger |
 | `/se-review` (+ `lint`, `perf`) | Audit de code, rapport actionnable |
 | `/se-test` · `/se-debug` | Vitest et Playwright · investigation méthodique d'un bug |
@@ -212,7 +213,7 @@ Deux hooks tiennent la loi : `branch-gate` refuse le commit, `branch-sweep` ferm
 | `/se-security` | Audit sécurité, verdict GO/NO-GO |
 | `/se-deploy` · `/se-health-check` | Gate avant push · diagnostic global du projet |
 | `/se-clean-commit` | Découpe le travail en cours en commits atomiques |
-| `/se-gate-simplify` · `/se-gate-janitor` | Gates du cycle : détecteur déterministe × jugement LLM |
+| `/se-gate-simplify` · `/se-gate-janitor` · `/se-gate-wiring` | Gates du cycle : détecteur déterministe × jugement LLM |
 
 </details>
 
@@ -344,6 +345,8 @@ La règle qui pèse le plus lourd sur la durée : **un rapport ne s'écrit sur d
 Quatre mécanismes d'anti-entropie complètent le dispositif : les plafonds durs de `size-gate`, l'archivage des phases shippées par `/se-archive`, `INDEX.md` maintenu en continu à la clôture de chaque phase, et `PHASES.md`, registre sans plafond du livré (phases et quicks). On lit `INDEX.md` pour s'orienter, jamais un `grep` à l'aveugle.
 
 Un cinquième document ne range pas des fichiers mais des mots : `GLOSSARY.md`, le vocabulaire du projet. Un concept, le mot retenu, les synonymes bannis. `/se-interview` l'oppose et l'enrichit à chaque round, le briefing du pilot et chaque executor le lisent avant d'écrire. C'est ce qui empêche un agent de réinventer ses termes à chaque session.
+
+Un sixième ne range pas non plus des fichiers, mais des pourquoi : `.planning/decisions/`, les ADR. Une décision technique durable, le problème qui l'a forcée, les options écartées et ce qui la rendrait fausse. Un ADR ne se réédite jamais : on le remplace par un suivant qui le marque « remplacé par », et l'ancien reste. Avec `GLOSSARY.md`, ce sont les deux seuls documents qui survivent à une phase sans périmer, parce qu'aucun des deux ne décrit le code.
 
 Ranger n'est pas oublier. Une phase archivée laisse trois traces, sans quoi elle deviendrait un chemin mort : son entrée passe de « Phases actives » à « Phases archivées » dans `INDEX.md`, elle se condense en une ligne d'empreinte dans `PHASES.md` (le registre du livré, sans plafond), et les chemins qui la citaient sont réécrits dans `STATE.md`. Les agents qui cherchent le passé lisent `INDEX.md` et fouillent `_archive/phases/`, jamais `phases/` seul, qui ne contient que l'actif.
 

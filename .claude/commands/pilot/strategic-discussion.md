@@ -19,8 +19,8 @@ Procédure lourde du Mode 4, chargée à la demande. Le Pilot ajoute une couche 
 ## Étape 1 : Recherche préalable (OBLIGATOIRE, silencieuse)
 Avant toute question, explorer en parallèle (agents Explore ou calls directs) :
 1. **ROADMAP.md** — goal, requirements, scope de la phase.
-2. **Phases antérieures** — CONTEXT/SUMMARY/VERIFICATION récents pour l'état actuel du produit.
-3. **Code existant** — Grep/Glob les composants/services/routes concernés ; lire les fichiers clés (patterns, limites, dette) ; identifier réutilisable vs à créer.
+2. **Phases antérieures** : CONTEXT/SUMMARY/VERIFICATION récents. Ils donnent l'intention et les décisions passées, jamais l'état actuel du produit. Pour l'état, c'est le point 3.
+3. **Code existant** : par `/se-scout`, jamais par un Grep au jugé. Par où entre la fonctionnalité, quels appelants existent déjà, ce qui est réutilisable, ce qui est à créer. Chaque constat qui remonte en étape 2 porte son `chemin:ligne` (loi : `~/.claude/se/CONVENTIONS.md` §0).
 4. **STRATEGY.md** — priorités business et contraintes.
 
 ## Étape 1.5 : Réflexion profonde (si décision lourde)
@@ -44,7 +44,7 @@ Ne PAS demander : choix de libs, patterns techniques, détails d'implémentation
 ### Rigueur (méthode Rodin)
 - **Steelmanning obligatoire** : reformuler la position adverse dans sa forme la plus forte avant de trancher.
 - **Classification** : ✓ correct · ~ contestable · ⚡ simplification · ◐ angle mort · ✗ faux. Utiliser quand ça clarifie une décision.
-- **Pendant le débat** : continuer à chercher dans le code pour challenger avec des faits.
+- **Pendant le débat** : continuer à scouter pour challenger avec des faits. Un fait avancé sans `chemin:ligne` n'est pas un fait, c'est un souvenir.
 
 ## Étape 4 : Synthèse
 ```
@@ -52,6 +52,8 @@ Ne PAS demander : choix de libs, patterns techniques, détails d'implémentation
 ### Vision / ### Compromis acceptes / ### Criteres de succes (utilisateur)
 ### References / ### Elements techniques identifies (code reutilisable, limites, patterns)
 ```
+**Les décisions techniques durables sortent en ADR.** Une décision prise ici qui vaut au-delà de la phase (dure à inverser, incompréhensible sans son contexte, issue d'un vrai arbitrage) s'écrit dans `.planning/decisions/{NNNN}-{slug}.md` depuis `.planning/_templates/ADR.template.md`. Le CONTEXT.md la cite alors par son numéro au lieu de la recopier : un CONTEXT.md part avec sa phase, un ADR reste.
+
 Confirmer : "Ca capture bien notre discussion. Je lance la formalisation GSD ?"
 
 ## Étape 5 : Production du CONTEXT.md (standard GSD strict)
@@ -97,5 +99,5 @@ node "$HOME/.claude/gsd-core/bin/gsd-tools.cjs" commit "docs(${padded_phase}): c
 Puis : "Prochaine étape : /gsd-plan-phase X. /clear d'abord → contexte frais pour le planner."
 
 ## Règles
-1. Recherche code OBLIGATOIRE — jamais de débat à vide.
+1. Recherche code OBLIGATOIRE, par `/se-scout`, jamais de débat à vide. Tout fait avancé sur le code porte son `chemin:ligne`.
 2. Max 5 questions par round. 3. Le Pilot tranche si hésitation. 4. Pas de re-ask. 5. CONTEXT.md au standard GSD strict. 6. Pas d'appel à /gsd-discuss-phase. 7. Steelmanning avant de trancher. 8. Pas de validation molle.

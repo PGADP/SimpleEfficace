@@ -1295,6 +1295,7 @@ If `section_manifest` is `null` or `"regression-gate"` is in its `included` list
 SIMPLIFY_ENABLED=$(gsd_run config-get workflow.simplify_gate 2>/dev/null || echo "false")
 JANITOR_ENABLED=$(gsd_run config-get workflow.janitor_gate 2>/dev/null || echo "false")
 SECURITY_ENABLED=$(gsd_run config-get workflow.security_gate 2>/dev/null || echo "false")
+WIRING_ENABLED=$(gsd_run config-get workflow.wiring_gate 2>/dev/null || echo "true")
 # Défaut `true` : une clé absente veut dire « projet créé avant que la gate existe »,
 # pas « l'humain n'en veut pas ». Même convention que le checkpoint visuel.
 PROMPT_ENABLED=$(gsd_run config-get workflow.prompt_gate 2>/dev/null || echo "true")
@@ -1309,9 +1310,13 @@ DEPS_CHANGED=$(echo "$PHASE_FILES" | grep -E '^(package\.json|package-lock\.json
 PROMPT_BY_PATH=$(echo "$PHASE_FILES" | grep -E '(^|/)(prompts?|skills|commands|agents)/|\.prompt\.[jt]sx?$|(^|/)(CLAUDE|AGENTS|SKILL)\.md$')
 PROMPT_IN_CODE=$(echo "$PHASE_FILES" | grep -E '\.(ts|tsx|js|mjs|cjs|py)$' | xargs -r grep -lE "systemPrompt|system_instruction|role: ?['\"]system|\.messages\.create|\.chat\.complete" 2>/dev/null)
 PROMPT_TOUCHED=$(printf '%s\n%s\n' "$PROMPT_BY_PATH" "$PROMPT_IN_CODE" | grep -v '^$' | sort -u)
+# WIRING trigger: the phase touched source code. A doc-only or planning-only phase wires nothing.
+CODE_CHANGED=$(echo "$PHASE_FILES" | grep -vE '(\.(md|mdx|txt|ya?ml|json)$|^\.planning/|^docs/)' | grep -v '^$')
 ```
 
 SIMPLIFY, JANITOR and SECURITY default to `"false"`: they are opt-in, enabled per project in `.planning/config.json` under `workflow.simplify_gate` / `workflow.janitor_gate` / `workflow.security_gate`. PROMPT defaults to `"true"` and gates itself on `PROMPT_TOUCHED`: empty → display `Gate PROMPT skipped (aucun prompt modifié)` and do not spawn it.
+
+WIRING defaults to `"true"` (`workflow.wiring_gate`), same convention as PROMPT: an absent key means "project created before the gate existed", not "the human refused it". It gates itself on `CODE_CHANGED`: empty -> display `Gate WIRING skipped (aucun code modifie)` and do not spawn it.
 
 SECURITY also needs a trigger: a modified file matching `/api/`, `route.(ts|js)`, `middleware.*`, `auth`, `login`, `session`, `*.sql`, `migrations/`, `prisma/schema.prisma`, `next.config.*`, or code calling Supabase/DB clients — **or** a non-empty `DEPS_CHANGED`. Neither → "Gate SECURITY skipped (surface non sensible)".
 
@@ -1331,6 +1336,9 @@ Task(subagent_type="general-purpose", model="opus",
 
 Task(subagent_type="general-purpose", model="opus",
      prompt="Invoke Skill(se-prompt) with args 'audit phase ${PHASE_NUMBER}, prompts modifiés : ${PROMPT_TOUCHED}'. Return its verdict block verbatim and nothing else. Modify no file, ask no question.")
+
+Task(subagent_type="general-purpose", model="opus",
+     prompt="Invoke Skill(se-gate-wiring) with args 'phase ${PHASE_NUMBER} --report-only'. Trace every deliverable the phase promised from a real entry point end to end, and check whether the path it replaces is still live. Return its report block verbatim and nothing else. Wire nothing, delete nothing, ask no question.")
 ```
 
 A disabled or untriggered gate is simply not spawned: display `Gate {name} skipped ({reason})` and move on. Model per `~/.claude/se/CONVENTIONS.md` §9: these gates judge, so `opus`.
@@ -1345,6 +1353,7 @@ Mesuré      SIMPLIFY  P0 {a} · P1 {b}
             JANITOR   DEAD {c} · VIOLATION {d} · SUSPECT {e}
             SECURITY  CRITICAL {f} · HIGH {g}
             PROMPT    CRITICAL {h} · MAJEUR {i} · MINEUR {j}
+            WIRING    WIRED {w}/{t} · UNWIRED {u} · DUPLICATE {dp} · STALE {st}
 À juger     1. [SUSPECT] fichier:ligne · <pourquoi le doute>
             2. [CRITICAL] fichier:ligne · <attaque> · fix : <...>
             (4 maximum — ce qui est mesuré ne se juge pas, il passe avec le GO)
@@ -1359,8 +1368,9 @@ Ce qui est déjà tranché par la mesure (P0, DEAD, VIOLATION) n'entre pas dans 
 
 1. CRITICAL security fixes,
 2. PROMPT CRITICAL (same nature: a prompt that can produce a false fact or let an abuse through),
-3. SIMPLIFY P0,
-4. JANITOR DEAD + VIOLATION (cleaning last: it must not delete code a simplification just moved).
+3. WIRING UNWIRED then DUPLICATE (wire the new path, then switch the nominal case onto it), before any deletion so the product is never broken between two commits,
+4. SIMPLIFY P0,
+5. JANITOR DEAD + VIOLATION, plus the WIRING STALE findings (cleaning last: it must not delete code a simplification just moved, nor the path the wiring step just switched onto).
 
 A PROMPT fix that turns out to belong in code (a verification, an authorization check, a stop condition) is written in code, never in the prompt text.
 
