@@ -3,6 +3,12 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.14.3] - 2026-09-05
+
+### Corrigé
+- **`branch-sweep` aurait détruit un commit posté après la fusion.** Le signal « PR fusionnée » dit ce que la PR contenait, jamais ce qui a été poussé sur la branche ensuite. Comme ce signal autorise le `git branch -D`, une branche reprise après son merge partait avec son travail. Le contenu est désormais vérifié d'abord (patch-id, squash reconstruit) ; la PR ne fait plus que nommer le motif et autoriser la suppression forcée. Trouvé sur un cas réel, avant la première suppression.
+
+
 ## [1.14.2] - 2026-09-05
 
 ### Corrigé
