@@ -141,11 +141,17 @@ existe, à ajouter un garde-fou mécanique, et à fermer les branches.
 
 ### Le piège à désamorcer
 
-`scripts/install-gsd-patches.cjs:31` vise encore `~/.claude/get-shit-done/`, l'ancien moteur, et
-procède par **écrasement complet du fichier**. La copie du repo
-`gsd-patches/workflows/execute-phase.md` fait 1 111 lignes, contre 1 807 pour le fichier vivant :
-elle ne contient ni le fork depuis `origin/main`, ni le nettoyage des worktrees. Repointer ce
-script sur `gsd-core` sans le refondre réintroduirait les deux bugs d'un coup.
+> **Correction du 2026-09-05.** Une première version de ce document affirmait que
+> `install-gsd-patches.cjs` visait encore `~/.claude/get-shit-done/` et écraserait le moteur par
+> une copie périmée de 1 111 lignes. C'était une lecture faite sur un `main` local en retard de
+> 14 commits. Sur `origin/main`, le script vise bien `gsd-core` et les patches sont à jour : le
+> manifeste correspond au fichier vivant pour les sept cibles. **Il n'y a pas de bombe amorcée.**
+
+Reste un risque latent, réel mais moins grave. Quand le fichier cible a changé depuis le dernier
+install (typiquement après un `/gsd-update` qui apporte un upstream neuf), le script rafraîchit le
+`.orig`, **affiche un avertissement, puis écrase quand même**. Or `MIGRATION-GSD-CORE.md` a déjà
+tranché ce cas au risque n°3 : « ne pas réappliquer, reconstruire chaque patch depuis le nouveau
+fichier upstream ». Le script doit donc refuser ce fichier au lieu de l'écraser.
 
 ---
 
@@ -232,9 +238,10 @@ couvrant les trois modes de fusion.
 Le format `feat/…` suit la convention retenue et correspond déjà aux branches existantes de
 mymozaica.
 
-Et `scripts/install-gsd-patches.cjs` est désamorcé : il ne doit plus pouvoir écraser le moteur
-vivant par la copie périmée. Soit il est retiré, soit il refuse de tourner tant qu'il n'a pas été
-refondu sur `gsd-core`. Décision à prendre en phase 4, pas avant.
+Et `scripts/install-gsd-patches.cjs` gagne un refus : quand la cible a changé depuis le dernier
+install, il saute le fichier au lieu de l'écraser, et dit quoi faire. Ni retrait ni refonte : la
+suppression de `gsd-patches/` est l'aboutissement de la migration gsd-core, un autre chantier
+(`MIGRATION-GSD-CORE.md` §4).
 
 → **vérif** : sur un projet neuf créé par `se init`, `/gsd-execute-phase` crée bien
 `feat/NN-slug` depuis `origin/main`, et non depuis le HEAD courant.

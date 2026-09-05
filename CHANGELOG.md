@@ -3,6 +3,27 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.12.0] - 2026-09-05
+
+Le système savait ouvrir une branche et n'en ouvrait jamais. Le moteur amont livre `branching_strategy: "none"` par défaut, le scaffold ne déclarait aucune clé `git`, et l'étape de branchement était donc sautée à chaque phase : tout commit tombait sur la branche courante, c'est-à-dire sur `main`. Mesuré sur le projet principal : 401 commits jamais fusionnés, 111 000 lignes hors de toute PR, 46 branches d'agents et 25 worktrees abandonnés. Les gates de qualité tournaient sur ces diffs, où elles ne trouvaient plus rien.
+
+### Ajouté
+- **`CONVENTIONS.md` §13, la loi de branche.** Quatre règles, source unique : une phase égale une branche `feat/{NN}-{slug}` forkée d'un `origin/main` frais ; rien ne se commite sur `main`, `master` ni `production` ; une branche égale une PR et un chat égale un dossier ; la branche meurt à la fusion. Aucun skill ne recopie la règle, les six qui commitent y renvoient.
+- **`branch-gate`, gate bloquante.** `PreToolUse` Bash : refuse `git commit`, `merge` et `push` sur une branche protégée. Hook du harness, donc `--no-verify` ne le contourne pas ; il n'interdit pas ce flag pour autant, les exécuteurs parallèles s'en servent volontairement. Laisse passer le `merge --ff-only` de release sur `production`, et tout ce qui n'a pas de nom de branche stable (rebase, HEAD détachée, cherry-pick, bisect). Avertit sans bloquer quand la session change de branche en route. Réglage `workflow.branch_gate`.
+- **`branch-sweep`, balayage au démarrage de session.** Annonce les branches réellement fusionnées et élague les worktrees morts. Ne supprime rien tant que `workflow.branch_sweep` n'est pas à `true`, et journalise chaque SHA dans `ARCHIVE.log` avant suppression.
+- **Section « Le cycle de livraison » dans le README**, avec la distinction entre merger et livrer.
+
+### Modifié
+- **Le scaffold allume le branchement** : `git.branching_strategy: "phase"`, gabarits `feat/{phase}-{slug}` et `fix/{slug}`. `se sync-project` pose ces clés sur les projets antérieurs.
+- **`se-deploy` distingue merger et livrer.** Un GO autorise la PR vers `main`, pas la mise en production, qui est un geste séparé : `git merge --ff-only main` sur `production`, puis un tag.
+- **`install-gsd-patches.cjs` refuse d'écraser une cible dont l'upstream a bougé** depuis le dernier install, au lieu d'avertir puis d'écraser quand même. C'est la règle déjà tranchée au risque n°3 de `MIGRATION-GSD-CORE.md` : ne pas réappliquer, reconstruire le patch depuis le nouvel upstream.
+
+### Décidé
+- **`git branch --merged` ne suffit pas, et c'est la cause de l'entassement.** Un squash-merge ou un rebase-merge GitHub réécrit les SHA : la branche reste vue comme non fusionnée pour toujours. Le balayage croise donc quatre signaux, du plus autoritaire au plus faible : PR fusionnée (`gh`, un seul appel), merge commit, patchs déjà en amont (`git cherry`), squash reconstruit par `commit-tree` sur le `merge-base`. Angle mort assumé : un squash qui a demandé une résolution de conflit n'est pas détecté. Faux négatif, jamais une suppression abusive.
+- **L'unité de PR est la phase, pas le plan.** Mesuré : un plan pèse 770 à 6 400 lignes de code, une phase 1 700 à 12 000. Descendre au plan demanderait de réécrire le branchement du moteur amont. Le levier de taille remonte donc au planning : une phase qui dépasse 2 000 lignes de code se coupe en deux phases.
+- **Le verrou de session avertit, il ne bloque pas.** Épingler la branche du premier commit produit trop de faux positifs certains : `--amend`, hotfix décidé en séance, changement assumé, `session_id` partagé par les sous-agents et perdu au `/clear`. Le blocage dur ne porte que sur la règle stable.
+- **Un chat, un dossier.** Git ne garde qu'un HEAD par répertoire : deux chats au même endroit se déplacent mutuellement de branche, et le branchement seul aggraverait le problème. Seul le worktree sépare vraiment.
+
 ## [1.11.0] - 2026-09-04
 
 Le système interrogeait bien et ne retenait rien. `/se-interview` vidait l'arbre de décision round après round, puis le vocabulaire tranché pendant la séance repartait avec elle. La session suivante réinventait ses mots, et l'humain relisait des explications qui ne parlaient pas la langue de son projet. Symétriquement, une conversation hors phase (sparring, debug, exploration) n'avait aucun endroit où déposer son état : `/gsd-pause-work` est couplé à un dossier de phase, et sans phase il n'y a rien à quoi accrocher un fichier.
