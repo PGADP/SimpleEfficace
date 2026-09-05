@@ -89,15 +89,25 @@ Pour chaque phase confirmée, dans cet ordre :
 P=".planning/phases/{NN}-{slug}"
 
 # 1. Les jetables (seulement si le verrou de l'étape 1.5 est passé)
-git rm -q "$P"/*CONTEXT.md "$P"/*RESEARCH.md "$P"/*PLAN.md "$P"/*VERIFICATION.md \
-          "$P"/UI-SPEC.md "$P"/UI-REVIEW.md "$P"/REVIEWS.md "$P"/.continue-here.md 2>/dev/null
+AVANT=$(ls -1A "$P" | wc -l)
+git rm -q --ignore-unmatch "$P"/*CONTEXT.md "$P"/*RESEARCH.md "$P"/*PLAN.md \
+      "$P"/*VERIFICATION.md "$P"/UI-SPEC.md "$P"/UI-REVIEW.md "$P"/REVIEWS.md \
+      "$P"/.continue-here.md
+N=$(( AVANT - $(ls -1A "$P" | wc -l) ))
 
-# 2. Ce qui reste (SUMMARY, CHECKPOINTS, HUMAN-UAT)
+# 2. Le compte réel, jamais le compte attendu
+[ "$N" -gt 0 ] || { echo "ARRÊT : 0 jetable supprimé dans $P alors que le verrou est passé"; exit 1; }
+
+# 3. Ce qui reste (SUMMARY, CHECKPOINTS, HUMAN-UAT)
 mkdir -p .planning/_archive/phases
 { git mv "$P" ".planning/_archive/phases/{NN}-{slug}" 2>/dev/null \
   || mv "$P" ".planning/_archive/phases/{NN}-{slug}" ; } \
-  && echo "[$(date +%F)] archive: phases/{NN}-{slug} -> _archive/phases/ · {N} jetables supprimés · récupérables à $ANCRE" >> .planning/ARCHIVE.log
+  && echo "[$(date +%F)] archive: phases/{NN}-{slug} -> _archive/phases/ · $N jetables supprimés · récupérables à $ANCRE" >> .planning/ARCHIVE.log
 ```
+
+**`--ignore-unmatch` n'est pas optionnel.** `git rm` est tout-ou-rien sur ses pathspecs : un seul motif sans correspondance (`UI-SPEC.md` sur une phase sans front, ce qui est le cas courant) fait échouer la commande **en entier**. Sans ce drapeau, la suppression ne fait rien et le journal consigne quand même un compte, donc il ment.
+
+**Le compte se mesure, il ne se suppose pas.** `$N` est la différence réelle avant/après. Un journal qui annonce un compte qu'il n'a pas vérifié est exactement le genre de document qui contredit le code, et la loi §0 existe pour ça.
 (Préférer `git mv` si le projet est versionné : préserve l'historique.)
 Le `&&` est délibéré : un journal qui consigne un déplacement raté est pire que pas de journal.
 
