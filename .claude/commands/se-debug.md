@@ -74,9 +74,11 @@ Chacune doit être **falsifiable**, donc énoncer sa prédiction :
 
 Si tu ne sais pas énoncer la prédiction, l'hypothèse est une intuition : affine-la ou jette-la.
 
+**Chaque hypothèse s'appuie sur du code lu.** Une hypothèse formée de mémoire, ou depuis un nom de fonction, est une intuition déguisée en piste. Passe par `/se-scout` sur le chemin que la boucle exerce, et fais porter à chaque hypothèse le `chemin:ligne` qui la rend plausible (loi : `~/.claude/se/CONVENTIONS.md` §0).
+
 Montre la liste classée à l'humain avant de tester. Il sait souvent reclasser instantanément ("on vient de déployer un changement sur la 3") ou dire ce qu'il a déjà écarté. Ne bloque pas dessus : s'il n'est pas là, continue avec ton classement.
 
-**Critère** : trois hypothèses au moins, chacune avec sa prédiction, la liste présentée.
+**Critère** : trois hypothèses au moins, chacune avec sa prédiction et le `chemin:ligne` qui la fonde, la liste présentée.
 
 ## Phase 4 : Instrumenter
 

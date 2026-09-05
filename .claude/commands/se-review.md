@@ -44,6 +44,8 @@ Trouve la phase courante : `.planning/STATE.md` la nomme ; à défaut, prends le
 
 **Dégradation propre.** Pas de phase en cours, pas de dossier lisible, ou aucun de ces fichiers : l'axe Spec ne tourne pas. Il rend une seule ligne, `pas de spec lisible, axe non applicable`, et le rapport ne garde que l'axe Standards. **Il n'invente jamais une exigence.** Une exigence plausible mais non écrite est pire qu'un axe absent : elle fait perdre du temps sur une conformité que personne n'a demandée.
 
+**La spec est datée, le code ne l'est pas.** Un `CONTEXT.md` écrit avant l'implémentation peut décrire un monde que la phase a sciemment quitté. L'axe Spec remonte l'écart, il ne le juge pas : si l'écart vient d'une décision prise en cours de route, c'est la spec qui est périmée, et elle se corrige ou se supprime au SHIP (loi : `~/.claude/se/CONVENTIONS.md` §0).
+
 ## Phase 3 : Deux sous-agents en parallèle
 
 Lance les deux dans le **même message** pour qu'ils tournent en parallèle. Ils ne partagent pas de contexte : c'est voulu, chacun doit juger sans être influencé par les trouvailles de l'autre.
@@ -54,7 +56,7 @@ Lance les deux dans le **même message** pour qu'ils tournent en parallèle. Ils
 
 Lui passer : la commande de diff et la liste des commits, les fichiers de conventions du dépôt (`CLAUDE.md`, `CONVENTIONS.md`, `.eslintrc`, `.prettierrc`), et **la base Fowler ci-dessous collée en entier** (il n'y a pas accès autrement).
 
-Sa consigne : reporter, par fichier ou par hunk, (a) chaque violation d'une convention documentée, en citant la règle et son fichier, (b) chaque smell de la base repéré, nommé et cité. Distinguer les violations dures des jugements. Moins de 500 mots.
+Sa consigne : reporter, par fichier ou par hunk, (a) chaque violation d'une convention documentée, en citant la règle et son fichier, (b) chaque smell de la base repéré, nommé et cité. Chaque constat porte son `chemin:ligne` dans le diff : un constat qu'on ne peut pas localiser n'est pas actionnable et ne compte pas. Distinguer les violations dures des jugements. Moins de 500 mots.
 
 Grille, inchangée :
 
@@ -86,7 +88,7 @@ Grille, inchangée :
 
 Lui passer : la commande de diff et la liste des commits, et le contenu des fichiers de spec trouvés en phase 2.
 
-Sa consigne : reporter (a) les exigences demandées qui sont **manquantes ou partielles**, (b) les comportements présents dans le diff que **personne n'a demandés** (hors périmètre), (c) les exigences qui **semblent implémentées mais dont l'implémentation est fausse**. Citer la ligne de spec pour chaque constat. Moins de 500 mots.
+Sa consigne : reporter (a) les exigences demandées qui sont **manquantes ou partielles**, (b) les comportements présents dans le diff que **personne n'a demandés** (hors périmètre), (c) les exigences qui **semblent implémentées mais dont l'implémentation est fausse**. Citer, pour chaque constat, **la ligne de spec et le `chemin:ligne` du code**. C'est la confrontation des deux qui fait le constat ; l'une des deux seule ne prouve rien. Moins de 500 mots.
 
 La catégorie (c) est celle qui justifie l'axe : elle attrape le code propre, typé, testé, qui compte par IP là où la spec disait par clé. Aucune grille de qualité ne la voit.
 

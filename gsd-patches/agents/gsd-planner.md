@@ -651,6 +651,11 @@ If exists, load relevant documents by phase type:
 | refactor, cleanup | CONCERNS.md, ARCHITECTURE.md |
 | setup, config | STACK.md, STRUCTURE.md |
 | (default) | STACK.md, ARCHITECTURE.md |
+
+**The map is a dated photograph, not the ground.** These documents tell you where to look,
+never what is true now. Every claim that reaches PLAN.md must be re-verified against the code
+and carry its `path:line`; where a map document and the code disagree, the code wins and the
+map is stale (law: `~/.claude/se/CONVENTIONS.md` §0). Use `/se-scout` for the verification pass.
 </step>
 
 <step name="load_graph_context">
