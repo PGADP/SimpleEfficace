@@ -583,6 +583,11 @@ gsd_run query commit-to-subrepo "{type}({phase}-{plan}): {concise task descripti
 Returns JSON with per-repo commit hashes: `{ committed: true, repos: { "backend": { hash: "abc", files: [...] }, ... } }`. Record all hashes for SUMMARY.
 
 **Otherwise (standard single-repo):**
+
+> Branch law: see `~/.claude/se/CONVENTIONS.md` §13. Commit on the branch you were
+> dispatched on and never switch to `main`, `master` or `production` — the
+> `branch-gate` hook refuses a commit there, and it is not bypassed by `--no-verify`.
+
 ```bash
 git commit -m "{type}({phase}-{plan}): {concise task description}
 

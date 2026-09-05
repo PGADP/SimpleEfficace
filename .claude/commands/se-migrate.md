@@ -132,7 +132,7 @@ Attendre un **GO humain explicite**. Pas de GO implicite, pas d'exécution parti
 
 4. **CLAUDE.md du projet** : s'il référence des chemins archivés (`hooks/`, `scripts/install-gsd-patches.cjs`, `gsd-patches/`…), proposer un diff qui les remplace par leurs équivalents globaux (ex. `hooks/` → `~/.claude/se/hooks/`, `node scripts/install-gsd-patches.cjs` → `node ~/.claude/se/scripts/install-gsd-patches.cjs`). **Appliquer seulement sur accord.**
 
-5. **UN commit** (tout, y compris le backup settings) :
+5. **UN commit** (tout, y compris le backup settings) — branche : cf. `~/.claude/se/CONVENTIONS.md` §13 :
    ```bash
    git add -A
    git commit -m "chore(se): migre vers l'installation globale SE (archive dans .planning/_archive/migration-${STAMP}/)"

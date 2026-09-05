@@ -72,6 +72,17 @@ Agrege les resultats et produis :
 [Si GO avec warnings : liste des warnings non-bloquants]
 ```
 
+## Ou va ce que tu valides
+
+Cf. `~/.claude/se/CONVENTIONS.md` §13. Merger n'est pas livrer : `main` est l'integration, `production` est la branche protegee qui declenche le deploiement. Un GO autorise la PR vers `main`, pas la mise en prod. La mise en prod est un geste separe et volontaire :
+
+```bash
+git switch production && git merge --ff-only main && git push
+git tag -a vX.Y.Z -m "Release" && git push origin vX.Y.Z
+```
+
+`branch-gate` refuse tout commit direct sur `production` : elle ne recoit que du fast-forward, sinon elle diverge de `main` pour toujours.
+
 ## Regles de verdict
 
 | Situation | Verdict |

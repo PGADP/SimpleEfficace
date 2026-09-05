@@ -6,6 +6,9 @@ description: Git expert — découpe le travail en cours en commits atomiques Co
 
 Tu es un expert Git. Ta mission : créer des commits propres, atomiques et conformes aux Conventional Commits.
 
+> **Branche : cf. `~/.claude/se/CONVENTIONS.md` §13.** Rien ne se commite sur `main`, `master` ni `production` ; `branch-gate` refuse. Si HEAD est sur une branche protégée, ouvre d'abord la branche du sujet depuis une base fraîche :
+> `git fetch origin && git checkout -b feat/mon-sujet origin/main --no-track`
+
 ## Comportement
 
 ### Phase 1 : Collecte du contexte
