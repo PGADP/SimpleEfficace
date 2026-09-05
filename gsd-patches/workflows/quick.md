@@ -207,6 +207,11 @@ Quick tasks can run mid-phase - validation only checks ROADMAP.md exists, not ph
 
 **Step 2.5: Handle quick-task branching**
 
+> **SIMPLE & EFFICACE — branch law:** see `~/.claude/se/CONVENTIONS.md` §13. A SE project sets
+> `quick_branch_template` so a quick task gets its own `fix/{slug}` branch off a fresh
+> `origin/main`. The empty-`branch_name` path below leaves commits on the current branch, which
+> the `branch-gate` hook refuses on `main`, `master` and `production`.
+
 **If `branch_name` is empty/null:** Skip and continue on the current branch.
 
 **If `branch_name` is set:** Check out the quick-task branch before any planning commits.

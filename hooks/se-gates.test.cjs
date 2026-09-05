@@ -377,6 +377,80 @@ check('secret-gate: data.cwd sans .planning → laisse passer',
 
 fs.rmSync(alien, { recursive: true, force: true });
 
+// ---------- se-branch-gate ----------
+// Fixture dédiée : contrairement aux autres gates, branch-gate ne s'active QUE si le
+// dépôt a un remote `origin` (pas de remote = pas de workflow PR à protéger).
+console.log('\nse-branch-gate:');
+
+const brepo = fs.mkdtempSync(path.join(os.tmpdir(), 'se-branch-'));
+const bgit = (args) => execSync(`git ${args}`, { cwd: brepo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+bgit('init -q -b main');
+bgit('config user.email test@test.local');
+bgit('config user.name test');
+bgit('config commit.gpgsign false');
+bgit('remote add origin https://example.invalid/x.git');
+fs.writeFileSync(path.join(brepo, 'a.txt'), 'x\n');
+bgit('add a.txt');
+bgit('commit -q -m "init"');
+
+const bgate = (command, extra = {}) => runHook('se-branch-gate.cjs', { ...bash(command), cwd: brepo, ...extra }, brepo);
+
+check('branch-gate: commit sur main → refusé', denies(bgate('git commit -m "x"')));
+check('branch-gate: push sur main → refusé', denies(bgate('git push')));
+check('branch-gate: merge sur main → refusé', denies(bgate('git merge autre')));
+check('branch-gate: commande non-git → laisse passer', !denies(bgate('npm run build')));
+check('branch-gate: git status → laisse passer', !denies(bgate('git status --porcelain')));
+check('branch-gate: --no-verify ne change rien au refus', denies(bgate('git commit --no-verify -m "x"')));
+check('branch-gate: flag global avant le verbe → refus quand même',
+  denies(bgate('git -c core.hooksPath=/dev/null commit -m "x"')));
+
+bgit('checkout -q -b feat/sujet');
+check('branch-gate: commit sur une branche de feature → laisse passer', !denies(bgate('git commit -m "x"')));
+check('branch-gate: push sur une branche de feature → laisse passer', !denies(bgate('git push -u origin HEAD')));
+
+bgit('checkout -q -b production');
+check('branch-gate: commit sur production → refusé', denies(bgate('git commit -m "x"')));
+check('branch-gate: merge --ff-only sur production → laisse passer (c\'est le geste de release)',
+  !denies(bgate('git merge --ff-only main')));
+check('branch-gate: merge sans --ff-only sur production → refusé', denies(bgate('git merge main')));
+check('branch-gate: push sur production → laisse passer', !denies(bgate('git push')));
+
+// Opération en cours : HEAD est détachée ou instable, comparer un nom de branche n'a
+// plus de sens et bloquer casserait le rebase.
+bgit('checkout -q main');
+fs.mkdirSync(path.join(brepo, '.git', 'rebase-merge'));
+check('branch-gate: rebase en cours → laisse passer', !denies(bgate('git commit -m "x"')));
+fs.rmSync(path.join(brepo, '.git', 'rebase-merge'), { recursive: true, force: true });
+
+bgit('checkout -q --detach');
+check('branch-gate: HEAD détachée → laisse passer', !denies(bgate('git commit -m "x"')));
+bgit('checkout -q main');
+
+// Verrou de session : avertit sur stderr, ne refuse jamais.
+const SID = 'sess-test-1';
+bgit('checkout -q feat/sujet');
+bgate('git commit -m "x"', { session_id: SID }); // pose le verrou sur feat/sujet
+bgit('checkout -q -b feat/autre');
+const moved = runHookRaw('se-branch-gate.cjs',
+  { ...bash('git commit -m "x"'), cwd: brepo, session_id: SID }, brepo);
+check('branch-gate: changement de branche dans la session → avertit sans refuser',
+  moved.status === 0 && /branch-gate:/.test(moved.stderr) && !/"deny"/.test(moved.stdout));
+
+// Opt-out projet
+bgit('checkout -q main');
+fs.mkdirSync(path.join(brepo, '.planning'), { recursive: true });
+fs.writeFileSync(path.join(brepo, '.planning', 'config.json'), JSON.stringify({ workflow: { branch_gate: false } }));
+check('branch-gate: workflow.branch_gate=false → laisse passer', !denies(bgate('git commit -m "x"')));
+fs.rmSync(path.join(brepo, '.planning'), { recursive: true, force: true });
+
+// Dépôt sans origin : pas de workflow PR à protéger.
+const norem = fs.mkdtempSync(path.join(os.tmpdir(), 'se-branch-norem-'));
+execSync('git init -q -b main', { cwd: norem, stdio: 'ignore' });
+check('branch-gate: dépôt sans remote origin → laisse passer',
+  !denies(runHook('se-branch-gate.cjs', { ...bash('git commit -m "x"'), cwd: norem }, norem)));
+fs.rmSync(norem, { recursive: true, force: true });
+fs.rmSync(brepo, { recursive: true, force: true });
+
 // --- cleanup + verdict ---
 fs.rmSync(repo, { recursive: true, force: true });
 console.log(`\n${pass} pass / ${fail} fail`);

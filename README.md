@@ -8,7 +8,7 @@ Un système complet pour [Claude Code](https://claude.com/claude-code) : des gar
 
 [![CI](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml/badge.svg)](https://github.com/PGADP/SimpleEfficace/actions/workflows/ci.yml)
 
-`30 skills` · `10 garde-fous` · `153 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de rangement`
+`32 skills` · `15 garde-fous` · `273 tests` · `cycle GSD enrichi` · `UI mesurée` · `loi de branche`
 
 </div>
 
@@ -147,6 +147,25 @@ Tu commites de l'UI qui n'a pas été validée sur le rendu réel :
 
 Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut laisser passer.
 
+## Le cycle de livraison
+
+Un agent qui code vite sur `main` produit une branche que personne ne peut relire, donc une PR qui n'existe jamais, donc un `main` qui sert de dépotoir. La loi de branche coupe ça à la racine (`CONVENTIONS.md` §13) :
+
+1. Une phase égale une branche `feat/{NN}-{slug}`, forkée d'un `origin/main` frais.
+2. Rien ne se commite sur `main` ni sur `production`.
+3. Une branche égale une PR. **Un chat égale un dossier**, parce que git ne garde qu'un HEAD par répertoire et que deux chats dans le même dossier se déplacent mutuellement de branche.
+4. La branche meurt à la fusion, et son worktree avec elle.
+
+```
+origin/main ──┬─► feat/241-interview ──► PR ──► merge ──► branche supprimée
+              │
+              └─► production (fast-forward + tag)  ──►  déploiement
+```
+
+`main` reste l'intégration, toujours livrable. `production` est la branche protégée qui déclenche le déploiement, avancée quand tu le décides. Merger n'est pas livrer.
+
+Deux hooks tiennent la loi : `branch-gate` refuse le commit, `branch-sweep` ferme les branches. Le balayage ne se fie pas à `git branch --merged`, aveugle au squash-merge : il croise l'état de la PR, les patch-id et le merge commit.
+
 ## Les skills
 
 <details>
@@ -200,7 +219,7 @@ Ce sont des scripts que le harness exécute, pas des consignes que l'agent peut 
 
 ## Les garde-fous
 
-Sept scripts que `se install` câble dans ton `settings.json` global, dont un dispatcher qui porte sept détecteurs. Ils ne s'activent que dans les projets SE (présence de `.planning/`) et les critères vivent tous dans `~/.claude/se/hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
+Neuf scripts que `se install` câble dans ton `settings.json` global, dont un dispatcher qui porte sept détecteurs. Ils ne s'activent que dans les projets SE (présence de `.planning/`) et les critères vivent tous dans `~/.claude/se/hooks/rules/*.json`, où on peut les relire et les changer sans toucher au code.
 
 | Garde-fou | Se déclenche sur | Ce qu'il fait | Bloque |
 |---|---|---|---|
@@ -216,15 +235,18 @@ Sept scripts que `se install` câble dans ton `settings.json` global, dont un di
 | `secret-gate` | `git commit` | refuse un secret dans le diff, malgré `--no-verify` | **oui** |
 | `ui-contract-gate` | écriture de code front | refuse tant que DESIGN-SYSTEM.md §0 et §2.1 (hiérarchie visuelle) ne sont pas remplis ; injecte le plancher de qualité impeccable à la 1ʳᵉ édition front de la session | **oui** |
 | `ui-gate` | `git commit` de fichiers front | refuse sans passe `/se-ui` validée : anti-patterns mesurés + GO humain avec URL (registre `ui-passes.json`) | **oui** |
+| `branch-gate` | `git commit`, `merge`, `push` | refuse sur `main`, `master` et `production` ; laisse passer le `merge --ff-only` de release | **oui** |
+| `branch-sweep` | début de session | annonce les branches réellement fusionnées, squash compris, et les worktrees morts | — |
 | `server-reaper` | fin de session | tue les process longs que Claude a enregistrés (`se-serve.cjs`) — jamais ceux lancés par l'humain | — |
 
 ```bash
 cd ~/.claude/se
-node hooks/se-guard.test.cjs     # 63 tests — détecteurs + activation hors projet SE
-node hooks/se-gates.test.cjs     # 46 tests — gates bloquantes
-node scripts/ui-verdict.test.cjs # 47 tests — moteur de verdict UI + cascade
-node scripts/se.test.cjs         # 56 tests — CLI install/init/doctor/merge
-node scripts/se-serve.test.cjs   # 20 tests — registre des process longs + reaper
+node hooks/se-guard.test.cjs        # 63 tests — détecteurs + activation hors projet SE
+node hooks/se-gates.test.cjs        # 73 tests — gates bloquantes
+node hooks/se-branch-sweep.test.cjs # 13 tests — les trois modes de fusion
+node scripts/ui-verdict.test.cjs    # 47 tests — moteur de verdict UI + cascade
+node scripts/se.test.cjs            # 57 tests — CLI install/init/doctor/merge
+node scripts/se-serve.test.cjs      # 20 tests — registre des process longs + reaper
 ```
 
 ## Le contrat de design vient avant le premier composant

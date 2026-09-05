@@ -246,3 +246,44 @@ node "$HOME/.claude/se/scripts/se-serve.cjs" start dev --cmd "npm run dev" --url
 node "$HOME/.claude/se/scripts/se-serve.cjs" status
 node "$HOME/.claude/se/scripts/se-serve.cjs" stop dev        # ou --all
 ```
+
+## 13. Loi de branche (règle DURE)
+
+> **Source unique.** Aucun skill ne recopie cette section, tous y renvoient.
+> Deux hooks la font respecter : `se-branch-gate` (bloquant) et `se-branch-sweep` (annonce).
+
+Quatre règles, dans cet ordre :
+
+1. **Une phase égale une branche** `feat/{NN}-{slug}`, forkée d'un `origin/main` frais, créée au premier commit de la phase. Un quick suit la même loi en `fix/{slug}`.
+2. **Rien ne se commite sur `main`, `master` ni `production`.** Un `main` local ne fait que recopier `origin/main` (`git switch main && git pull --ff-only`). `production` ne reçoit que du fast-forward depuis `main`.
+3. **Une branche égale une PR. Un chat égale un dossier.**
+4. **La branche meurt à la fusion**, et son worktree avec elle.
+
+### Pourquoi un hook et pas une consigne
+
+Une règle écrite dans 29 skills est une règle que le modèle peut oublier. `se-branch-gate` est un hook du harness : il voit la commande avant exécution, donc `--no-verify` ne le contourne pas. Il n'interdit pas ce flag pour autant, les exécuteurs parallèles s'en servent volontairement pour éviter la contention des hooks entre worktrees.
+
+Il laisse passer sans rien dire ce qui n'a pas de nom de branche stable : HEAD détachée, rebase, merge, cherry-pick, revert ou bisect en cours. Il avertit sans bloquer quand la session change de branche en route : `--amend`, hotfix décidé en séance et changement assumé sont trop fréquents pour un refus.
+
+Désactivation par projet : `workflow.branch_gate: false` dans `.planning/config.json`.
+
+### Un chat, un dossier
+
+Git ne garde **qu'un HEAD par dossier**. Deux chats ouverts sur le même répertoire partagent la même branche courante : le `git switch` de l'un déplace l'autre. Le branchement seul n'y change rien, seul le worktree sépare vraiment.
+
+```bash
+git worktree add ../projet-241 -b feat/241-mon-sujet origin/main
+git worktree remove ../projet-241        # après la fusion
+```
+
+Ce que le worktree n'apporte pas et qu'il faut refaire dans chaque dossier : les dépendances (`node_modules` n'est pas suivi par git), le `.env` (gitignoré), et un port ou une base distincts si deux agents tournent en même temps. Une branche ne peut vivre que dans un seul worktree à la fois.
+
+### Fermer les branches
+
+`se-branch-sweep` tourne au démarrage de session. `git branch --merged` ne suffit pas : un squash-merge ou un rebase-merge GitHub réécrit les SHA et la branche reste vue comme non fusionnée pour toujours. Le balayage croise donc quatre signaux, du plus autoritaire au plus faible : PR fusionnée (`gh`), merge commit, patchs déjà en amont (`git cherry`), squash reconstruit par `commit-tree`.
+
+Il **annonce** par défaut et ne supprime rien. Le nettoyage automatique s'active par `workflow.branch_sweep: true`. Chaque SHA supprimé part dans `ARCHIVE.log` avant la suppression, parce que supprimer une branche détruit son reflog.
+
+### La taille d'une PR
+
+Une phase qui dépasse **2 000 lignes de code** ne se relit plus : elle se coupe en deux phases au planning, jamais après coup. Le seuil ne compte que le code, `.planning/` et `docs/` en sont exclus.

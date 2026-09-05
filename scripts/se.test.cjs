@@ -64,8 +64,12 @@ const userSettings = {
 merged = mergeHookSettings(userSettings, REPO_WIRING, FAKE_ROOT);
 check('le hook perso Bash est préservé',
   merged.hooks.PreToolUse.some((g) => g.hooks.some((h) => h.command === 'node C:/perso/mon-hook.cjs')));
-check('l\'événement perso SessionStart est préservé',
-  JSON.stringify(merged.hooks.SessionStart) === JSON.stringify(userSettings.hooks.SessionStart));
+// SE câble désormais son propre SessionStart (se-branch-sweep) : l'événement de
+// l'utilisateur n'est plus intact au sens strict, il doit juste survivre à côté.
+check('le hook perso SessionStart est préservé',
+  merged.hooks.SessionStart.some((g) => (g.hooks || []).some((h) => h.command === 'echo bonjour')));
+check('le SessionStart de SE est ajouté sans écraser celui de l\'utilisateur',
+  merged.hooks.SessionStart.some((g) => (g.hooks || []).some((h) => /se-branch-sweep/.test(h.command))));
 check('les autres clés du settings sont conservées (permissions)',
   JSON.stringify(merged.permissions) === JSON.stringify(userSettings.permissions));
 check('l\'objet d\'entrée n\'est pas muté (fonction pure)',

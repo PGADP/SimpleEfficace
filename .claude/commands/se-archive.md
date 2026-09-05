@@ -165,6 +165,9 @@ grep -n "phases/{NN}-{slug}" .planning/STATE.md .planning/INDEX.md
 Puis invoquer `/se-planning` avec l'argument « post-archivage : {N} phases sorties de l'horizon court, recaler la vue semaine et l'avancement du milestone ». C'est /se-planning qui tient ROADMAP/STRATEGY/STATE cohérents, pas ce skill.
 
 ## Étape 7 : Commit
+
+> Branche : cf. `~/.claude/se/CONVENTIONS.md` §13. `branch-gate` refuse ce commit sur `main` ou `production`.
+
 ```bash
 git add -A .planning/
 git commit -m "chore(archive): archive {N} phases terminées, supprime {M} jetables (ancre $ANCRE)"

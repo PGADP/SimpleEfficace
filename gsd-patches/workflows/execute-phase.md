@@ -278,6 +278,12 @@ checkpoints between tasks. The user can review, modify, or redirect work at any 
 </step>
 
 <step name="handle_branching">
+
+> **SIMPLE & EFFICACE — branch law:** see `~/.claude/se/CONVENTIONS.md` §13. One phase is one
+> branch forked off a fresh `origin/main`, and one branch is one PR. A SE project ships with
+> `branching_strategy: "phase"`; the `"none"` path below drops every commit onto the current
+> branch, which the `branch-gate` hook then refuses on `main`, `master` and `production`.
+
 Check `branching_strategy` from init:
 
 **"none":** Skip, continue on current branch.
