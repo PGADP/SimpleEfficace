@@ -50,6 +50,17 @@ plus que le gain.
 qui contredit une mesure ne se rend pas. Un item non mesurable est jugé à la lecture et **marqué
 comme tel** dans le rapport : « jugé, non mesuré ».
 
+Sur une cible applicative, mesurer ne se fait pas sur le texte du prompt : la moitié de la grille
+se juge dans le code autour de lui. Passer par `/se-scout` avant de rendre un finding, sur les
+questions que le prompt seul ne tranche pas : qui assemble ce prompt et dans quel ordre, où tombe la
+coupure de cache, le schéma est-il passé en strict à l'API, la preuve est-elle vérifiée en code, qui
+consomme la sortie. Un finding applicatif sans `chemin:ligne` réellement lu ne se rend pas
+(loi : `~/.claude/se/CONVENTIONS.md` §0).
+
+Sur une cible d'instruction d'agent, pas de scout : la cible est le fichier lui-même. Une seule
+exception, quand le fichier affirme un comportement du code (« le hook bloque le commit », « la
+commande écrit dans tel dossier ») : là, `/se-scout` tranche, et le code gagne.
+
 **2c. Juger sur la grille.** Un finding = un item de la grille + le fichier et la ligne + le
 symptôme observable + le correctif. Un finding sans symptôme observable n'est pas un finding, c'est
 une préférence de style : le supprimer.
@@ -82,8 +93,9 @@ re-mesure, puis on rend ce qui reste et on laisse trancher.
 
 ## 3. Mode implémentation
 
-**3a. Avant d'écrire, lire.** Le prompt existant, ce qu'il alimente, et ce qui le consomme en aval.
-Ne pas empiler une couche sur un mécanisme non compris (loi : modifications chirurgicales).
+**3a. Avant d'écrire, scouter.** `/se-scout` sur le prompt existant, ce qu'il alimente et ce qui le
+consomme en aval. Ne pas empiler une couche sur un mécanisme non compris (loi : modifications
+chirurgicales).
 
 **3b. Écrire selon les invariants de la grille chargée.** Les cinq invariants applicatifs et les
 trois axes d'un prompt d'agent sont dans les grilles, ils ne sont pas répétés ici : une seule source.

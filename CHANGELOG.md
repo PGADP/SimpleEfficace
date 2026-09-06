@@ -3,6 +3,12 @@
 Toutes les évolutions notables du système Simple & Efficace.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/) simplifié — une section `## [x.y.z]` par version, affichée par `se update` lors d'une montée de version.
 
+## [1.15.1] - 2026-09-06
+
+### Modifié
+- **`/se-prompt` passe par `/se-scout` avant de juger un prompt applicatif.** La moitié de `grid-app.md` ne se juge pas sur le texte du prompt mais sur le code autour de lui : preuve vérifiée en code, autorisation en base, coupure de cache, schéma strict côté API, top-K borné, constante de version journalisée. L'audit rendait donc un `GO/NO-GO` sur des items lus nulle part, alors que `CONVENTIONS.md` §0 impose le scout à tout skill qui décide à partir du code. Un finding applicatif sans `chemin:ligne` réellement lu ne se rend plus. Pas de scout sur une cible d'instruction d'agent, où la cible est le fichier lui-même, sauf quand ce fichier affirme un comportement du code.
+
+
 ## [1.15.0] - 2026-09-05
 
 ### Ajouté
